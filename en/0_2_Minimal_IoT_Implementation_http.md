@@ -192,11 +192,20 @@ Each spot is marked with a `TASK n` comment in the file, stating what is expecte
 how to check it. The build system, the Wi-Fi association code and the HTTP resource
 registration are done for you — they are plumbing, not architecture.
 
-Work in order. **TASK 1 first**: until those symbols are set the build fails with
-`'CONFIG_HTTP_SERVER_MAX_CLIENTS' undeclared`, because the subsystem is not compiled
-in. Once TASK 1 is right, the project builds and runs — it simply does nothing yet,
-which is your baseline. A `'control_cmd_descr' defined but not used` warning is
-expected until TASK 4 is done.
+Work in order, **TASK 1 first** — the other three need the subsystems it switches on.
+
+A failing build prints a lot; **read the first error, not the last**. If a task is
+still outstanding the first line names it:
+
+```
+src/main.c:26:2: error: #error "TASK 1 is not done yet: add the four capability
+symbols to prj.conf. ..."
+```
+
+Errors after that one are consequences of the same cause; fix the named task and they
+go together. Once TASK 1 is done the project builds and runs — it just does nothing
+yet, which is your baseline. A `'control_cmd_descr' defined but not used` warning is
+expected until TASK 4.
 
 ### 0. A warning about the "on-board LED"
 

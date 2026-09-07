@@ -336,8 +336,16 @@ are TASK 4 and TASK 5**, because they are where the publish/subscribe model diff
 from request/response: nobody asks you for a reading, and nobody automatically
 confirms a command was received.
 
-Work in order — TASK 1 and TASK 2 both cause build failures until they are done, and
-`main.c` already refers to `CONFIG_LAB_BROKER_ADDR`.
+Work in order. TASK 1 and TASK 2 both stop the build until they are done, and a
+failing build prints a lot — **read the first errors, not the last**. Outstanding
+tasks are named at the top:
+
+```
+src/main.c:26:2: error: #error "TASK 1 is not done yet: ..."
+src/main.c:30:2: error: #error "TASK 2 is not done yet: ..."
+```
+
+Everything after those is a consequence of the same cause.
 
 **TASK 1** — append to `prj.conf`:
 

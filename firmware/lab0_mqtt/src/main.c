@@ -21,6 +21,17 @@
 #include <zephyr/random/random.h>
 #include <zephyr/logging/log.h>
 
+#if !defined(CONFIG_WIFI) || !defined(CONFIG_MQTT_LIB) || \
+	!defined(CONFIG_JSON_LIBRARY) || !defined(CONFIG_LED_STRIP)
+#error "TASK 1 is not done yet: add the four capability symbols to prj.conf. \
+The lab guide lists them in section 0."
+#endif
+
+#if !defined(CONFIG_LAB_BROKER_ADDR)
+#error "TASK 2 is not done yet: declare LAB_BROKER_ADDR and LAB_BROKER_PORT in Kconfig. \
+The lab guide gives them in 'Point the node at your broker'."
+#endif
+
 LOG_MODULE_REGISTER(lab0_mqtt, LOG_LEVEL_INF);
 
 #define TOPIC_SENSOR  "iot/sensor"

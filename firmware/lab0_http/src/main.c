@@ -21,6 +21,12 @@
 #include <zephyr/random/random.h>
 #include <zephyr/logging/log.h>
 
+#if !defined(CONFIG_WIFI) || !defined(CONFIG_HTTP_SERVER) || \
+	!defined(CONFIG_JSON_LIBRARY) || !defined(CONFIG_LED_STRIP)
+#error "TASK 1 is not done yet: add the four capability symbols to prj.conf. \
+The lab guide lists them under 'Which subsystems get built'."
+#endif
+
 LOG_MODULE_REGISTER(lab0_http, LOG_LEVEL_INF);
 
 static const struct device *const strip = DEVICE_DT_GET(DT_ALIAS(led_strip));
