@@ -15,4 +15,15 @@ config LAB_WIFI_PSK
 # the style above. Guide section 1 gives the values and explains why the node now
 # needs an address that the HTTP lab did not.
 
+config LAB_BROKER_ADDR
+	string "MQTT broker IPv4 address"
+	default "192.168.80.176"
+	help
+	  Your workstation's address on the Wi-Fi network, where Mosquitto is
+	  listening. Not "localhost" - that would mean the board itself.
+
+config LAB_BROKER_PORT
+	int "MQTT broker port"
+	default 1883
+
 source "Kconfig.zephyr"

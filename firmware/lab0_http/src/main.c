@@ -50,8 +50,18 @@ static void led_set(int on)
 {
 	/* TASK 2 - Actuating Capability.
 	 * Drive the WS2812 from `on`. Guide section 0 has the two lines you need.
+	 ARG_UNUSED(on);
 	 */
-	ARG_UNUSED(on);
+	struct led_rgb pixel = { .r = 0, .g = 0, .b = 0 };
+
+	if (on) {
+		pixel.g = 0x40;
+	}
+
+	if (led_strip_update_rgb(strip, &pixel, 1) != 0) {
+		LOG_ERR("Failed to drive LED");
+	}
+	
 }
 
 /* --- Sensing capability -------------------------------------------------- */
@@ -69,9 +79,26 @@ static int sensor_handler(struct http_client_ctx *client, enum http_transaction_
 	 * Return early unless status is HTTP_SERVER_REQUEST_DATA_FINAL, then put a
 	 * simulated 20.0-29.9 degC reading into `body` and fill response_ctx.
 	 * Guide section 3 lists the fields and explains the early return.
+	 * ARG_UNUSED(body);
+	 * ARG_UNUSED(headers);
 	 */
-	ARG_UNUSED(body);
-	ARG_UNUSED(headers);
+	if (status != HTTP_SERVER_REQUEST_DATA_FINAL) {
+		return 0;
+	}
+
+	/* Simulated reading: 20.0 - 29.9 degC */
+	uint32_t tenths = 200 + (sys_rand32_get() % 100);
+	int len = snprintf(body, sizeof(body), "{\"temperature\": %u.%u}", tenths / 10,
+			   tenths % 10);
+
+	LOG_INF("Telemetry requested, sent: %s", body);
+
+	response_ctx->status = HTTP_200_OK;
+	response_ctx->headers = headers;
+	response_ctx->header_count = ARRAY_SIZE(headers);
+	response_ctx->body = body;
+	response_ctx->body_len = len;
+	response_ctx->final_chunk = true;
 
 	return 0;
 }
@@ -116,10 +143,31 @@ static int control_handler(struct http_client_ctx *client, enum http_transaction
 		 * `payload` holds `cursor` bytes of JSON; the accumulation above is
 		 * done for you. Parse it, drive led_set(), reset cursor, and answer
 		 * with ok_body. Guide section 4 covers the json_obj_parse return value.
+		 * ARG_UNUSED(ok_body);
+		 * ARG_UNUSED(headers);
+		 * cursor = 0;
 		 */
-		ARG_UNUSED(ok_body);
-		ARG_UNUSED(headers);
+
+		struct control_cmd cmd = { 0 };
+		int ret = json_obj_parse(payload, cursor, control_cmd_descr,
+					 ARRAY_SIZE(control_cmd_descr), &cmd);
+
+		if (ret == BIT_MASK(ARRAY_SIZE(control_cmd_descr))) {
+			LOG_INF("Actuating command received, LED state: %d", cmd.state);
+			led_set(cmd.state);
+		} else {
+			LOG_WRN("Could not parse control payload (ret %d)", ret);
+		}
+
 		cursor = 0;
+
+		response_ctx->status = HTTP_200_OK;
+		response_ctx->headers = headers;
+		response_ctx->header_count = ARRAY_SIZE(headers);
+		response_ctx->body = ok_body;
+		response_ctx->body_len = sizeof(ok_body) - 1;
+		response_ctx->final_chunk = true;
+
 	}
 
 	return 0;

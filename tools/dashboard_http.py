@@ -13,7 +13,7 @@ log.setLevel(logging.ERROR)
 
 # --- Network Configuration ---
 # replace this with the IPv4 address their ESP32 gets from the Wi-Fi router
-ESP32_IP = "192.168.1.100"  
+ESP32_IP = "192.168.80.201"  
 
 def get_sensor_data():
     """Sensing Capability: Polls the ESP32 via HTTP GET."""
