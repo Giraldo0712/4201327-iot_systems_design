@@ -63,7 +63,7 @@
 
 ---
 
-## The Architecture of Lab 1
+## The Architecture of Lab 0
 *Mapping the SCD to the ASD*
 
 * **Sensing and Controlling Domain (SCD):** The ESP32-C6 gathering data and executing commands.

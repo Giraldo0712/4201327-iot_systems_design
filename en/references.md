@@ -104,6 +104,10 @@ Components:
 
 ## Thread CLI Quick Reference
 
+Commands are shown bare, as on ESP-IDF's `ot_cli` (`>` prompt). On Zephyr
+(`firmware/lab1_radio`) prefix each one with `ot` at the `uart:~$` prompt:
+`ot state`, `ot ping …`.
+
 ### Network Formation
 
 ```bash
@@ -173,33 +177,34 @@ Done
 > channel 20
 Done
 
-# Get RSSI
-> rssi
--45 dBm
+# Per-neighbor RSSI (measured on this board's receiver)
+> neighbor table
+| Role | RLOC16 | Age | Avg RSSI | Last RSSI | LQ In |R|D|N| Extended MAC     | Version |
++------+--------+-----+----------+-----------+-------+-+-+-+------------------+---------+
+|   R  | 0x2800 |   3 |      -66 |       -67 |     3 |1|1|1| 2a4f9c1d0e7b6a58 |       2 |
 ```
 
 ### Diagnostics
 
 ```bash
-# Show counters
-> counters
-mac
-    TxTotal: 100
-    TxUnicast: 80
-    TxBroadcast: 20
-    RxTotal: 150
-    RxUnicast: 120
-    RxBroadcast: 30
-    TxErrCca: 5
-    RxErrNoFrame: 2
+# Show MAC counters (excerpt)
+> counters mac
+TxUnicast: 80
+TxBroadcast: 20
+TxAckRequested: 80
+TxAcked: 78
+TxRetry: 12
+TxErrCca: 0
+RxUnicast: 120
+RxBroadcast: 30
+RxErrFcs: 2
 
 # Reset counters
-> counters reset
+> counters mac reset
 
-# Get link quality
-> linkquality 1
-Link Quality In: 3 (excellent)
-Link Quality Out: 3 (excellent)
+# MAC retries for unicast frames (OpenThread default 15)
+> mac retries direct
+15
 
 # Get network data
 > netdata show

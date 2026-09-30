@@ -56,7 +56,7 @@ When building IoT systems, you need **TWO different perspectives**:
 ├─────────────────────────────────────┤
 │ L2: Data Link (BLE)                 │ ← BLE connection
 ├─────────────────────────────────────┤
-│ L1: Physical (2.4 GHz Radio)        │ ← The radio you studied yesterday!
+│ L1: Physical (2.4 GHz Radio)        │ ← The radio (Lab 1)
 └─────────────────────────────────────┘
 ```
 

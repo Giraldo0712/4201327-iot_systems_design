@@ -19,7 +19,7 @@
 
 In Lab 0 we used HTTP — a **request/response** protocol where the dashboard must actively poll the ESP32 for sensor data. This works, but it has architectural implications that become problematic at scale.
 
-| Aspect | HTTP (Lab 0) | MQTT (Lab 1) |
+| Aspect | HTTP (Lab 0) | MQTT (Lab 0.5) |
 |---|---|---|
 | **Pattern** | Request/Response (Client/Server) | Publish/Subscribe (Broker-mediated) |
 | **Transport** | TCP port 80 | TCP port 1883 |
@@ -49,7 +49,7 @@ graph LR
 
 ```mermaid
 graph LR
-    subgraph "Lab 1: MQTT (Publish/Subscribe)"
+    subgraph "Lab 0.5: MQTT (Publish/Subscribe)"
         E2[ESP32] -->|PUBLISH sensor/temp| B[MQTT Broker]
         B -->|DELIVER sensor/temp| D2[Dashboard]
         D2 -->|PUBLISH cmd/led| B
@@ -83,7 +83,7 @@ The broker is the central relay. Every MQTT message passes through the broker. F
 
 ---
 
-## The Architecture of Lab 1
+## The Architecture of Lab 0.5
 *Mapping the SCD to the ASD via MQTT*
 
 * **Sensing and Controlling Domain (SCD):** The ESP32-C6 — now a *publisher* of sensor data and a *subscriber* to control commands.

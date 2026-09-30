@@ -1,115 +1,108 @@
-# SOP-01: Advanced MAC Layer Tuning
+# SOP-01: MAC Layer Experiments
 
-> **Main Lab Guide:** [Lab 1: RF Characterization](../lab1.md)
+> **Main Lab Guide:** [Lab 1: Testing Your Wireless Radio](../lab1.md)
 > **ISO Domains:** PED (Physical Entity Domain), SCD (Sensing & Controlling)
-> **GreenField Context:** Optimizing radio behavior for high-density sensor environments
+> **Firmware:** the same `firmware/lab1_radio` as Lab 1. No reflash.
 
-> **Firmware required**: This SOP uses the `ieee802154_cli` example, **not** the `ot_cli` from Lab 1. Reflash both boards before starting.
->
-> ```bash
-> . ~/.espressif/v5.5.3/esp-idf/export.sh
-> cd $IDF_PATH/examples/ieee802154/ieee802154_cli
-> idf.py set-target esp32c6 build
-> idf.py -p /dev/ttyUSB0 flash monitor        # Node A
-> # then in a second terminal, same steps with -p /dev/ttyACM0 for Node B
-> ```
->
-> Exit `idf.py monitor` with `Ctrl-]` (Ctrl-C resets the chip).
->
-> `ieee802154_cli` exposes raw MAC-layer commands (`ieee802154 tx`, `set_cca_threshold`, `set_promiscuous`) that OpenThread abstracts away. Exact subcommand names vary slightly between ESP-IDF versions — at the CLI prompt, run `help` first to confirm what's available on your build. If a command below doesn't match, search `help` output for the closest equivalent (e.g. `esp154`, `ieee802154`, or `ed`).
->
-> To return to Lab 1's network-layer work, reflash `ot_cli` from `$IDF_PATH/examples/openthread/ot_cli`.
+Start from a working A–B link (Lab 1, Task 3.1) with B in the `router` state. Budget
+about 30 minutes for Experiments A and B.
 
-## Objectives
-- Manipulate CSMA-CA parameters (CCA threshold).
-- Observe behavior under "false busy" conditions.
-- Visualize ARQ (Automatic Repeat Request) retries and failures.
-- Analyze Promiscuous Mode traffic.
+## Your instrument: MAC counters
 
-## Theory: The "Listen Before Talk" Logic
+The MAC counts every frame it sends and every problem it hits. Reset, run traffic, read:
 
-Before the ESP32-C6 transmits, it performs a **CCA (Clear Channel Assessment)**:
-1.  It listens to the air for 128 microseconds.
-2.  If Energy > **CCA Threshold**, it backs off (waits random time).
-3.  If Energy < **CCA Threshold**, it transmits.
+```bash
+uart:~$ ot counters mac reset
+uart:~$ ...                              # traffic
+uart:~$ ot counters mac
+```
 
-**The Danger:**
-* **Threshold too High:** You talk over others (Collisions).
-* **Threshold too Low:** You never talk (False Busy).
+It prints about 30 lines. You need four:
 
-## Experiment A: The "Paranoid" Radio
-*Goal: Force a "Channel Busy" failure without actual interference.*
+| Counter | Meaning |
+|---|---|
+| `TxAckRequested` | unicast frames sent that asked for an ACK |
+| `TxRetry` | retransmissions (no ACK, or no clear channel) |
+| `TxErrCca` | frames dropped because the channel never came clear |
+| `RxErrFcs` | frames received with a bad checksum (corrupted in the air) |
 
-1.  **Setup:**
-    * **Node A (TX)**: Configure to talk to Node B.
-    * **Node B (RX)**: Passive.
+## Experiment A: ARQ, the losses you never see
 
-2.  **The Baseline:**
-    * Run `ed` (Energy Detect). Note the noise floor (e.g., -92 dBm).
-    * Send a packet: `ieee802154 tx -l 10` -> **Success**.
+Every unicast frame asks for an ACK. No ACK in time → the MAC retransmits. The
+IEEE 802.15.4 default is 3 retries; OpenThread uses 15.
 
-3.  **The Tweak:**
-    * Set the CCA Threshold **BELOW** the noise floor.
-    * If noise is -92, set threshold to -95.
-    ```bash
-    > ieee802154 set_cca_threshold -95
-    ```
+1. On A: `ot counters mac reset`.
+2. **Unplug B** (a dead battery).
+3. On A: `ot ping <B-RLOC> 64 1`, then `ot counters mac`. One ping, one frame, and
+   `TxRetry` jumps by about 15: the frame went out 16 times before the MAC gave up.
+4. Set the standard's value, reset and repeat: `ot mac retries direct 3`. `TxRetry` now
+   grows by 3.
+5. Restore: `ot mac retries direct 15`, plug B back in, wait for `router`.
 
-4.  **The Test:**
-    * Try to transmit: `ieee802154 tx -l 10`
-    * **Result:** The radio should report `ESP_ERR_IEEE802154_CCA_BUSY` (or similar failure).
-    * *Why?* The radio thinks the background static is another device talking.
+**Retries vs distance (optional).** At your Lab 1 edge distance, run
+`ot ping <partner-RLOC> 64 100 0.2` with retries at 15 and then at 0 (set it on **both**
+boards, since the replies are retried too). Record PER and `TxRetry`. With 0 retries the
+PER is close to the raw frame loss; with 15 it is what the application sees.
 
-5.  **Fix:** Restore threshold to default (-75 dBm).
+**DDR question:** your Lab 1 PER was measured with 15 retries. What was the real frame loss
+at your edge distance, and what did each delivered ping cost in airtime?
 
-## Experiment B: The "Ghost" Packet (ACK Failure)
-*Goal: Visualize the Automatic Retransmission (ARQ) mechanism.*
+## Experiment B: CSMA-CA, listen before talk
 
-IEEE 802.15.4 hardware automatically retries if it doesn't hear an "ACK" (Acknowledgment) beep.
+Before each attempt the radio listens for 128 µs (CCA). If the channel is busy it waits a
+random backoff (0–7 slots of 320 µs, doubling up to 0–31) and listens again. After 5 busy
+checks it gives up (`TxErrCca`).
 
-1.  **Setup:**
-    * **Node A (TX)**: Ready to send.
-    * **Node B (RX)**: **UNPLUG IT.** (simulate a dead battery).
+Lab 1 said never to ping in both directions at once. Now do it on purpose, boards 1 m apart:
 
-2.  **The Test:**
-    * On Node A, send a packet **requesting an ACK** (`-a` flag):
-    ```bash
-    > ieee802154 tx -a -l 10
-    ```
+1. **Sequential.** Both boards: `ot counters mac reset`. A runs
+   `ot ping <B-RLOC> 64 200 0.05`, and B runs the same toward A only after A finishes.
+   Note the round-trip `avg` from each summary line, then `ot counters mac` on both.
+2. **Simultaneous.** Reset counters on both, then start both pings at the same moment.
+   Note the same numbers.
 
-3.  **The Observation (Timing):**
-    * You will notice a small delay (milliseconds) before the CLI says "Fail".
-    * **What happened?**
-        1.  TX Packet (Wait 1ms) -> No ACK.
-        2.  Random Backoff -> Retry 1.
-        3.  Random Backoff -> Retry 2.
-        4.  Random Backoff -> Retry 3 -> **Give Up**.
+| | RTT avg A | RTT avg B | `TxRetry` A+B | `TxErrCca` A+B | PER |
+|---|---|---|---|---|---|
+| Sequential | | | | | |
+| Simultaneous | | | | | |
 
-4.  **DDR Question:**
-    * Why is "No ACK" different from "CCA Busy"? (One happens *before* TX, one happens *after*).
+Expect PER to barely change and RTT to rise: the MAC turns contention into waiting
+(backoff) and retransmissions (collisions that CCA couldn't prevent).
 
-## Experiment C: Promiscuous Mode (The Matrix)
-*Goal: See traffic that isn't yours.*
+**DDR question:** CCA found the channel clear, yet frames still collided. How? (Hint:
+two radios that pick the same backoff slot run CCA at the same time, and neither is
+transmitting yet.)
 
-By default, the radio ignores packets that don't match its PANID or Address. **Promiscuous Mode** disables this filter.
+## Experiment C (optional): read the air
 
-1.  **Setup:**
-    * **Node A:** Set `promiscuous` mode.
-    ```bash
-    > ieee802154 set_promiscuous 1
-    > ieee802154 rx_on
-    ```
-2.  **Action:**
-    * Wait 60 seconds.
-    * You will likely see hex dumps scrolling.
-    * **Analysis:** These are WiFi beacons (if overlapping) or other Zigbee/Thread devices in the building.
+Promiscuous mode disables the address filter and prints every frame on the channel. It
+needs the Thread interface down, so use a **third board** (borrow a neighbour's):
 
-3.  **Decode Challenge:**
-    * Look at the first byte of a captured frame.
-    * If it is `0x41` or `0x61`, it's a Data Frame.
-    * Can you find the **Sequence Number** (usually the 3rd byte)?
+```bash
+uart:~$ ot thread stop
+uart:~$ ot ifconfig down
+uart:~$ ot channel 15                    # your A–B channel
+uart:~$ ot promiscuous enable
+```
 
-## Verification (DDR Data)
-Update your DDR (Section: Lab 1 Extended):
-* [ ] **CCA Threshold:** At what value did your radio stop transmitting?
-* [ ] **Retries:** Did enabling ACKs make the transmission slower?
+Frames scroll as hex dumps. Pick one and decode the start of the MAC header, which is little-endian:
+
+```
+41 d8 | 2c  | cd ab  | ff ff | 1e b9 ba 8a 65 22 63 6b | ...
+FCF   | Seq | PAN ID | Dst   | Src (extended address)  | payload
+```
+
+`41 d8` is frame control `0xd841`: a data frame, PAN ID compressed, short destination,
+extended source. `ff ff` is broadcast, typical of Thread's MLE advertisements. Frames whose
+first byte has bit 3 set (`0x08`, e.g. `69 98`) use MAC security: their payload is
+encrypted with the network key, which is why a sniffer without the key only sees headers.
+
+Stop with `ot promiscuous disable`.
+
+## DDR update ("Advanced Experiments" section)
+
+- [ ] **ARQ:** `TxRetry` for one lost frame at 15 and 3 retries; your estimate of real
+      frame loss at the edge distance.
+- [ ] **CSMA-CA:** the sequential vs simultaneous table and your answer to the collision
+      question.
+- [ ] *(Optional)* **Sniffing:** one decoded frame header.

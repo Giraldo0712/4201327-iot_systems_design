@@ -93,8 +93,8 @@ We assess architectural understanding, not just whether the code compiles.
 ESP32-C6 DevKitC · Zephyr · OpenThread (Thread mesh) · CoAP · CBOR · DTLS with
 AES-128-CCM.
 
-> **Migration in progress.** Setup and Hello World are Zephyr. Labs 1–8 still
-> document ESP-IDF v5.1+ while they're being ported — follow the setup guide, and
+> **Migration in progress.** Setup, the Lab 0 builds and Lab 1 are Zephyr. Labs 2–8
+> still document ESP-IDF v5.1+ while they're being ported — follow the setup guide, and
 > each lab will say which framework it expects.
 
 ---
