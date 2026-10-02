@@ -116,6 +116,30 @@ A low-power wireless networking protocol designed for IoT
 - **Key feature**: Self-forming mesh network
 - **Used in**: Smart homes (Google Nest, Apple HomeKit)
 
+### Thread Roles (Leader, Router, REED, End Device, SED)
+What a Thread device does in the mesh
+- **Leader**: a router that also hands out router IDs and holds network data; one per partition
+- **Router**: forwards packets for others; receiver always on; up to 32 per network
+- **REED** (Router-Eligible End Device): attached as a child, becomes a router when the mesh needs one
+- **End Device / SED**: talks only to its parent; a Sleepy End Device turns its radio off between polls
+- **Lab 2 focus**: watching B and C go from child to router
+
+### MLE (Mesh Link Establishment)
+Thread's signalling protocol between neighbours
+- **What it does**: discovers neighbours, rates each link, assigns router IDs, spreads route costs
+- **Runs on**: UDP over link-local IPv6
+
+### Link Margin / Link Quality (LQ)
+How far a received signal sits above the noise floor, in dB, and Thread's 0–3 rating of it
+- **Thresholds**: > 20 dB → LQ 3 (cost 1), > 10 dB → LQ 2 (cost 2), > 2 dB → LQ 1 (cost 4)
+- **Where you see it**: `LQ In` / `LQ Out` in `ot neighbor table` and `ot router table`
+
+### RLOC, ALOC and ML-EID
+The mesh-wide IPv6 addresses of a Thread node (all share the mesh-local prefix `fdxx::/64`)
+- **RLOC** (Routing Locator) `…:0:ff:fe00:<RLOC16>`: says where the node is attached; changes if it re-attaches
+- **ALOC** (Anycast Locator) `…:0:ff:fe00:fcXX`: a role, e.g. `fc00` = the current leader
+- **ML-EID** (Mesh-Local Endpoint Identifier): random and stable; the address applications should use
+
 ### CoAP (Constrained Application Protocol)
 A lightweight protocol for sending/receiving data on constrained devices
 - **Think of it as**: HTTP's smaller cousin for IoT

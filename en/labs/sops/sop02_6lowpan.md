@@ -1,351 +1,120 @@
-# SOP-02: 6LoWPAN + Routing & Resilience
+# SOP-02: 6LoWPAN and Routing Experiments
 
-> **Main Lab Guide:** [Lab 2: 6LoWPAN Mesh Networking](../lab2.md)
-> **ISO Domains:** RAID (Resource Access & Interchange), SCD (Sensing & Controlling Domain)
-> **GreenField Context:** Building self-healing mesh network for "Far Field" coverage
+> **Main Lab Guide:** [Lab 2: Thread Mesh](../lab2.md)
+> **ISO Domains:** SCD (Sensing & Controlling)
+> **Firmware:** the same `firmware/lab2_mesh` as Lab 2. No reflash.
 
-## Objectives
-- Enumerate and classify IPv6 addresses (link-local, mesh-local, ML-EID).
-- Observe 6LoWPAN fragmentation.
-- Evaluate re-attach and role changes (leader, routers, children).
+Start from the Lab 2 mesh: A (leader), B and C all in `router` or `leader` state, with the
+Part 3 MAC filters **cleared** (`ot macfilter rss clear` on A and C) unless an experiment
+says otherwise. Budget about 30 minutes for Experiments A and B.
 
-## Context
-This implementation guide provides step-by-step technical instructions for 6LoWPAN networking and Thread routing. It complements the [main lab guide](../lab2.md) which covers the "Tractor Test" scenario and stakeholder context.
+## Experiment A: when does a datagram stop fitting in one frame?
 
-## Project Setup
+6LoWPAN compresses the IPv6 header and fragments whatever still doesn't fit in 127 bytes.
+You can count the fragments: the MAC counts frames, the IP layer counts datagrams.
 
-### 1. Create Project from ESP-IDF Example
+1. On A: `ot counters mac reset` and `ot counters ip reset`.
+2. On A: `ot ping <B-mleid> 16 10 0.5`.
+3. On A: `ot counters mac` (note `TxUnicast`) and `ot counters ip` (note `TxSuccess`).
+   `TxUnicast / TxSuccess` is frames per datagram; expect 1 here.
+4. Repeat with sizes 32, 48, 64, 80, 96, 128, 256, 512 and 1000, resetting both counters
+   each time. Narrow down the **largest size that still takes one frame**.
 
-Use the ESP-IDF extension in VS Code:
-1. Press `Ctrl+Shift+P` to open the command palette.
-2. Search for and run `ESP-IDF: Show Examples` selecting your ESP-IDF version.
-3. Select `openthread/ot_cli` (OpenThread CLI Example).
-4. Select the folder to create the project.
+A few extra frames per run are MLE housekeeping; round to the nearest whole number.
 
-### 2. Explore the OpenThread CLI Example Code
+| Size (B) | `TxUnicast` | `TxSuccess` | Frames per ping | RTT avg (ms) |
+|---|---|---|---|---|
+| 16 | | | | |
+| 64 | | | | |
+| 128 | | | | |
+| 512 | | | | |
+| 1000 | | | | |
 
-The `openthread/ot_cli` example includes code for basic Thread CLI. Examine the main files in the created project directory:
+5. Repeat the threshold search toward **B's RLOC** and toward **C with the Lab 2 Part 3
+   filters re-applied** (two hops). Does the threshold move?
 
-- `main/esp_ot_cli.c`: Entry point for the CLI example
-- OpenThread components for Thread network handling
+**DDR questions:**
 
-### 3. Build and Flash the Project
+- Build the byte budget for your one-frame threshold: 127 bytes minus the MAC header,
+  security header and MIC, FCS, compressed IPv6 header and ICMPv6 header. Which IPv6 header
+  fields made it onto the air?
+- Why can the receiver rebuild an RLOC's interface ID from the MAC header but not an
+  ML-EID's? What does that do to the threshold?
+- OpenThread drops a half-reassembled datagram after 2 s, and one lost fragment loses the
+  whole datagram. At your Lab 1 edge PER, estimate the delivery rate of a 1000-byte ping.
 
-The example uses default configurations suitable for Thread/6LoWPAN. No changes to sdkconfig are required for this basic lab.
+## Experiment B: kill the leader
 
-Use the ESP-IDF toolbar in VS Code:
-1. Click **ESP-IDF: Set Target** and select `esp32c6`.
-2. Click **ESP-IDF: Build Project**.
-3. Connect the ESP32-C6 and click **ESP-IDF: Flash Device**.
-4. Click **ESP-IDF: Monitor Device**.
+Lab 2 killed a router. The leader has an extra job: it hands out router IDs and holds the
+network data. What happens without it?
 
-### 4. Explore Thread/6LoWPAN CLI Commands
+1. On B: `ot leaderdata` and note the Partition ID and Leader Router ID.
+2. Start a ping between the survivors, on B: `ot ping <C-mleid> 64 300 1`.
+3. **Unplug A** and note the time.
+4. Every 15 s on B and C: `ot state` and `ot leaderdata`. Note when one of them becomes
+   `leader` and when the Partition ID changes.
+5. Plug A back in. Watch `ot state` on A until it is back in the mesh, and check which
+   Partition ID wins.
 
-Once in the device console, use the example's CLI commands (all commands are documented in `help`):
+| Event | Time after unplug (s) |
+|---|---|
+| B→C pings fail (if at all) | |
+| New leader elected (which board?) | |
+| New Partition ID on both B and C | |
+| A rejoined, single partition again | |
+
+**DDR questions:**
+
+- Did B→C traffic stop while there was no leader? What does that tell you about where the
+  routing tables live?
+- Why do the routers wait (OpenThread's network-ID timeout is 120 s) instead of electing a
+  new leader the moment A goes quiet?
+- Compare with the Lab 2 router loss. Which failure is worse for Edwin, and why?
+
+## Experiment C (optional): routers vs end devices
+
+Make C an end device that cannot become a router, then repeat the tractor test from its
+side:
 
 ```bash
-# View full help
-help
-
-# View interface status
-ifconfig
-
-# View assigned IPv6 addresses
-ipaddr
-
-# View multicast addresses
-ipmaddr
-
-# View router table
-router table
-
-# View neighbor table
-neighbor table
-
-# View routes
-routes
+uart:~$ ot routereligible disable        # on C; it detaches and re-attaches as a child
+uart:~$ ot parent                        # who C's parent is now
 ```
 
-### 5. Basic Thread Network Formation
+Unplug C's parent while C pings A. How long until C finds a new parent, compared with a
+router losing a neighbour? Restore with `ot routereligible enable`.
 
-**Configure Device A (Leader):**
-```bash
-# Create new network dataset
-dataset init new
+## DDR update ("Advanced Experiments" section)
 
-# Configure channel and PAN ID
-dataset channel 15
-dataset panid 0x1234
-
-# Configure master key
-dataset masterkey 00112233445566778899aabbccddeeff
-
-# Activate dataset
-dataset commit active
-
-# Start interface and Thread
-ifconfig up
-thread start
-```
-
-**Configure Device B (Router/Child):**
-```bash
-# Get dataset from leader (on device A)
-# dataset active -x
-
-# Copy the hex dataset to device B
-dataset set active <leader_hex_dataset>
-
-# Start interface and Thread
-ifconfig up
-thread start
-```
-
-**Verify network formation:**
-- Both devices should join the Thread network
-- Use `state` to see roles (leader, router, child)
-- Use `ipaddr` to see assigned IPv6 addresses
-
-### 6. IPv6 Address Analysis in 6LoWPAN
-
-**Types of addresses to observe:**
-
-1. **Link-local**: Prefix `fe80::/10`, used for local communication
-2. **Mesh-local**: Prefix derived from dataset (e.g., `fd11:22:33::/64`), used within the mesh
-3. **ML-EID (Mesh-Local EID)**: Unique device address in the mesh
-
-**Commands for analysis:**
-```bash
-# View all addresses
-ipaddr
-
-# View multicast addresses (including All-Thread-Nodes)
-ipmaddr
-
-# View dataset details (to understand prefixes)
-dataset active
-```
-
-**Analysis:**
-- Document each address type and its purpose
-- Observe how addresses change when joining different networks
-- Compare addresses between devices on the same network
-
-### 7. 6LoWPAN Fragmentation Observation
-
-**Force fragmentation with large pings:**
-```bash
-# Normal ping (no fragmentation)
-ping fd11:22:33:0:0:0:0:1
-
-# Ping with large payload (will force 6LoWPAN fragmentation)
-ping fd11:22:33:0:0:0:0:1 size 200
-
-# Even larger ping
-ping fd11:22:33:0:0:0:0:1 size 500
-```
-
-**Observe in logs:**
-- Look for "Fragment" or "Reassembly" messages in the logs
-- Note the effective 6LoWPAN MTU (~1280 bytes IPv6, but fragmented at lower layers)
-- Measure additional latency due to fragmentation
-
-**Fragmentation analysis:**
-- Compare response times between small and large pings
-- Document the maximum size without fragmentation
-- Observe behavior with multiple hops in the mesh
-
-### 8. Resilience and Re-attach Evaluation
-
-**Simulate leader failure:**
-1. Identify which device is the leader (`state` command)
-2. Turn off the leader device (disconnect USB)
-3. Observe on the remaining device:
-   ```bash
-   # View state change
-   state
-
-   # View re-attach logs
-   # (automatic logs will show MLE messages)
-   ```
-
-**Measure convergence times:**
-- Record timestamp when leader is turned off
-- Record when new leader is elected (`state` changes)
-- Calculate convergence time
-
-**Additional resilience tests:**
-```bash
-# View MLE (Mesh Link Establishment) messages
-mle
-
-# Force role change (if router)
-# (restart device and observe re-attach)
-
-# Test with 3+ devices to see mesh routing
-router table
-neighbor table
-```
-
-**Resilience analysis:**
-- Document the sequence of events during re-attach
-- Measure convergence times for different network sizes
-- Observe how IPv6 addresses are maintained during changes
-
-### 9. Thread Routing Analysis
-
-**Commands for routing analysis:**
-```bash
-# View router table
-router table
-
-# View neighbor table
-neighbor table
-
-# View active routes
-routes
-
-# View network topology
-neighbor table
-```
-
-**Routing experiments:**
-1. **Direct routing:** Ping between directly connected devices
-2. **Mesh routing:** Ping between devices with intermediaries
-3. **Routing with failure:** Repeat after simulating failure
-
-**Analysis:**
-- Document how the mesh topology is built
-- Observe changes in routing tables during resilience tests
-- Compare efficiency of direct routing vs mesh
-
-## Deliverables
-- Table of IPv6 addresses classified by type
-- Fragmentation logs with overhead analysis
-- Convergence time measurements for re-attach
-- Thread network topology diagrams with roles
-- Comparative performance analysis with/without fragmentation
+- [ ] **Fragmentation:** the size table, your one-frame byte budget, RLOC vs ML-EID vs
+      2 hops.
+- [ ] **Leader loss:** the event timeline and your answers.
+- [ ] *(Optional)* **End device:** parent-loss recovery time.
 
 ---
 
-## Quick Command Reference (Lab 2 cheat-sheet)
-
-Keep this section open on a second screen during the lab. Commands grouped by [lab2.md](../lab2.md) task.
-
-### Task A — Commissioning
-
-**On Node A (becomes Leader):**
-```bash
-dataset init new
-dataset channel 20
-dataset panid 0xBEEF
-dataset networkname GreenField-G<team#>
-dataset commit active
-ifconfig up
-thread start
-
-# wait ~10 s:
-state              # expect: leader
-dataset active -x  # copy the hex blob that's printed
-```
-
-**On Nodes B and C:**
-```bash
-dataset set active <paste hex blob from A>
-ifconfig up
-thread start
-
-# wait ~10 s:
-state              # expect: router or child
-```
-
-**Verification (required deliverable):**
-```bash
-neighbor table     # confirm LQI > 100 for links you care about
-ipaddr             # list all IPv6 addresses (classify link-local / ML-EID / RLOC)
-router table       # see which nodes became routers
-```
-
-### Task B — 3-hop latency
-
-**Step 1. Force A→B→C topology.** Pick one method:
-
-- **Physical (recommended):** separate A and C by a wall or ≥15 m; keep B centered. Verify with `neighbor table` on A — C should be absent or LQI < 80.
-- **MAC filter (fallback):**
-  ```bash
-  # on A and C respectively:
-  extaddr                      # note each node's extended address
-
-  # on A:
-  macfilter addr denylist
-  macfilter addr add <C_extaddr>
-  # on C:
-  macfilter addr denylist
-  macfilter addr add <A_extaddr>
-  ```
-
-**Step 2. Get target address (on C):**
-```bash
-ipaddr mleid       # use THIS (mesh-local EID), not RLOC — stable across topology changes
-```
-
-**Step 3. Measure RTT (on A):**
-```bash
-ping <C_mleid> 64 20 500
-# size=64 bytes, count=20 pings, interval=500 ms
-```
-
-Read average/min/max RTT from the summary line. Compare to Lab 1's 1-hop RTT.
-
-**Step 4. Confirm the path went through B:**
-```bash
-router table       # on A — next-hop router toward C's RLOC16
-```
-
-### Task C — Tractor test (convergence)
-
-**Start continuous ping on A:**
-```bash
-ping <C_mleid> 64 200 1000
-# 200 pings, 1 per second — gives ~3 minutes of observation
-```
-
-**Physically unplug Node B.** Note the timestamp.
-
-**Observe pings timing out, then resuming.** Note the resume timestamp.
-
-**Convergence time = resume_ts − unplug_ts.** Target < 120 s.
-
-**Post-mortem on A:**
-```bash
-router table       # new next-hop toward C
-neighbor table     # B is gone
-```
-
-### Supporting commands
+## Command reference
 
 | Command | Purpose |
 |---|---|
-| `state` | My role: leader / router / child / detached |
-| `ipaddr` | All IPv6 addresses on this interface |
-| `ipaddr mleid` | Just the ML-EID (stable app address) |
-| `ipaddr rloc` | Just the RLOC (topology-dependent) |
-| `extaddr` | My 802.15.4 extended (EUI-64) MAC address |
-| `rloc16` | My 16-bit short address |
-| `neighbor table` | Who I can hear, with LQI and avg RSSI |
-| `router table` | All routers in the mesh + cost/next-hop |
-| `routes` | External routes (empty until Lab 5) |
-| `dataset active` | Current network credentials |
-| `dataset active -x` | Same, as hex blob for pasting to other nodes |
-| `panid` / `channel` | Current PAN ID / channel |
-| `thread stop` | Leave the network cleanly |
-| `ifconfig down` | Bring radio interface down |
-| `factoryreset` | Wipe everything, fresh start |
+| `ot state` | role: disabled / detached / child / router / leader |
+| `ot ipaddr` · `ot ipaddr mleid` · `ot ipaddr rloc` | all unicast addresses · just the ML-EID · just the RLOC |
+| `ot ipmaddr` | multicast groups |
+| `ot extaddr` · `ot rloc16` | 64-bit MAC address · 16-bit short address |
+| `ot neighbor table` | one-hop neighbours with RSSI and LQ |
+| `ot router table` | every router: best relay, cost, link quality, direct link |
+| `ot leaderdata` | partition ID and leader router ID |
+| `ot parent` | an end device's parent |
+| `ot counters mac` · `ot counters ip` (`reset`) | frame and datagram counters |
+| `ot ping <addr> [size] [count] [interval s]` | e.g. `ot ping <addr> 64 20 0.5` (the interval is in seconds) |
+| `ot macfilter rss add-lqi <extaddr> <0-3>` · `ot macfilter rss clear` | force the link quality of one neighbour · undo |
+| `ot dataset active -x` · `ot dataset set active <hex>` | export · import the network credentials |
+| `ot thread stop` · `ot ifconfig down` · `ot factoryreset` | leave the mesh · radio off · wipe the dataset |
 
-### Practical notes
+**Troubleshooting:**
 
-1. **Use ML-EID, not RLOC, for pings.** RLOC changes when topology changes; ML-EID is stable. This verifies the puzzle from the lecture.
-2. **Always `ifconfig up` before `thread start`.** Common first-time mistake.
-3. **If `state` stays `detached` for > 30 s**, check that channel + panid + networkkey match. Use `dataset active -x` on the working node and paste the whole blob into the others.
-4. **`ping` argument defaults vary by ESP-IDF version** — always specify size/count/interval explicitly.
-5. **If two groups collide on PANID**, you'll see each other in `neighbor table`. Pick a unique PANID (e.g., `0xBE<team#>`).
+- `ot thread start` returns `Error 13: InvalidState`: run `ot ifconfig up` first.
+- Stuck in `detached`: the dataset doesn't match. Re-export it with `ot dataset active -x` and
+  paste the whole string; typing the channel or PAN ID by hand never gets the key right.
+- Stuck in `child` for more than 2 minutes: normal up to 120 s (router selection jitter).
+  Beyond that, check `ot routereligible`.

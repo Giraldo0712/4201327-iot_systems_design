@@ -178,7 +178,7 @@ table, which lists routers on both sides.
 ### Task 3.2 — verify with ping
 
 Each partner runs `ot ipaddr` and shares the **RLOC address** (the one containing
-`:0:ff:fe00:` — stable and routable). Ping in both directions; expect 0 % loss at close range:
+`:0:ff:fe00:`; easy to spot and routable). Ping in both directions; expect 0 % loss at close range:
 
 ```bash
 uart:~$ ot ping <partner-RLOC>

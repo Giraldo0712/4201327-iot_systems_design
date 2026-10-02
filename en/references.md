@@ -105,7 +105,7 @@ Components:
 ## Thread CLI Quick Reference
 
 Commands are shown bare, as on ESP-IDF's `ot_cli` (`>` prompt). On Zephyr
-(`firmware/lab1_radio`) prefix each one with `ot` at the `uart:~$` prompt:
+(`firmware/lab1_radio`, `firmware/lab2_mesh`) prefix each one with `ot` at the `uart:~$` prompt:
 `ot state`, `ot ping …`.
 
 ### Network Formation
@@ -134,11 +134,9 @@ PAN ID: 0x1234
 PSKc: 3aa55f91ca47d1e4e71a08cb35e91591
 Security Policy: 672 onrc
 
-# Join existing network
-> dataset networkkey 00112233445566778899aabbccddeeff
-> dataset panid 0x1234
-> dataset channel 15
-> dataset commit active
+# Join existing network: copy the whole dataset (the network key is random)
+> dataset active -x                      # on a node already in the network
+> dataset set active <hex>               # on the joining node
 > ifconfig up
 > thread start
 ```

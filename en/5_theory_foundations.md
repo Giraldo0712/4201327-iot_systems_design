@@ -318,7 +318,7 @@ Total: 95 bytes
 **Challenges**:
 - **Packet loss**: If any fragment lost, entire datagram retransmitted
 - **Buffering**: Receiver must buffer fragments
-- **Timeout**: Incomplete datagrams discarded after 60 seconds
+- **Timeout**: Incomplete datagrams discarded (RFC 4944 allows up to 60 s; OpenThread uses 2 s)
 
 **Recommendation**: Keep payloads small to avoid fragmentation.
 
@@ -387,25 +387,30 @@ Each router maintains a routing table:
 
 **Route Cost Calculation**:
 ```
-Cost = Base Cost + Link Quality + Hop Count
+Link margin = average RSS − noise floor
+  > 20 dB → link quality 3 → link cost 1
+  > 10 dB → link quality 2 → link cost 2
+  >  2 dB → link quality 1 → link cost 4
+  else    → link quality 0 → no link
+Two-way link quality = min(LQ in, LQ out)
+Path cost = sum of link costs along the route
 
 Example:
-Router A → Router B: LQI = 200 (good) → Cost = 1
-Router A → Router C (via B): LQI = 150 → Cost = 2
-Router A → Router C (direct): LQI = 50 (poor) → Cost = 5
-
-Best route: A → B → C (cost 2) vs A → C (cost 5)
+A–B: LQ 3 → cost 1      B–C: LQ 3 → cost 1      A–C direct: LQ 1 → cost 4
+Best route: A → B → C (cost 2) beats A → C (cost 4)
 ```
 
-**Link Quality Indicator** (LQI):
-- 0-255 scale from IEEE 802.15.4
-- **LQI > 200**: Excellent (PER < 1%)
-- **LQI 100-200**: Good (PER 1-10%)
-- **LQI < 100**: Poor (PER > 10%)
+Thread rates links by **link margin**, not by the raw 802.15.4 LQI byte (0–255), whose
+meaning varies between radio vendors. `ot neighbor table` and `ot router table` show the
+resulting LQ 0–3 per link.
 
-**Convergence Time**:
-- Small network (< 10 routers): 30-60 seconds
-- Large network (32 routers): 90-120 seconds
+**Failure detection**:
+- **Traffic-driven:** after 4 consecutive unicast frames to a neighbouring router go
+  unacknowledged (each already retried by the MAC), the link is dropped at once.
+- **Timer-driven:** a neighbouring router that sends no MLE advertisement for 100 s is
+  dropped. Advertisements follow a Trickle timer, 1 s after a change, backing off to ~32 s.
+- With traffic flowing, a mesh with a backup path heals in seconds; an idle link takes up
+  to ~100 s to notice.
 
 ---
 
@@ -413,33 +418,27 @@ Best route: A → B → C (cost 2) vs A → C (cost 5)
 
 **Why a Leader?**
 - Centralized network parameters (PAN ID, channel, keys)
-- Assign Router IDs (unique 1-byte IDs)
+- Assign Router IDs (6-bit IDs, 0–62; at most 32 active routers)
 - Handle network-wide decisions
 
-**Election Algorithm** (simplified):
+**No vote, just partitions:**
 ```
-1. Each device has a "weight":
-   Weight = (# neighbors) × 100 + (uptime minutes) + random(0-99)
+1. The first device to start a network becomes leader of a new partition
+   (a random 32-bit Partition ID).
 
-2. Broadcast "I am leader with weight W"
+2. Routers track the leader through the network data in MLE advertisements.
 
-3. If receive higher weight:
-   - Demote self to router
-   - Accept new leader
+3. If a router hears nothing from its leader for 120 s (network-ID timeout),
+   it starts a new partition with itself as leader. Others attach to it.
 
-4. If leader not heard for 60 seconds:
-   - Assume leader failed
-   - Restart election
+4. When two partitions hear each other, they compare weight (leader weight,
+   default 64), then Partition ID. The lower one's devices re-attach to the
+   higher one: the partitions merge.
 ```
 
-**Example**:
-```
-Router A: 5 neighbors, uptime 10 min → Weight = 552
-Router B: 3 neighbors, uptime 20 min → Weight = 393
-Router C: 4 neighbors, uptime 15 min → Weight = 433
-
-Router A wins (highest weight) → Becomes Leader
-```
+Routing keeps working until that timeout: route tables live in every router. What
+stops is router-ID assignment and network-data updates. `ot leaderdata` shows the current
+Partition ID and leader; SOP-02 Experiment B watches a partition form and merge.
 
 ---
 
@@ -458,11 +457,11 @@ Partition 2: [Router C] ←→ [Router D]
 
 **What Happens**:
 1. Partition 1: Leader A still in charge
-2. Partition 2: Election triggered → Router C or D becomes new leader
+2. Partition 2: after the 120 s network-ID timeout, Router C or D starts a new partition as leader
 3. Two independent networks form
-4. When link restored: Leaders compared, lower-weight demotes → merge
+4. When link restored: partitions compared (weight, then Partition ID), the lower one re-attaches → merge
 
-**Partition Detection Time**: ~100-130 seconds
+**Partition Detection Time**: ~120 s (network-ID timeout)
 
 ---
 
