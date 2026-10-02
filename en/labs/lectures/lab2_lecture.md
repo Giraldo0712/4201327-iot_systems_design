@@ -1,7 +1,7 @@
 # Lab 2 Lecture: Network & Routing — Fitting IPv6 Through a 127-Byte Door
 
 **Duration**: 40 min (delivered before the hands-on lab)
-**Audience**: Students about to run Lab 2 (6LoWPAN + Thread mesh on ESP32-C6)
+**Audience**: Students about to run Lab 2 (Thread mesh on ESP32-C6, `firmware/lab2_mesh`)
 **Pairs with**: [lab2.md](../lab2.md)
 **Follows**: [Lab 1 Lecture](lab1_lecture.md) — students have seen the 127-byte frame and the RSSI-vs-distance curve.
 
@@ -12,9 +12,9 @@
 By the end of the lecture, students should be able to:
 
 1. Explain why IPv6 cannot ride 802.15.4 unchanged, and what 6LoWPAN does about it (IPHC compression + fragmentation).
-2. Classify a Thread node's IPv6 addresses (link-local, mesh-local, ML-EID, RLOC) and predict which one to use for a given packet.
+2. Classify a Thread node's IPv6 addresses (link-local, RLOC, ALOC, ML-EID) and predict which one to use for a given packet.
 3. Describe the Thread role model (Leader, Router, REED, End Device, SED) and place each role in the Functional viewpoint.
-4. Predict the convergence behavior when a Router dies, and justify the < 2-minute healing target from first principles (MLE timers).
+4. Compute a Thread route from link qualities, and predict how fast the mesh heals when a Router dies (traffic-driven vs timer-driven detection).
 5. Contrast Thread's address-based mesh routing with BLE Mesh flooding and Zigbee tree routing — and justify when each wins.
 
 ---
@@ -111,7 +111,7 @@ Draw the Functional viewpoint boxes on the board. Lab 1 was about the PED↔SCD 
 | End Device (FED) | Leaf, always-on | Always on | 100% RX |
 | Sleepy End Device (SED) | Leaf, duty-cycled | Sleep most of the time | ~1% RX (poll interval) |
 
-The **SED** row is the one that matters for the battery budget from Lab 1. Everything else draws ~30 mA continuously — a few hours on 2×AA. Only SEDs hit the 3-month target.
+The **SED** row is the one that matters for the battery budget from Lab 1. Everything else keeps its receiver on and draws tens of mA continuously: 3000 mAh lasts days, not months. Only SEDs hit the 3-month target, which is why routers need mains or solar power.
 
 ---
 
@@ -158,7 +158,7 @@ The insight of RFC 6282: **most IPv6 header fields are predictable inside a loca
 
 Compression targets, in order of savings:
 
-1. **Addresses (32 bytes → as little as 0).** In Thread, the link-local IPv6 address can be derived from the 802.15.4 MAC address. Sender and receiver both know the rule, so neither address needs to be on the wire.
+1. **Addresses (32 bytes → as little as 0).** The 64-bit prefix is either `fe80::` or the mesh-local prefix that every node already holds as context 0, so it is never sent. The 64-bit interface ID is elided when the receiver can rebuild it from the MAC header: link-local IIDs come from the extended MAC address, RLOC IIDs from the 16-bit short address. An ML-EID's IID is random, so its 8 bytes go on the air. Students measure this difference in SOP-02.
 2. **Version / Traffic Class / Flow Label (6 bytes → 0–1).** Always IPv6, usually no traffic class, usually no flow label. Compressible to a bitfield.
 3. **Hop Limit (1 byte → 0).** Most packets use 64. When they don't, carry it.
 4. **Next Header (1 byte → 0).** If the next header is UDP, flag it with one bit and compress UDP too (NHC).
@@ -171,7 +171,7 @@ Typical IPHC in Thread: 4–6 bytes
 
 Draw this on the board. Students should leave the session knowing the number **2** — the theoretical floor of IPHC — because it is the number that makes the 127-byte frame livable.
 
-> **First-principles question to drop**: *"6LoWPAN compresses headers but not payload. Why?"* Answer expected: headers are predictable (known syntax, local context), payload is arbitrary. Payload compression is the application's job — that's what CBOR does in Lab 4.
+> **First-principles question to drop**: *"6LoWPAN compresses headers but not payload. Why?"* Answer expected: headers are predictable (known syntax, local context), payload is arbitrary. Payload compression is the application's job — that's what CBOR does in Lab 3.
 
 ### Part B: When compression isn't enough — fragmentation
 
@@ -184,48 +184,56 @@ Compression gets us back the header bytes, but some packets are still > 127 byte
 │ Frag-N: FRAGN hdr (5B) + next chunk  │  ─┘
 └──────────────────────────────────────┘
 
-Timeout: 60 seconds. Lose one fragment → entire IP datagram is retransmitted.
+Lose one fragment → the whole datagram is lost. RFC 4944 allows up to 60 s for
+reassembly; OpenThread gives up after 2 s. Only the layer above can resend.
 ```
 
-This is why the Lab 1 foreshadowing matters: **big packets are expensive on lossy radios**. The rule of thumb students should carry forward is "keep application payloads ≤ ~80 bytes after compression and you never fragment." This shapes Lab 4's CoAP/CBOR design.
+This is why the Lab 1 foreshadowing matters: **big packets are expensive on lossy radios**. The rule of thumb students should carry forward is "keep application payloads ≤ ~80 bytes after compression and you never fragment." This shapes Lab 3's CoAP/CBOR design.
 
 ### Part C: IPv6 addresses a Thread node carries
 
-Students will run `ipaddr` in the lab and see ~5 addresses. They need a mental model for what each one is *for*, not just what it looks like.
+Students will run `ot ipaddr` in the lab and see 3–4 unicast addresses. They need a mental model for what each one is *for*, not just what it looks like.
 
 | Address | Scope | Used for |
 |---|---|---|
-| **Link-local** `fe80::/64` | One radio hop | Neighbor discovery, MLE, CSMA peers |
+| **Link-local** `fe80::/64` | One radio hop | MLE between neighbours; IID = extended MAC with the U/L bit flipped |
 | **Mesh-local EID (ML-EID)** `fdxx::/64` | Entire Thread mesh | Stable, device-identifying address for application traffic |
 | **RLOC (Routing Locator)** `fdxx::ff:fe00:xxxx` | Entire Thread mesh | Encodes router ID + child ID; *changes* when topology changes |
+| **ALOC (Anycast Locator)** `fdxx::ff:fe00:fcxx` | Entire Thread mesh | A role, not a device: `fc00` is whoever is leader |
 | **Multicast** `ff02::1`, `ff03::1` | All-nodes (link-local / realm-local) | Broadcast-like behavior over mesh |
 
 The trap: a student pings by RLOC, topology changes, and pings start failing — not because the network broke, but because the RLOC moved. **Application code should always target the ML-EID.** This is a real source of bugs in production Thread deployments.
 
 ### Part D: MLE and how the mesh actually routes
 
-**MLE = Mesh Link Establishment** (RFC 7731-ish, Thread-specific in practice). It's the signaling protocol that does three things:
+**MLE = Mesh Link Establishment**, Thread's signalling protocol (an IETF draft that Thread adopted; it is not an RFC). It runs over UDP on link-local addresses and does three things:
 
-1. **Neighbor discovery** — who can I hear, and how well (LQI)?
-2. **Leader election + Router ID assignment** — one Leader hands out Router IDs (1-byte, so max 32 Routers per network).
-3. **Route propagation** — each Router periodically advertises its cost vector to every other Router, using a compact bitfield.
+1. **Link measurement** — every received frame updates a per-neighbour RSS average. Link margin = RSS − noise floor, mapped to a **link quality (LQ) of 0–3**. Each side tells the other what it measures, so both know the two-way quality.
+2. **Router ID assignment** — the Leader hands out router IDs (6 bits, 0–62) and keeps at most **32** active routers.
+3. **Route propagation** — each router's MLE advertisement carries one entry per router: the link quality to it (if a neighbour) and the path cost to it. Distance-vector routing, compressed to a byte or so per router.
 
-The routing itself is **distance-vector with link-quality weighting**:
+The numbers (from the Thread spec, as OpenThread implements them):
 
 ```
-Cost to destination = base_cost + link_quality_penalty + hop_count
-LQI > 200 → penalty 0
-LQI 100–200 → penalty 1
-LQI < 100 → penalty 4 (bad link, avoid)
+Link margin > 20 dB → LQ 3 → link cost 1
+Link margin > 10 dB → LQ 2 → link cost 2
+Link margin >  2 dB → LQ 1 → link cost 4
+otherwise           → LQ 0 → no link
+Two-way LQ = min(LQ in, LQ out)      Path cost = sum of link costs
 ```
 
-Draw a 3-node mesh on the board. A → B (LQI 220, cost 1), A → C direct (LQI 80, cost 4), B → C (LQI 210, cost 1). Ask: *"What's A's route to C?"* Answer: A → B → C, total cost 2, beats the direct cost-4 path. This is why Thread can pick a multi-hop path even when a direct link exists — **hops are cheap, bad links are expensive**.
+Draw a 3-node mesh on the board. A–B and B–C are LQ 3 (cost 1 each), A–C direct is LQ 1 (cost 4). Ask: *"What's A's route to C?"* Answer: A → B → C, cost 2, beats the direct cost-4 link. **Hops are cheap, bad links are expensive.** This is exactly the topology students build in Lab 2 Part 3, using `ot macfilter rss add-lqi` to make the A–C link look like LQ 1.
 
-### Why healing completes in < 2 minutes
+### How fast does the mesh heal?
 
-MLE advertisement period is ~30 s. A Router is declared dead after ~3 missed advertisements → ~90 s detection. Add another ~15–30 s for neighbors to recompute routes and re-advertise. Total: **~120 s ceiling** — which is exactly Edwin's requirement in the lab brief. The number is not magical; it's three MLE intervals plus one route-propagation cycle.
+Two mechanisms detect a dead router:
 
-> Tell students: when they measure convergence in Task C, they should expect something in the 60–120 s range. If they get 30 s, great — probably because they had few nodes. If they get > 180 s, something's wrong — check LQI and neighbor tables.
+1. **Traffic-driven:** every unicast frame asks for an ACK and is retried up to 15 times (Lab 1, SOP-01). After **4 consecutive frames** to a neighbouring router go unacknowledged, OpenThread drops that link and recomputes routes immediately.
+2. **Timer-driven:** routers advertise on a Trickle timer, every 1 s right after a change and backing off to ~32 s when stable. A neighbouring router that stays silent for **100 s** is dropped even if nobody tried to send to it.
+
+When a link disappears, the routers' advertisement timers reset to the fast end, so the new costs spread across the mesh in seconds.
+
+> Tell students: with a ping running through the dead router, expect recovery within seconds: one lost ping per failed frame, four on each side. On the instructor bench (three ESP32-C6, 0 dBm, one desk) both runs lost exactly 8 pings at 1 ping/s. The 100 s timer is the worst case for a link nobody uses. Edwin's 2 minutes covers both. If they see > 2 min, check that a backup path exists at all (`ot router table`, `Link 1` to the far node).
 
 ---
 
@@ -257,7 +265,7 @@ Addresses are assigned hierarchically by the Coordinator using a **Cskip** formu
 | **State per node** | Router table (≤32 entries) | None (just replay cache) | Routing + neighbor tables |
 | **Scalability** | ~250 devices/network, 32 routers | ~100s but bandwidth dies | ~few 100s |
 | **IP-native?** | Yes (IPv6 + 6LoWPAN) | No (custom addressing) | No (ZCL application layer) |
-| **Self-heal time** | ~60–120 s | Immediate (next flood) | ~30–60 s |
+| **Self-heal time** | seconds with traffic; ≤ ~100 s idle | Immediate (next flood) | seconds to tens of seconds (route discovery) |
 | **Best fit** | Sensor + actuator fleets needing IP | Dense consumer devices, low traffic | Legacy, specific vendor ecosystems |
 
 ### Why Thread won for GreenField
@@ -275,29 +283,35 @@ Two reasons, stated plainly:
 
 ### What they are about to do
 
-Walk through [lab2.md](../lab2.md) at high speed:
+Walk through [lab2.md](../lab2.md) at high speed. Groups need **three boards**, so pairs team up.
 
-1. **Commissioning (Task A)** — form the network with a **non-default PANID**. This matters for trustworthiness: if every lab group uses 0x1234, they commission onto each other's networks.
-2. **Address classification** — run `ipaddr` and classify every address into the four categories above. This is the 6LoWPAN deliverable. *(If your handout doesn't list this explicitly, tell students to follow SOP-02 §6.)*
-3. **Far-field latency (Task B)** — force 3-hop topology and measure RTT vs Lab 1's 1-hop baseline. Expect 30–100 ms at 3 hops.
-4. **Tractor test (Task C)** — continuous ping, unplug the middle Router, measure convergence. Expect 60–120 s.
+1. **Setup (Part 1)** — flash `firmware/lab2_mesh`, form the network on A with `ot dataset init new`, copy the hex dataset to B and C, and wait until both are `router` (up to 2 min).
+2. **Address classification (Part 2)** — `ot ipaddr`, classify each address into the table above, and check the two derivations: link-local IID from `ot extaddr`, router ID from `ot rloc16`.
+3. **Two hops (Part 3)** — `ot macfilter rss add-lqi` makes the A–C link LQ 1, so A routes to C through B. B's MAC counters prove it. RTT for 1 vs 2 hops.
+4. **Tractor test (Part 4)** — ping C from A once a second, unplug B, count the lost pings. Expect seconds.
+
+**Bench reference** (instructor only; three ESP32-C6 on one desk, 0 dBm, 64-byte pings):
+1-hop RTT ≈ 15 ms, 2-hop ≈ 31 ms; tractor test 8 pings lost (~8 s) in both runs; B relays
+exactly 40 frames for 20 pings; one-frame limit 76 B of ping payload to an ML-EID and 88 B
+to an RLOC (SOP-02).
 
 ### The puzzles to seed
 
 Two this week. Don't answer either.
 
-> *"Ping a Thread node by its RLOC. Then force a topology change (restart a Router). Ping the same RLOC. What happens, and why is ML-EID the right address to use for applications?"*
+> *"Ping a Thread node by its RLOC. Then make it re-attach somewhere else. Ping the same RLOC. What happens, and why is the ML-EID the right address for applications?"*
 
-> *"Edwin wants < 2 minutes healing. MLE's advertisement interval is ~30 seconds. Do the math: what's the theoretical minimum healing time, and what happens if we reduce the interval to 5 seconds?"*
+> *"Thread forgets a silent neighbour after 100 seconds, yet your tractor test will recover in a few. What noticed the failure first? What would happen to a link that carries no traffic?"*
 
-Answer to the second one (for your reference, not theirs): lower interval → faster healing, but every Router now broadcasts 6× more often → 6× more air time → 6× less time available for data, and worse SED parent-poll behavior. The 30 s default is a **duty-cycle vs. convergence trade-off**, not an arbitrary choice.
+Answer to the second one (for your reference, not theirs): the missing MAC ACKs. Four failed frames remove the link, so failure detection costs nothing extra when traffic flows. An idle link relies on the advertisement timeout, and shortening it means more frequent advertisements from every router: more airtime, more energy, and less room for data. Detection speed is bought with duty cycle.
 
 ### Practical reminders
 
-- Set the **same channel, PANID, and network key** on all devices. Easiest path: `dataset init new` on Device A, `dataset active -x` to export, paste into B and C with `dataset set active <hex>`.
-- When comparing LQI, remember it's a receiver-side measurement. A and B will report different LQIs for the same link.
+- Same channel, PAN ID and network key on all devices: `ot dataset init new` on A, `ot dataset active -x` to export, paste into B and C with `ot dataset set active <hex>`.
+- Link quality is measured by the receiver. `LQ In` (what I hear) and `LQ Out` (what my neighbour hears from me) can differ for the same link.
 - Turn radios off when idle. Shared spectrum, shared responsibility — same trustworthiness point from Lab 1.
-- If two groups accidentally form one network, they'll see each other in `neighbor table`. That's a PANID collision, not a bug in your code.
+- `ot dataset init new` draws a random PAN ID, extended PAN ID and network key, so two groups can't merge by accident. A key typed from a handout (`00112233…`) is how they would, and anyone who read the handout could join. That is a trustworthiness point worth making.
+- Don't unplug the leader (A) in the tractor test. Leader loss is a different failure with a 120 s timeout; SOP-02 covers it.
 
 ### What Lab 3 will answer
 
@@ -311,9 +325,11 @@ Preview: CoAP (RFC 7252) is HTTP's semantics repackaged for constrained networks
 
 - [ ] Board ready with the four-address table (link-local / ML-EID / RLOC / multicast).
 - [ ] 6LoWPAN compression arithmetic visible (40 → 2 bytes).
-- [ ] Distance-vector cost example drawn out (3-node triangle with LQIs).
+- [ ] Link-quality → cost table and the 3-node triangle (LQ 3 / LQ 3 / LQ 1) drawn out.
+- [ ] Groups of three boards arranged (pairs team up).
+- [ ] A demo mesh running so students see the role LEDs (red → yellow → green, blue for the leader).
 - [ ] Thread vs BLE Mesh vs Zigbee comparison table on the board during Segment 3.
-- [ ] Live demo of `ipaddr` + `neighbor table` on a running board before students start Task A.
+- [ ] Live demo of `ot ipaddr` + `ot router table` on a running board before students start Part 1.
 - [ ] Both puzzles posed and left unanswered at the end.
 
 ---
@@ -321,7 +337,7 @@ Preview: CoAP (RFC 7252) is HTTP's semantics repackaged for constrained networks
 ## References for students
 
 - [lab2.md](../lab2.md) — the hands-on guide for today.
-- [SOP-02: 6LoWPAN + Routing & Resilience](../sops/sop02_6lowpan.md) — the address-classification and fragmentation steps.
+- [SOP-02: 6LoWPAN and Routing Experiments](../sops/sop02_6lowpan.md) — fragmentation threshold and leader loss on the same firmware.
 - [2_iso_architecture.md](../../2_iso_architecture.md) — Functional viewpoint and domains.
 - [5_theory_foundations.md](../../5_theory_foundations.md) §2–§3 — deeper first-principles on IPHC and mesh routing.
 - RFC 6282 — 6LoWPAN IPHC compression (the one to actually read).

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 480" font-family="Inter, 'Segoe UI', 'DejaVu Sans', Arial, sans-serif">
+<text x="30" y="66" font-size="20" font-weight="700" fill="#1d4ed8">New device</text><text x="30" y="90" font-size="16" fill="#475569">Bluetooth Classic</text>
+<rect x="250.0" y="40" width="798.7" height="54" rx="8" fill="#2563eb"/>
+<text x="649.4" y="74" text-anchor="middle" font-size="18" font-weight="700" fill="#fff">inquiry: up to 10.24 s</text>
+<rect x="1048.7" y="40" width="98.3" height="54" rx="8" fill="#9333ea"/>
+<text x="1097.9" y="74" text-anchor="middle" font-size="18" font-weight="700" fill="#fff">page</text>
+<rect x="1147.0" y="40" width="46.8" height="54" rx="8" fill="#16a34a"/>
+<text x="1170.4" y="118" text-anchor="middle" font-size="15" fill="#15803d">SDP</text>
+<text x="30" y="176" font-size="20" font-weight="700" fill="#1d4ed8">Known device</text><text x="30" y="200" font-size="16" fill="#475569">Bluetooth Classic</text>
+<rect x="250.0" y="150" width="99.8" height="54" rx="8" fill="#9333ea"/>
+<text x="299.9" y="184" text-anchor="middle" font-size="18" font-weight="700" fill="#fff">page</text>
+<rect x="349.8" y="150" width="56.2" height="54" rx="8" fill="#16a34a"/>
+<text x="420.0" y="184" font-size="18" fill="#0f172a">≈ 1–2 s, then the profile is ready</text>
+<text x="30" y="286" font-size="20" font-weight="700" fill="#0f766e">Sleepy node</text><text x="30" y="310" font-size="16" fill="#475569">Thread / BLE</text>
+<rect x="250.0" y="260" width="6" height="54" rx="2" fill="#0d9488"/>
+<text x="270.0" y="294" font-size="18" fill="#0f172a">≈ 10 ms: wake, send, sleep</text>
+<line x1="250" y1="350" x2="1201.6" y2="350" stroke="#334155" stroke-width="2"/>
+<line x1="250" y1="350" x2="250" y2="360" stroke="#334155" stroke-width="2"/><text x="250" y="384" text-anchor="middle" font-size="17" fill="#334155">0 s</text>
+<line x1="406" y1="350" x2="406" y2="360" stroke="#334155" stroke-width="2"/><text x="406" y="384" text-anchor="middle" font-size="17" fill="#334155">2 s</text>
+<line x1="562" y1="350" x2="562" y2="360" stroke="#334155" stroke-width="2"/><text x="562" y="384" text-anchor="middle" font-size="17" fill="#334155">4 s</text>
+<line x1="718" y1="350" x2="718" y2="360" stroke="#334155" stroke-width="2"/><text x="718" y="384" text-anchor="middle" font-size="17" fill="#334155">6 s</text>
+<line x1="874" y1="350" x2="874" y2="360" stroke="#334155" stroke-width="2"/><text x="874" y="384" text-anchor="middle" font-size="17" fill="#334155">8 s</text>
+<line x1="1030" y1="350" x2="1030" y2="360" stroke="#334155" stroke-width="2"/><text x="1030" y="384" text-anchor="middle" font-size="17" fill="#334155">10 s</text>
+<line x1="1186" y1="350" x2="1186" y2="360" stroke="#334155" stroke-width="2"/><text x="1186" y="384" text-anchor="middle" font-size="17" fill="#334155">12 s</text>
+<rect x="30" y="410" width="1220" height="54" rx="12" fill="#fff7ed" stroke="#fdba74" stroke-width="2"/><text x="640" y="445" text-anchor="middle" font-size="20" fill="#9a3412">A sensor reporting every 15 min can't spend seconds of radio time on every report</text>
+</svg>

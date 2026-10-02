@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 600" font-family="Inter, 'Segoe UI', 'DejaVu Sans', Arial, sans-serif">
+  <!-- column headers -->
+  <rect x="270" y="20" width="440" height="56" rx="12" fill="#0d9488"/>
+  <text x="490" y="57" text-anchor="middle" font-size="24" font-weight="700" fill="#fff">Thread (this course)</text>
+  <rect x="740" y="20" width="500" height="56" rx="12" fill="#2563eb"/>
+  <text x="990" y="57" text-anchor="middle" font-size="24" font-weight="700" fill="#fff">Bluetooth Classic</text>
+
+  <g font-size="20" font-weight="700" fill="#334155">
+    <text x="40" y="128">Application</text>
+    <text x="40" y="211">Transport</text>
+    <text x="40" y="294">Network</text>
+    <text x="40" y="377">Adaptation</text>
+    <text x="40" y="460">MAC</text>
+    <text x="40" y="543">PHY</text>
+  </g>
+
+  <!-- Thread column -->
+  <g font-size="20" text-anchor="middle" fill="#0f172a">
+    <rect x="270" y="90" width="440" height="68" rx="10" fill="#fce7f3" stroke="#db2777" stroke-width="2"/>
+    <text x="490" y="131">CoAP</text>
+    <rect x="270" y="173" width="440" height="68" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+    <text x="490" y="214">UDP</text>
+    <rect x="270" y="256" width="440" height="68" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+    <text x="490" y="297">IPv6 + mesh routing</text>
+    <rect x="270" y="339" width="440" height="68" rx="10" fill="#cffafe" stroke="#0891b2" stroke-width="2"/>
+    <text x="490" y="380">6LoWPAN</text>
+    <rect x="270" y="422" width="440" height="68" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="490" y="463">802.15.4 MAC · listen before talk</text>
+    <rect x="270" y="505" width="440" height="68" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+    <text x="490" y="546">O-QPSK · 250 kbps · one channel</text>
+  </g>
+
+  <!-- Classic column -->
+  <g font-size="20" text-anchor="middle" fill="#0f172a">
+    <rect x="740" y="90" width="500" height="68" rx="10" fill="#fce7f3" stroke="#db2777" stroke-width="2"/>
+    <text x="990" y="122">Profiles: A2DP · HFP · HID · SPP · PAN</text>
+    <text x="990" y="146" font-size="16" fill="#475569">each profile = a whole use case</text>
+    <rect x="740" y="173" width="500" height="68" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+    <text x="990" y="214">RFCOMM · SDP · L2CAP</text>
+    <rect x="740" y="256" width="500" height="151" rx="10" fill="#fff" stroke="#e11d48" stroke-width="3" stroke-dasharray="10 8"/>
+    <text x="990" y="325" font-size="22" font-weight="700" fill="#e11d48">no network layer</text>
+    <text x="990" y="355" font-size="17" fill="#9f1239">a device only talks to devices it is linked to</text>
+    <rect x="740" y="422" width="500" height="68" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="990" y="463">Baseband + Link Manager · central polls</text>
+    <rect x="740" y="505" width="500" height="68" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+    <text x="990" y="546">GFSK / DQPSK / 8DPSK · 1–3 Mbps · hopping</text>
+  </g>
+</svg>

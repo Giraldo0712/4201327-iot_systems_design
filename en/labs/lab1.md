@@ -50,7 +50,8 @@ GreenField's sensors must run 3 months on 2× AA batteries. That constraint pick
 
 ## Part 1 — Setup
 
-**Per team:** 2× ESP32-C6-DevKitC-1, 2× USB-C cables, 50 m measuring tape. Zephyr (from Week 0).
+**Per team:** 2× ESP32-C6 boards (DevKitC-1, DevKitM-1 or Super Mini), 2× USB-C cables,
+50 m measuring tape. Zephyr (from Week 0).
 
 **Task 1.1** — flash [`firmware/lab1_radio`](../../firmware/lab1_radio) to both boards. It
 is Zephyr's OpenThread shell with ping enabled and auto-start disabled, so your board stays
@@ -68,8 +69,23 @@ west espressif monitor -p /dev/ttyUSB0
 Press Enter to get the `uart:~$` prompt. Every OpenThread command is `ot <command>`;
 `ot help` lists them.
 
-> **Port gotcha:** plug into the port labelled **UART** (`/dev/ttyUSB0`). The **USB** port
-> flashes fine but shows no console with this board config. Exit the monitor with `Ctrl-]`.
+> **Port gotcha:** on a DevKitC-1 or DevKitM-1, plug into the port labelled **UART**
+> (`/dev/ttyUSB0`). The **USB** port flashes fine but shows no console with this board
+> config. Exit the monitor with `Ctrl-]`.
+>
+> **ESP32-C6 Super Mini?** It has only the chip's native USB port (`/dev/ttyACM0`), so
+> move the console there when you build:
+>
+> ```bash
+> west build -p always -b esp32c6_devkitc/esp32c6/hpcore . -- \
+>     -DEXTRA_CONF_FILE=usb_console.conf -DEXTRA_DTC_OVERLAY_FILE=usb_console.overlay
+> west flash
+> west espressif monitor -p /dev/ttyACM0
+> ```
+>
+> **4 MB boards** (DevKitM-1, Super Mini) print `Detected size(4096k) smaller than the size
+> in the binary image header(8192k)` at boot: the build targets the DevKitC's 8 MB flash.
+> Everything the labs use fits in 4 MB, so ignore it.
 >
 > **Borrowed board?** The Thread dataset survives reflashing. Run `ot factoryreset` once
 > to drop the previous team's network.
@@ -178,7 +194,7 @@ table, which lists routers on both sides.
 ### Task 3.2 — verify with ping
 
 Each partner runs `ot ipaddr` and shares the **RLOC address** (the one containing
-`:0:ff:fe00:` — stable and routable). Ping in both directions; expect 0 % loss at close range:
+`:0:ff:fe00:`; easy to spot and routable). Ping in both directions; expect 0 % loss at close range:
 
 ```bash
 uart:~$ ot ping <partner-RLOC>
