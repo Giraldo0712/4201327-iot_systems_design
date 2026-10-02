@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 520" font-family="Inter, 'Segoe UI', 'DejaVu Sans', Arial, sans-serif">
+<defs><marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/></marker></defs>
+<text x="314.0" y="30" text-anchor="middle" font-size="18" fill="#475569">slot 0</text>
+<rect x="244" y="44" width="140" height="32" rx="16" fill="#e11d48"/><text x="314.0" y="66" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">2441 MHz</text>
+<text x="482.0" y="30" text-anchor="middle" font-size="18" fill="#475569">slot 1</text>
+<rect x="412" y="44" width="140" height="32" rx="16" fill="#f97316"/><text x="482.0" y="66" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">2417 MHz</text>
+<text x="650.0" y="30" text-anchor="middle" font-size="18" fill="#475569">slot 2</text>
+<rect x="580" y="44" width="140" height="32" rx="16" fill="#f59e0b"/><text x="650.0" y="66" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">2470 MHz</text>
+<text x="818.0" y="30" text-anchor="middle" font-size="18" fill="#475569">slot 3</text>
+<rect x="748" y="44" width="140" height="32" rx="16" fill="#16a34a"/><text x="818.0" y="66" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">2405 MHz</text>
+<text x="986.0" y="30" text-anchor="middle" font-size="18" fill="#475569">slot 4</text>
+<rect x="916" y="44" width="140" height="32" rx="16" fill="#0891b2"/><text x="986.0" y="66" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">2458 MHz</text>
+<text x="1154.0" y="30" text-anchor="middle" font-size="18" fill="#475569">slot 5</text>
+<rect x="1084" y="44" width="140" height="32" rx="16" fill="#7c3aed"/><text x="1154.0" y="66" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">2429 MHz</text>
+<line x1="230" y1="90" x2="230" y2="370" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="6 6"/>
+<line x1="398" y1="90" x2="398" y2="370" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="6 6"/>
+<line x1="566" y1="90" x2="566" y2="370" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="6 6"/>
+<line x1="734" y1="90" x2="734" y2="370" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="6 6"/>
+<line x1="902" y1="90" x2="902" y2="370" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="6 6"/>
+<line x1="1070" y1="90" x2="1070" y2="370" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="6 6"/>
+<line x1="1238" y1="90" x2="1238" y2="370" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="6 6"/>
+<text x="40" y="154" font-size="21" font-weight="700" fill="#2563eb">Central</text>
+<line x1="230" y1="150" x2="1238" y2="150" stroke="#2563eb" stroke-opacity="0.25" stroke-width="4"/>
+<text x="40" y="244" font-size="21" font-weight="700" fill="#16a34a">Peripheral 1</text>
+<line x1="230" y1="240" x2="1238" y2="240" stroke="#16a34a" stroke-opacity="0.25" stroke-width="4"/>
+<text x="40" y="334" font-size="21" font-weight="700" fill="#f97316">Peripheral 2</text>
+<line x1="230" y1="330" x2="1238" y2="330" stroke="#f97316" stroke-opacity="0.25" stroke-width="4"/>
+<rect x="240" y="128" width="118" height="44" rx="8" fill="#2563eb"/><text x="299" y="157" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">poll P1</text>
+<rect x="408" y="218" width="118" height="44" rx="8" fill="#16a34a"/><text x="467" y="247" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">reply</text>
+<rect x="576" y="128" width="118" height="44" rx="8" fill="#2563eb"/><text x="635" y="157" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">poll P2</text>
+<rect x="744" y="308" width="118" height="44" rx="8" fill="#f97316"/><text x="803" y="337" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">reply</text>
+<rect x="912" y="128" width="118" height="44" rx="8" fill="#2563eb"/><text x="971" y="157" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">data → P1</text>
+<rect x="1080" y="218" width="118" height="44" rx="8" fill="#16a34a"/><text x="1139" y="247" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">ACK + data</text>
+<path d="M358 172 L408 218" stroke="#64748b" stroke-width="2.5" fill="none" marker-end="url(#ar)"/>
+<path d="M694 172 L744 308" stroke="#64748b" stroke-width="2.5" fill="none" marker-end="url(#ar)"/>
+<path d="M1030 172 L1080 218" stroke="#64748b" stroke-width="2.5" fill="none" marker-end="url(#ar)"/>
+<line x1="230" y1="395" x2="398" y2="395" stroke="#0f172a" stroke-width="2"/><line x1="230" y1="385" x2="230" y2="405" stroke="#0f172a" stroke-width="2"/><line x1="398" y1="385" x2="398" y2="405" stroke="#0f172a" stroke-width="2"/>
+<text x="314.0" y="425" text-anchor="middle" font-size="19" font-weight="700" fill="#0f172a">625 µs</text>
+<rect x="40" y="448" width="1200" height="56" rx="12" fill="#eff6ff" stroke="#93c5fd" stroke-width="2"/>
+<text x="640" y="484" text-anchor="middle" font-size="20" fill="#1e3a8a">No listen-before-talk, no collisions: a peripheral speaks only right after the central addresses it</text>
+</svg>

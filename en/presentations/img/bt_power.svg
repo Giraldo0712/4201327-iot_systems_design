@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 470" font-family="Inter, 'Segoe UI', 'DejaVu Sans', Arial, sans-serif">
+<line x1="270" y1="100" x2="1240" y2="100" stroke="#cbd5e1" stroke-width="2"/>
+<line x1="270" y1="230" x2="1240" y2="230" stroke="#cbd5e1" stroke-width="2"/>
+<line x1="270" y1="360" x2="1240" y2="360" stroke="#cbd5e1" stroke-width="2"/>
+<text x="30" y="62" font-size="20" font-weight="700" fill="#1d4ed8">Sniff mode</text><text x="30" y="86" font-size="16" fill="#475569">link kept up</text>
+<rect x="285" y="62" width="10" height="38" rx="2" fill="#2563eb"/>
+<rect x="341" y="62" width="10" height="38" rx="2" fill="#2563eb"/>
+<rect x="397" y="62" width="10" height="38" rx="2" fill="#2563eb"/>
+<rect x="453" y="62" width="10" height="38" rx="2" fill="#2563eb"/>
+<rect x="509" y="62" width="10" height="38" rx="2" fill="#2563eb"/>
+<rect x="565" y="62" width="10" height="38" rx="2" fill="#2563eb"/>
+<rect x="621" y="62" width="10" height="38" rx="2" fill="#2563eb"/>
+<rect x="677" y="62" width="10" height="38" rx="2" fill="#2563eb"/>
+<rect x="733" y="62" width="10" height="38" rx="2" fill="#2563eb"/>
+<rect x="789" y="62" width="10" height="38" rx="2" fill="#2563eb"/>
+<rect x="845" y="62" width="10" height="38" rx="2" fill="#2563eb"/>
+<rect x="901" y="62" width="10" height="38" rx="2" fill="#2563eb"/>
+<rect x="957" y="62" width="10" height="38" rx="2" fill="#2563eb"/>
+<rect x="1013" y="62" width="10" height="38" rx="2" fill="#2563eb"/>
+<rect x="1069" y="62" width="10" height="38" rx="2" fill="#2563eb"/>
+<rect x="1125" y="62" width="10" height="38" rx="2" fill="#2563eb"/>
+<rect x="1181" y="62" width="10" height="38" rx="2" fill="#2563eb"/>
+<text x="270" y="132" font-size="17" fill="#1e3a8a">a short wake-up at every anchor · a powered central within ~10 m stays linked</text>
+<text x="30" y="192" font-size="20" font-weight="700" fill="#c2410c">Reconnect</text><text x="30" y="216" font-size="16" fill="#475569">per reading</text>
+<rect x="300" y="180" width="130" height="50" rx="6" fill="#f97316"/><text x="365" y="211" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">page + setup</text>
+<rect x="900" y="180" width="130" height="50" rx="6" fill="#f97316"/><text x="965" y="211" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">page + setup</text>
+<line x1="440" y1="205" x2="890" y2="205" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 6"/><text x="665" y="196" text-anchor="middle" font-size="18" fill="#475569">sleep 15 min</text>
+<text x="270" y="262" font-size="17" fill="#9a3412">≈ 1–2 s of radio per reading, and someone must be paging or listening</text>
+<text x="30" y="322" font-size="20" font-weight="700" fill="#0f766e">Sleepy node</text><text x="30" y="346" font-size="16" fill="#475569">BLE / Thread</text>
+<rect x="300" y="318" width="6" height="42" rx="2" fill="#0d9488"/>
+<rect x="900" y="318" width="6" height="42" rx="2" fill="#0d9488"/>
+<line x1="320" y1="340" x2="890" y2="340" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 6"/><text x="605" y="331" text-anchor="middle" font-size="18" fill="#475569">sleep 15 min</text>
+<text x="270" y="392" font-size="17" fill="#115e59">a few ms of radio per reading</text>
+<text x="1240" y="440" text-anchor="end" font-size="16" font-style="italic" fill="#64748b">radio-on time, not to scale</text>
+</svg>

@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 560" font-family="Inter, 'Segoe UI', 'DejaVu Sans', Arial, sans-serif">
+<text x="60" y="38" font-size="21" font-weight="700" fill="#ea580c">Wi-Fi: three 20 MHz channels</text>
+<path d="M73.6 150 Q 73.6 58 143.6 58 L 302.1 58 Q 372.1 58 372.1 150 Z" fill="#fdba74" fill-opacity="0.55" stroke="#ea580c" stroke-width="3"/>
+<text x="222.8" y="118" text-anchor="middle" font-size="22" font-weight="700" fill="#9a3412">Wi-Fi 1</text>
+<path d="M412.8 150 Q 412.8 58 482.8 58 L 641.4 58 Q 711.4 58 711.4 150 Z" fill="#fdba74" fill-opacity="0.55" stroke="#ea580c" stroke-width="3"/>
+<text x="562.1" y="118" text-anchor="middle" font-size="22" font-weight="700" fill="#9a3412">Wi-Fi 6</text>
+<path d="M752.1 150 Q 752.1 58 822.1 58 L 980.6 58 Q 1050.6 58 1050.6 150 Z" fill="#fdba74" fill-opacity="0.55" stroke="#ea580c" stroke-width="3"/>
+<text x="901.3" y="118" text-anchor="middle" font-size="22" font-weight="700" fill="#9a3412">Wi-Fi 11</text>
+<text x="60" y="190" font-size="21" font-weight="700" fill="#0f766e">802.15.4 (Thread): 16 channels, the network picks one</text>
+<rect x="114.3" y="222" width="27" height="46" rx="4" fill="#99f6e4" stroke="#14b8a6" stroke-width="1.5"/>
+<rect x="182.2" y="222" width="27" height="46" rx="4" fill="#99f6e4" stroke="#14b8a6" stroke-width="1.5"/>
+<rect x="250.1" y="222" width="27" height="46" rx="4" fill="#99f6e4" stroke="#14b8a6" stroke-width="1.5"/>
+<rect x="317.9" y="222" width="27" height="46" rx="4" fill="#99f6e4" stroke="#14b8a6" stroke-width="1.5"/>
+<rect x="385.8" y="200" width="27" height="68" rx="4" fill="#0d9488"/>
+<rect x="453.6" y="222" width="27" height="46" rx="4" fill="#99f6e4" stroke="#14b8a6" stroke-width="1.5"/>
+<rect x="521.5" y="222" width="27" height="46" rx="4" fill="#99f6e4" stroke="#14b8a6" stroke-width="1.5"/>
+<rect x="589.3" y="222" width="27" height="46" rx="4" fill="#99f6e4" stroke="#14b8a6" stroke-width="1.5"/>
+<rect x="657.1" y="222" width="27" height="46" rx="4" fill="#99f6e4" stroke="#14b8a6" stroke-width="1.5"/>
+<rect x="725.0" y="222" width="27" height="46" rx="4" fill="#99f6e4" stroke="#14b8a6" stroke-width="1.5"/>
+<rect x="792.9" y="222" width="27" height="46" rx="4" fill="#99f6e4" stroke="#14b8a6" stroke-width="1.5"/>
+<rect x="860.7" y="222" width="27" height="46" rx="4" fill="#99f6e4" stroke="#14b8a6" stroke-width="1.5"/>
+<rect x="928.6" y="222" width="27" height="46" rx="4" fill="#99f6e4" stroke="#14b8a6" stroke-width="1.5"/>
+<rect x="996.4" y="222" width="27" height="46" rx="4" fill="#99f6e4" stroke="#14b8a6" stroke-width="1.5"/>
+<rect x="1064.2" y="222" width="27" height="46" rx="4" fill="#99f6e4" stroke="#14b8a6" stroke-width="1.5"/>
+<rect x="1132.1" y="222" width="27" height="46" rx="4" fill="#99f6e4" stroke="#14b8a6" stroke-width="1.5"/>
+<text x="421.2" y="214" font-size="18" font-weight="700" fill="#0f766e">◄ ch 15, picked once (your ADR-001)</text>
+<text x="60" y="318" font-size="21" font-weight="700" fill="#1d4ed8">Bluetooth Classic: 79 channels of 1 MHz, a new one every 625 µs</text>
+<rect x="82.1" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="95.7" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="109.3" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="122.8" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="136.4" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="150.0" y="352" width="10" height="80" rx="2" fill="#0891b2"/>
+<circle cx="155.0" cy="342" r="13" fill="#0891b2"/><text x="155.0" y="348" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">5</text>
+<rect x="163.6" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="177.1" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="190.7" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="204.3" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="217.8" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="231.4" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="245.0" y="352" width="10" height="80" rx="2" fill="#e11d48"/>
+<circle cx="250.0" cy="342" r="13" fill="#e11d48"/><text x="250.0" y="348" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">1</text>
+<rect x="258.6" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="272.1" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="285.7" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="299.3" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="312.8" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="326.4" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="340.0" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="353.5" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="367.1" y="352" width="10" height="80" rx="2" fill="#7c3aed"/>
+<circle cx="372.1" cy="342" r="13" fill="#7c3aed"/><text x="372.1" y="348" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">7</text>
+<rect x="380.7" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="394.2" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="407.8" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="421.4" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="435.0" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="448.5" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="462.1" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="475.7" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="489.2" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="502.8" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="516.4" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="530.0" y="352" width="10" height="80" rx="2" fill="#f59e0b"/>
+<circle cx="535.0" cy="342" r="13" fill="#f59e0b"/><text x="535.0" y="348" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">3</text>
+<rect x="543.5" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="557.1" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="570.7" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="584.2" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="597.8" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="611.4" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="624.9" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="638.5" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="652.1" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="665.6" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="679.2" y="352" width="10" height="80" rx="2" fill="#2563eb"/>
+<circle cx="684.2" cy="342" r="13" fill="#2563eb"/><text x="684.2" y="348" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">6</text>
+<rect x="692.8" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="706.4" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="719.9" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="733.5" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="747.1" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="760.6" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="774.2" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="787.8" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="801.4" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="814.9" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="828.5" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="842.1" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="855.6" y="352" width="10" height="80" rx="2" fill="#f97316"/>
+<circle cx="860.6" cy="342" r="13" fill="#f97316"/><text x="860.6" y="348" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">2</text>
+<rect x="869.2" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="882.8" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="896.3" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="909.9" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="923.5" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="937.1" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="950.6" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="964.2" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="977.8" y="352" width="10" height="80" rx="2" fill="#db2777"/>
+<circle cx="982.8" cy="342" r="13" fill="#db2777"/><text x="982.8" y="348" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">8</text>
+<rect x="991.3" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="1004.9" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="1018.5" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="1032.0" y="352" width="10" height="80" rx="2" fill="#16a34a"/>
+<circle cx="1037.0" cy="342" r="13" fill="#16a34a"/><text x="1037.0" y="348" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">4</text>
+<rect x="1045.6" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="1059.2" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="1072.8" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="1086.3" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="1099.9" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="1113.5" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="1127.0" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<rect x="1140.6" y="380" width="10" height="52" rx="2" fill="#bfdbfe"/>
+<line x1="60" y1="455" x2="1200" y2="455" stroke="#334155" stroke-width="2"/>
+<line x1="60.0" y1="455" x2="60.0" y2="465" stroke="#334155" stroke-width="2"/><text x="60.0" y="488" text-anchor="middle" font-size="17" fill="#334155">2400 MHz</text>
+<line x1="331.4" y1="455" x2="331.4" y2="465" stroke="#334155" stroke-width="2"/><text x="331.4" y="488" text-anchor="middle" font-size="17" fill="#334155">2420 MHz</text>
+<line x1="602.8" y1="455" x2="602.8" y2="465" stroke="#334155" stroke-width="2"/><text x="602.8" y="488" text-anchor="middle" font-size="17" fill="#334155">2440 MHz</text>
+<line x1="874.2" y1="455" x2="874.2" y2="465" stroke="#334155" stroke-width="2"/><text x="874.2" y="488" text-anchor="middle" font-size="17" fill="#334155">2460 MHz</text>
+<line x1="1145.6" y1="455" x2="1145.6" y2="465" stroke="#334155" stroke-width="2"/><text x="1145.6" y="488" text-anchor="middle" font-size="17" fill="#334155">2480 MHz</text>
+<text x="640" y="535" text-anchor="middle" font-size="20" fill="#0f172a"><tspan font-weight="700" fill="#0f766e">Thread avoids</tspan> the interference · <tspan font-weight="700" fill="#1d4ed8">Classic spreads it</tspan>: a busy channel hits 1 slot in 79</text>
+</svg>
