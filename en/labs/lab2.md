@@ -52,7 +52,8 @@ good hops (cost 2) over one bad link (cost 4). Part 3 relies on exactly that.
 
 ## Part 1 — Setup
 
-**Per group:** **3** ESP32-C6-DevKitC-1 boards and USB-C cables. Team up with another pair;
+**Per group:** **3** ESP32-C6 boards (DevKitC-1, DevKitM-1 or Super Mini; mixing is fine) and
+USB-C cables. Team up with another pair;
 the spare board is useful for SOP-02. Call the boards **A**, **B** and **C**, with one
 laptop and monitor per board.
 
@@ -69,8 +70,10 @@ west flash
 west espressif monitor -p /dev/ttyUSB0
 ```
 
-Same port rule as Lab 1: use the board's **UART** port. Run `ot factoryreset` on every
-board first, because the Lab 1 dataset survives reflashing.
+Same port rule as Lab 1: use the board's **UART** port, and on a Super Mini build with the
+USB console options from Lab 1 Task 1.1 (`usb_console.conf` / `usb_console.overlay` are in
+this folder too). Run `ot factoryreset` on every board first, because the Lab 1 dataset
+survives reflashing.
 
 | LED | Role |
 |---|---|

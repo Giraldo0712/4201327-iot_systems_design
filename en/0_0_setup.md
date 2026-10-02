@@ -74,8 +74,11 @@ west espressif monitor                # Ctrl+] to exit
 On Windows, run `usbipd attach --wsl --busid <BUSID>` from PowerShell first, then
 check the board is there with `ls /dev/ttyUSB* /dev/ttyACM*`.
 
-The C6-DevKitC-1 has **two** USB-C ports: `UART` shows up as `/dev/ttyUSB0`, `USB`
-as `/dev/ttyACM0`. Either works — just know which one you plugged into.
+The C6-DevKitC-1 and DevKitM-1 have **two** USB-C ports: `UART` shows up as
+`/dev/ttyUSB0`, `USB` as `/dev/ttyACM0`. Both can flash, but the console (and the shell in
+the labs) is on **UART**; the USB port shows nothing with the stock board config. An
+ESP32-C6 Super Mini has only the USB port; Lab 1 shows the build option that moves the
+console there.
 
 ## 6. Fork the course repo
 
