@@ -1,14 +1,8 @@
-# Lab 3 Lecture: Application Protocol — Why HTTP Kills Batteries
+# Lab 3 Lecture: CoAP — Why HTTP Kills Batteries, and How to Command a Sleeping Valve
 
-**Duration**: 40 min (delivered before the hands-on lab)
-
-**Audience**: Students about to run Lab 3 (CoAP + CBOR over Thread on ESP32-C6)
-
+**Duration**: ~45 min (delivered before the hands-on lab; Segment 6 can be cut to fit 40)
+**Audience**: Students with a working Thread mesh (Lab 2) and the Lab 0 HTTP and MQTT builds behind them
 **Pairs with**: [lab3.md](../lab3.md)
-
-**Follows**: [Lab 2 Lecture](lab2_lecture.md) — students have a working Thread mesh and know the 80–110 byte payload budget after IPHC.
-
-**Builds on**: [Lab 0 (HTTP)](../../0_2_Minimal_IoT_Implementation_http.md) and [Lab 0.5 (MQTT)](../../0_3_Minimal_IoT_Implementation_mqtt.md) — students have already written an HTTP server with `httpd_uri_t` handlers and JSON responses, and an MQTT client with publish + subscribe. Lab 3 is a third pass at the same problem with a different protocol; lean on that muscle memory.
 
 ---
 
@@ -16,11 +10,12 @@
 
 By the end of the lecture, students should be able to:
 
-1. Explain *quantitatively* why HTTP/JSON is the wrong application protocol for a battery-powered Thread node — in bytes, in radio-on milliseconds, and in handshakes.
-2. Decompose a CoAP message into its 4-byte header + token + options + payload, and predict the on-wire size for a given resource path.
-3. Choose between **CON** and **NON**, and between **Polling** and **Observe**, given a use case (sensor telemetry vs. actuator command vs. alarm).
-4. Encode a small object in CBOR by hand and explain why it beats JSON without being a custom binary format.
-5. Locate CoAP and CBOR inside the ISO/IEC 30141 Functional viewpoint — specifically the **ASD** service contract — and contrast against MQTT for non-constrained stacks.
+1. Explain in bytes, packets and handshakes why HTTP/JSON is the wrong application protocol for a battery-powered Thread node.
+2. Decompose a CoAP message into header, token, options and payload, and predict its size for a given request.
+3. Choose CON or NON, and polling or Observe, for a given message (telemetry, command, alarm), and predict how long a CON request waits before giving up.
+4. Explain why PUT is safe to retransmit and POST isn't, and why that matters more on a radio than on Ethernet.
+5. Encode a small object in CBOR by hand and say why it beats JSON without being a custom binary format.
+6. Predict the downlink latency to a sleepy end device from its poll period, and place CoAP (ASD) and the poll mechanism (SCD) in ISO/IEC 30141.
 
 ---
 
@@ -28,139 +23,122 @@ By the end of the lecture, students should be able to:
 
 | Time | Segment | One-line purpose |
 |---|---|---|
-| 0–8 min | Recap + ISO placement | Where Lab 3 lives in ASD; what changed from Lab 2. |
-| 8–22 min | Thread stack layer of the week: CoAP message, CON/NON, Observe | How a request/response actually crosses the mesh. |
-| 22–32 min | Payload layer: CBOR vs JSON; placing CoAP next to HTTP and MQTT (which they already used) | Same data, three answers — they've shipped two already. |
-| 32–40 min | Lab bridge | Preview the `/env/temp` resource, the Observe trigger, and the packet-size audit. |
+| 0–6 min | Recap + ISO placement | Lab 3 is the first lab that lives mostly in ASD. |
+| 6–13 min | Why HTTP kills batteries | Do the arithmetic; map CoAP onto the Lab 0 code. |
+| 13–24 min | The CoAP message, CON/NON, methods | Header bytes, reliability without TCP, idempotency. |
+| 24–30 min | Observe | Push instead of poll; the uplink energy win. |
+| 30–36 min | CBOR and CDDL | The payload layer and the contract. |
+| 36–42 min | Downlink to a sleeping valve | Poll period, retransmit timing, duplicates. |
+| 42–45 min | Lab bridge | What they'll measure, and the puzzles. |
 
 ---
 
-## Segment 1 — Recap + ISO placement (0–8 min)
-
-### Callback to last week
-
-Last week we ended with a working Thread mesh that routes IPv6 in **80–110 bytes of payload** after IPHC. Today we're going to spend that payload — and the question is *how cheaply*.
+## Segment 1 — Recap + ISO placement (0–6 min)
 
 Open with Daniela's two complaints from the lab brief, on the board:
 
-1. *"Batteries die in 4 days."*
-2. *"Dashboard takes forever to update."*
+1. *"Batteries die in 4 days, and the dashboard is stale."*
+2. *"The valve moved 14 minutes late, and nobody knew whether it got the command."*
 
-Both are application-protocol problems, not radio problems. The radio is fine; we're keeping it on too long, and we're polling when we should be pushing. That's what this lab fixes.
+Neither is a radio problem; Labs 1 and 2 fixed the radio and the mesh. Both are about how
+the application uses the radio: how long it keeps it on, who decides when to talk, and
+what "delivered" means.
 
-### Why HTTP/JSON is the wrong default — do the arithmetic on the board
+### Where Lab 3 lives
 
-You wrote this exact code in [Lab 0](../../0_2_Minimal_IoT_Implementation_http.md):
+Lab 1 sat on the PED ↔ SCD boundary. Lab 2 built the mesh inside the SCD. Lab 3 is the
+first lab that lives **mostly in ASD**:
+
+| Today's artifact | ISO/IEC 30141 Functional element |
+|---|---|
+| The URIs `/env/temp`, `/act/valve` | ASD service identifiers |
+| The CBOR payloads + CDDL | ASD data contracts |
+| GET / Observe / PUT, CON / NON | ASD interaction patterns |
+| UDP + the Thread mesh underneath | SCD communication subsystem (Lab 2) |
+| The sleepy valve's parent poll | SCD communication subsystem |
+
+A URI plus a schema is what an "API" means in IoT. The contract students write today is
+the one the dashboard team, the border router (Lab 5) and the auditor will read.
+
+**Functional vs management plane** (ISO §6.2.2.3.3), two parallel pipes on the board:
+
+```
+Functional plane (today):   app ─ CoAP ─ UDP ─ IPv6 ─ 6LoWPAN ─ 802.15.4
+Management plane (Lab 2):   Thread MLE: attach, routing, leader, parent links
+```
+
+They share the radio, not the protocol: swap CoAP for MQTT-SN without touching MLE.
+
+> **Optional aside (cut first if short)**: the domain map is one diagram in one viewpoint.
+> ISO/IEC 30141 has six viewpoints (Foundational, Business, Usage, Functional,
+> Trustworthiness, Construction). Labs 1–4 climb the Functional viewpoint's domains; from
+> Lab 5 the lens changes to networking patterns (Table A.4), then Trustworthiness (Lab 6),
+> Usage (Lab 7) and Construction (Lab 8).
+
+---
+
+## Segment 2 — Why HTTP kills batteries (6–13 min)
+
+### Do the arithmetic on the board
+
+Students wrote this in Lab 0 (`firmware/lab0_http`):
 
 ```c
-static esp_err_t sensor_get_handler(httpd_req_t *req)
-{
-    float temp = 20.0 + (esp_random() % 100) / 10.0;
-    char buffer[100];
-    snprintf(buffer, sizeof(buffer), "{\"temperature\": %.1f}", temp);
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, buffer, HTTPD_RESP_USE_STRLEN);
-    return ESP_OK;
-}
+int len = snprintf(body, sizeof(body), "{\"temperature\": %u.%u}", tenths / 10, tenths % 10);
+response_ctx->status = HTTP_200_OK;
+response_ctx->headers = headers;          /* Content-Type: application/json */
+response_ctx->body = body;
 ```
 
-That handler shipped 10 bytes of useful data per call. Let's count what actually went on the wire to deliver it. On HTTP/TCP/IPv6 over a Thread link:
+About 20 bytes of useful data. What it costs over TCP:
 
 ```
-TCP 3-way handshake:        3 packets (~60 B each after IPHC) ─┐
-HTTP GET /env/temp + hdrs:  1 packet  (~150 B request line +   │  ≥ 6 packets
-                                       Host, User-Agent, etc.) │  before any
-HTTP/1.1 200 OK + hdrs:     1 packet  (~120 B status + Content-│  data flows
-                                       Type + Content-Length)  │
-TCP FIN/ACK teardown:       2 packets (~60 B each)            ─┘
+TCP handshake           3 packets   SYN, SYN-ACK, ACK
+HTTP GET + headers      1 packet    request line, Host, User-Agent, Accept… ~150 B
+HTTP 200 OK + headers   1 packet    status line, Content-Type, Content-Length… ~120 B
+TCP teardown          2–4 packets   FIN, ACK (each side)
+                      ─────────
+                      7–9 packets, several hundred bytes, for ~20 B of data
 ```
 
-Six packets, ~500 bytes of overhead, to carry 10 bytes of payload — and every one of those packets needs the radio on. **The radio is the battery.** ESP32-C6 in Thread RX draws ~75 mA; every extra millisecond of radio-on directly subtracts from battery life.
+Every packet keeps a radio on, at both ends, and every handshake round trip adds a
+multi-hop mesh delay. **The radio is the battery.**
 
-CoAP collapses this to **one request packet + one response packet**, no handshake, no teardown, no tear-down ACK. Same REST semantics — `GET /env/temp` returns a representation — for roughly an order of magnitude less air time. The handler you'll write today is the structural twin of the Lab 0 one, just bound to a CoAP resource instead of an HTTP URI.
+CoAP: **one request datagram, one response datagram**, no handshake, no teardown. Same
+REST model, roughly a tenth of the airtime.
 
-> **First-principles question to drop**: *"HTTP was designed in 1991 for fast wired networks. What three of its assumptions break on a battery-powered radio mesh?"* Expected answers: (1) a TCP connection is cheap to open, (2) headers are free because bandwidth is high, (3) text/ASCII is fine because parsing is cheap. None of these hold on Thread.
+> **First-principles question to drop**: *"HTTP was designed in 1991 for wired networks.
+> Which of its assumptions break on a battery-powered radio mesh?"* Expected: opening a
+> connection is cheap; headers are free because bandwidth is plentiful; text is fine
+> because parsing is cheap; both ends are always awake.
 
-### A 2-minute aside: domains are not the whole standard
+### Map CoAP onto what they already wrote
 
-Before we place Lab 3 on the map — a course-level note. So far we've talked almost exclusively about **the six functional domains** (PED, SCD, ASD, OMD, UD, RAID) because Labs 1–4 are about *building physical and functional layers*, and the domain map is the cleanest way to anchor "where does this code live."
+CoAP introduces no new mental model, only new bytes. The firmware for today
+(`firmware/lab3_coap`) is the structural twin of Lab 0:
 
-But the domain map is **one diagram**, inside **one viewpoint**, in a much bigger standard. ISO/IEC 30141 organises everything around **six viewpoints**:
-
-| Viewpoint | What it asks | Where you meet it |
+| Lab 0 (HTTP / MQTT) | Lab 3 (CoAP) | Same role |
 |---|---|---|
-| **Foundational** | What is an IoT system at all? | Lab 0 — many-to-many digital + physical interaction |
-| **Functional** | Where do the system's functions live? | Labs 1–4 — *the domain ladder we've been climbing* |
-| **Business** | What value does it create, for whom, at what cost? | Stakeholder tables in every lab |
-| **Usage** | Who uses it, in what role, across the lifecycle? | Lab 7 — the health dashboard |
-| **Trustworthiness** | Is it safe, secure, reliable, resilient, private? | Lab 6 — DTLS and the §9 audit |
-| **Construction** | How is it actually built and deployed? | Lab 8 — the integration recap |
+| `HTTP_RESOURCE_DEFINE(sensor_resource, iot_service, "/api/sensor", …)` | `COAP_RESOURCE_DEFINE(env_temp, soilsense, { .get = …, .path = … })` | bind a path to handlers |
+| `/api/control` (LED) | `/act/valve` (LED as valve) | the actuator |
+| `JSON_OBJ_DESCR_PRIM(…)`, JSON text | `zcbor_float16_put(…)`, CBOR bytes | the payload encoder |
+| MQTT telemetry at **QoS 0** | **NON** | fire and forget |
+| MQTT commands at **QoS 1** | **CON** | acknowledged, retried |
+| `mqtt_subscribe("iot/control")` | GET with **Observe: 0** | register for pushes |
 
-Two things this means:
+Two structural differences:
 
-1. **Labs 1–4 climb the Functional viewpoint's domain ladder** — PED in Lab 1, SCD in Lab 2, ASD today, more ASD with downlink in Lab 4. That's the right narrative *for now*.
-2. **From Lab 5 on, the dominant lens changes.** Lab 5 is about the **networking pattern** (Table A.4: proximity / access / services / user networks). Lab 6 is about **Trustworthiness** as a cross-cut. Lab 7 is about the **Usage** viewpoint. Lab 8 wraps the whole system in the **Construction** viewpoint. By the end you should be able to describe SoilSense from any of the six viewpoints, not just by mapping it to domains.
-
-The standard also gives you, beyond viewpoints and domains: **patterns** (Tables A.3–A.5: enterprise system, networking, usage), the **Component capability model** (transducer / data / interface / supporting / latent — you already used this in Lab 0), and the **trustworthiness characteristics list** (availability, confidentiality, integrity, reliability, resilience, safety, privacy). We'll meet each of those in turn.
-
-Why does this matter for today? Because the question "is CoAP SCD or ASD?" only has a clean answer once you know the standard isn't asking you to file every line of code into a bin — it's asking you to describe the same system through several lenses. Today's lens is still **Functional**, and within that, today is **mostly ASD with a foot in SCD**. Two labs from now, the lens changes. Stay tuned.
-
-> **Drawing for the board (climb visualization):** ladder of labs vs. domains, primary domain bolded, foot-in-previous as a thin mark. Labs 1–4 fill the ladder cleanly; Labs 5–8 are sketched as branching off into the other viewpoints.
+1. **No broker.** Every node can be client and server; they find each other by IPv6
+   address.
+2. **No connection.** One datagram per message, no transport state.
 
 ---
 
-### Where Lab 3 lives in ISO/IEC 30141
+## Segment 3 — The CoAP message, CON/NON, methods (13–24 min)
 
-Draw the Functional viewpoint domain stack again. Lab 1 sat on the **PED ↔ SCD** boundary (radio waves and hardware). Lab 2 was **mostly SCD with a foot in ASD** — the Thread mesh is the device's communication subsystem (SCD), and stable IPv6 addressing started to make device endpoints reachable to applications (ASD). Lab 3 reverses the weighting: **mostly ASD with a foot in SCD** — the URI, the methods, the CBOR contract, the Observe semantics are squarely application-and-service concerns; the mesh + UDP transport underneath is just the SCD baggage we already paid for in Lab 2. Lab 4 stays mostly ASD (downlink + reliability); from Lab 5 the dominant lens changes (see the aside above).
+### Part A: the message format
 
-| Today's deliverable | ISO Functional element |
-|---|---|
-| The URI path `/env/temp` | ASD service identifier |
-| The CBOR schema | ASD data contract |
-| GET / Observe semantics | ASD interaction pattern |
-| CoAP message + UDP transport | ASD ↔ Network boundary |
-
-The ASD contract you write today is the same contract the dashboard team, the OTA team, and the auditor will all read. **A URI and a schema is what an "API" means in IoT** — there's no Swagger, there's `/.well-known/core` and a CBOR-CDDL schema. We won't formalize the schema today, but Daniela's dashboard people will hold us to it next week.
-
-### Where this is *not* — RAID
-
-RAID (Resource Access & Interchange) is where outside consumers — phones, clouds, third-party integrators — reach the IoT system through *authenticated* APIs. CoAP today is *internal* to the Thread mesh. The Border Router (Lab 5) makes the mesh routable to the outside, but per Figure A.5 the Border Router itself is an **SCD-hosted IoT gateway**, not a RAID device. RAID proper lights up in **Lab 6** (DTLS as access management) and **Lab 7** (dashboard's exposed API as interchange subsystem). Mark RAID on the board in gray again so students see the gap — and note the gap is two labs away, not one.
-
-### Functional/Management plane separation (ISO §6.2.2.3.3)
-
-The lab brief mentions this — make it concrete. Draw two parallel pipes:
-
-```
-Functional plane (today):    [App] ─ CoAP ─ UDP ─ IPv6 ─ 6LoWPAN ─ 802.15.4
-Management plane (Lab 2):    Thread MLE, leader election, route propagation
-```
-
-The two planes share the radio but not the protocol. You can rip out CoAP and put MQTT-SN in its place without touching MLE. You can change the Leader without touching `/env/temp`. **This is why standards organizations care about layering** — it lets the firmware team and the network team ship independently.
-
----
-
-## Segment 2 — Thread stack layer of the week: CoAP (8–22 min)
-
-### Bridge from what they've built
-
-Before opening the CoAP spec, map it onto idioms students already wrote in Labs 0 and 0.5. CoAP introduces *no new mental model* — only new bytes on the wire.
-
-| Lab 0 / 0.5 idiom | CoAP equivalent | Same role |
-|---|---|---|
-| `httpd_uri_t { .uri = "/api/sensor", .method = HTTP_GET, .handler = ... }` | `coap_resource_init("env/temp")` + `coap_register_handler(... COAP_REQUEST_GET, ...)` | Bind a path to a handler. |
-| `httpd_resp_send(req, buf, len)` | `coap_add_data_blocked_response(...)` | Send a response body. |
-| `cJSON_Parse(...)` / `cJSON_GetObjectItem(...)` | `tinycbor` decoder, or hand-rolled bytes | Parse a request payload. |
-| `esp_mqtt_client_subscribe(client, "iot/sensor", 1)` (Lab 0.5) | Client sends `GET /env/temp` with `Observe: 0` | Register interest in a stream of values. |
-| Broker delivers `MQTT_EVENT_DATA` to subscriber | Server sends a NON notification to the registered observer | Push a new value to interested party. |
-
-Two structural differences students must internalize:
-
-1. **No broker.** In Lab 0.5, ESP32 connected outward to Mosquitto. In CoAP, there is no broker — every device is both client and server. The Thread mesh *is* the network; observers and observees find each other by IPv6 address.
-2. **No persistent connection.** HTTP held a TCP socket open for the request/response. MQTT held one open for the lifetime of the program. CoAP is **datagram-per-message** — each request is one UDP packet, no state at the transport layer.
-
-### Part A: CoAP message format
-
-Draw this on the board. It is the single most important picture of the lecture.
+The single most important picture of the lecture:
 
 ```
  0                   1                   2                   3
@@ -168,235 +146,329 @@ Draw this on the board. It is the single most important picture of the lecture.
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |Ver| T |  TKL  |     Code      |          Message ID           |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|   Token (TKL bytes, 0–8)                                      |
+|   Token (0–8 bytes)                                           |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|   Options (variable, delta-encoded)                           |
+|   Options (delta-encoded: Uri-Path, Content-Format, Observe…) |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  0xFF  |  Payload (variable, e.g. CBOR)                       |
+|1 1 1 1 1 1 1 1|   Payload (CBOR)                              |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-                       4 bytes fixed header
 ```
 
 | Field | Size | Meaning |
 |---|---|---|
-| Ver | 2 bits | Always `01` (CoAP v1) |
-| T | 2 bits | CON / NON / ACK / RST |
-| TKL | 4 bits | Token length, 0–8 |
-| Code | 8 bits | `c.dd` form: `0.01` GET, `0.03` PUT, `2.05` Content, `4.04` Not Found |
-| Message ID | 16 bits | Duplicate detection on the UDP layer |
-| Token | 0–8 B | **Request–response correlation** — independent of Message ID |
-| Options | variable | Uri-Path, Content-Format, Observe, ETag, etc. — delta-encoded |
-| Payload | variable | Marker `0xFF` then CBOR/JSON/text bytes |
+| Ver | 2 bits | always 1 |
+| T | 2 bits | CON, NON, ACK, RST |
+| TKL | 4 bits | token length |
+| Code | 8 bits | `c.dd`: `0.01` GET, `0.03` PUT, `2.04` Changed, `2.05` Content, `4.04` Not Found |
+| Message ID | 16 bits | matches an ACK to its CON; detects duplicates |
+| Token | 0–8 B | matches a response to its request (2 B from the OpenThread shell) |
 
-**Two questions students always ask**:
+Predict a size together: `GET env/temp` from the shell = 4 (header) + 2 (token) + 4
+(`env`: 1 option byte + 3) + 5 (`temp`) = **15 bytes**. Students check it in S's log.
 
-1. *"Why both Message ID and Token?"* Message ID is for the UDP transport (de-dup an ACK against a CON). Token is for the application (correlate "this response is for that request"). Observe needs Token because notifications arrive long after the original request — Message ID would have rolled over by then.
-2. *"Why delta-encoded options?"* Two reasons: smaller on the wire, and forces options into a defined order. Servers can parse them in one pass.
+**Two questions students always ask:**
 
-### Part B: CON, NON, ACK, RST — reliability without TCP
+1. *"Why both Message ID and Token?"* The Message ID is for the messaging layer (this ACK
+   is for that CON). The Token is for the application (this response is for that
+   request). Observe notifications arrive minutes later with new Message IDs but the same
+   Token.
+2. *"Why delta-encoded options?"* Smaller, and it forces a fixed order so a parser makes
+   one pass. (The firmware must append Observe (6), Content-Format (12), Max-Age (14) in
+   that order.)
+
+### Part B: CON and NON — reliability without TCP
 
 ```
-CON (Confirmable) — the receiver MUST ACK
-   Client                          Server
-      | CON [MID=0x1234, GET]        |
-      |----------------------------->|
-      | ACK [MID=0x1234, 2.05, data] |   ← piggybacked response
-      |<-----------------------------|
-
-NON (Non-confirmable) — fire and forget
-   Client                          Server
-      | NON [MID=0x1234, GET]        |
-      |----------------------------->|
-      | NON [MID=0x5678, 2.05, data] |
-      |<-----------------------------|
+CON: the receiver must acknowledge          NON: no acknowledgement
+  Client                    Server            Client                    Server
+    | CON MID=0x1234 GET      |                 | NON MID=0x1234 GET      |
+    |------------------------>|                 |------------------------>|
+    | ACK MID=0x1234 2.05 data|                 | NON MID=0x5678 2.05 data|
+    |<------------------------|                 |<------------------------|
+       piggybacked response
 ```
 
-The decision matrix. Write this on the board:
+The decision matrix, on the board:
 
-| Use case | Type | Why |
+| Message | Type | Why |
 |---|---|---|
-| Periodic telemetry (every minute) | NON | One drop is fine; the next sample arrives soon. |
-| Critical alarm (frost detected) | CON | Must be delivered; retransmit on loss. |
-| Actuator command (open valve) | CON | The valve must actually open. |
-| Observe notification | NON (default) | Loss is acceptable; the next change re-notifies. |
-| Observe notification of *critical* state | CON | RFC 7641 allows occasional CON to verify the registration. |
+| Periodic reading | NON | a lost reading is replaced by the next one |
+| Observe notification on change | NON | the next change re-notifies |
+| Observe heartbeat | CON | proves the observer is still there (RFC 7641 §4.5) |
+| Valve command | **CON** | must arrive, and the client must know it arrived |
+| Frost alarm | CON | must arrive |
 
-CoAP's retransmit on CON is exponential backoff with random jitter — the SDK handles this; students don't implement it. But they should know **the timeout is ~2 s, max ~45 s, max 4 retries**. If a server is flapping at 100% loss, CoAP gives up — by design, not by accident.
-
-> **Trap to call out**: NON does not mean "best effort to deliver." It means "do not require an ACK at the message layer." Loss is invisible. If the application needs to know whether the data arrived, that's CON or an application-layer ACK. Don't paper over this distinction in the lab report.
-
-### Part C: Idempotency — why GET/PUT survive a lost ACK
+**The retransmission schedule** (RFC 7252 §4.8), compute it with them:
 
 ```
-PUT /light "1"  → server sets light=1 → ACK lost
-                                       → client retransmits
-                                       → server sets light=1 again ✓
+first wait     random in [2, 3] s      ACK_TIMEOUT × [1, ACK_RANDOM_FACTOR=1.5]
+retransmit 1   wait doubles: 4–6 s
+retransmit 2   8–12 s
+retransmit 3   16–24 s
+retransmit 4   32–48 s                  MAX_RETRANSMIT = 4
+               ───────
+last retransmission sent after 30–45 s  (MAX_TRANSMIT_SPAN = 45 s)
+client gives up after 62–93 s           (MAX_TRANSMIT_WAIT = 93 s)
 ```
 
-PUT is idempotent: re-applying it lands you in the same state. POST `/counter/inc` is not — re-applying increments twice. **Use PUT for state, POST for events.** This is the same rule as HTTP; the difference is that on a lossy radio, you'll actually hit the lost-ACK case in normal operation, not just in chaos tests.
+Students measure this in Task 4.2: unplug the valve, send a CON PUT, time the
+`ResponseTimeout`. The same NON PUT fails silently, forever.
 
-### Part D: Observe — the energy win
+> **Trap to call out**: NON doesn't mean "best effort to deliver". It means "don't
+> acknowledge at the message layer". Loss is invisible to the sender.
 
-The lab's whole point. Polling burns the radio for nothing when data hasn't changed:
+> **Why doubling?** Radio losses come in bursts (a collision, a microwave oven). Waiting
+> longer each time gives the channel time to clear; a fixed interval would re-collide.
+
+### Part C: methods and idempotency
+
+| Method | Code | Idempotent? | Safe? | SoilSense use |
+|---|---|---|---|---|
+| GET | 0.01 | yes | yes | `GET /env/temp`, `GET /act/valve` |
+| POST | 0.02 | **no** | no | append an event; never "set state" |
+| PUT | 0.03 | **yes** | no | `PUT /act/valve` with `{"v": 1}` |
+| DELETE | 0.04 | yes | no | rare on devices |
 
 ```
-Polling — radio on twice per minute, even on a still day
-   Client → GET /env/temp → 24.5°C
-   (60 s)
-   Client → GET /env/temp → 24.5°C  ← same value, paid for the radio anyway
-   (60 s)
-   Client → GET /env/temp → 24.5°C  ← still
+PUT /act/valve {"v": 1}  → valve opens → ACK lost → client retransmits
+                         → handler runs again → valve still open ✓
+
+POST /act/valve/toggle   → valve opens → ACK lost → client retransmits
+                         → handler runs again → valve closes ✗
 ```
 
-Observe (RFC 7641) flips it: register once, server pushes only on change.
+RFC 7252 lets a server remember recent Message IDs and replay its response to a
+duplicate. **The Zephyr CoAP server used in the lab doesn't**: every retransmission
+reaches the handler. Students see it in Task 5.3 (S logs `OPEN, no change`). With a
+non-idempotent command that log line would be a second valve movement. **Use PUT for
+state, POST for events.**
 
-```
-   Client → GET /env/temp, Observe: 0 → 24.5°C, Observe: 1
-   ...
-                            (temp drifts to 24.6°C — change < 0.5°C, no notify)
-   ...
-                            (temp jumps to 26.0°C)
-   Server → 2.05 Content    26.0°C, Observe: 2 (NON)
-```
-
-The change-threshold logic — `abs(new - old) > 0.5` in Task B — lives in the application, not in CoAP. CoAP just gives you the registration + token + sequence number machinery. The point students must take away: **Observe shifts the policy of "when to talk" from the client (who doesn't know if the data changed) to the server (who does).** That's the energy win, and it's structural, not a code optimization.
-
-The Observe sequence number is 24 bits with wrap-around; the client uses it to drop reordered notifications. If a notification is lost, the next one arrives anyway with a higher seq — there's nothing to repair. Observe is intentionally **eventually consistent**, not lossless.
-
-> **First-principles question to drop**: *"Observe pushes notifications instead of polling. Why doesn't every IoT system just use Observe everywhere?"* Expected answers: (1) the server has to keep state per registered observer (tokens, sequence numbers, addresses), (2) NAT/firewall traversal — push only works if the server can reach the client, which fails the moment a Border Router or cellular path is in the way (this is exactly Lab 4's problem with sleeping nodes), (3) registrations expire and must be refreshed. Observe is a *trade*, not a free lunch.
+> **First-principles question to drop**: *"CoAP makes UDP reliable with CON. Why not just
+> run CoAP over TCP?"* Expected: connection state and keepalives cost RAM and radio time;
+> TCP retransmits segments, not requests, so the application can't tell which request
+> failed; one lost segment stalls every request behind it.
 
 ---
 
-## Segment 3 — Payload + alternative app protocols (22–32 min)
+## Segment 4 — Observe (24–30 min)
 
-### Part A: CBOR — the payload-layer compression
-
-JSON is ASCII. Every brace, every quote, every digit is a byte. CBOR (RFC 8949) is a **binary** encoding of the same data model — objects, arrays, numbers, strings — using **type-prefixed length-or-value bytes**. The schema-less promise of JSON survives; the verbosity does not.
-
-Walk through `{"t": 24.5}` on the board:
+Polling burns the radio even when nothing changed:
 
 ```
-JSON:  { " t " :   2 4 . 5 }      → 11 bytes (with space)
-       7B 22 74 22 3A 32 34 2E 35 7D
-
-CBOR:  A1 61 74 F9 4E 40
-       │  │  │  │  └──┴── 16-bit half-precision float, value 24.5
-       │  │  └── ASCII 't'
-       │  └── text-string of length 1
-       └── map of 1 pair                        → 6 bytes
+Client → GET /env/temp → 24.5 °C     (60 s)
+Client → GET /env/temp → 24.5 °C     ← same value, paid for both radios anyway
+Client → GET /env/temp → 24.5 °C
 ```
 
-The savings come from three places:
-
-1. **Structure markers are 1 byte**, not punctuation: `A1` = "map of 1", instead of `{` … `:` … `}`.
-2. **Numbers are binary**: half-precision float for typical sensor ranges = 2 bytes vs. 4 ASCII digits + decimal point + sign.
-3. **Strings carry their length**, no need to scan for closing quote.
-
-Number students should leave with:
-
-| Payload | JSON | CBOR | Ratio |
-|---|---|---|---|
-| `{"id": "soil-07", "t": 24.5, "rh": 67, "ts": 1715000000}` | 53 B | 31 B | 1.7× |
-
-CBOR is roughly **1.5–2× smaller than JSON** in real telemetry. Combined with CoAP's header savings, the full uplink shrinks from the multi-packet HTTP exchange they wrote in Lab 0 to a single sub-100-byte UDP datagram.
-
-> **First-principles question to drop**: *"CBOR is 1.7× smaller than JSON. Why don't we use a hand-rolled binary format and get 5×?"* Expected: schema evolution, debuggability, tooling. CBOR is a deliberate compromise — small enough for the radio, structured enough for the cloud team to decode without your firmware changelog. Custom binary formats are how Lab 1's "we'll just ship raw `struct`s" plans die six months later.
-
-### Part B: CDDL — describing the schema
-
-You won't write CDDL today, but mention it: **CDDL (RFC 8610)** is to CBOR what JSON Schema is to JSON. It's how you write down the contract:
+Observe (RFC 7641) flips who decides: register once, the server pushes.
 
 ```
-env-reading = {
-  t  : float16,        ; temperature in °C
-  rh : uint .size 1,   ; relative humidity, 0–100
-  ts : uint            ; epoch seconds
-}
+Client → GET /env/temp, Observe: 0  → 2.05, Observe: 5, 24.5 °C   (registered)
+                                       (drifts 0.3 °C: no notification)
+Server → 2.05, Observe: 6, 25.1 °C  NON                           (moved > 0.5 °C)
+                                       (45 s without change)
+Server → 2.05, Observe: 7, 25.0 °C  CON  → Client ACK             (heartbeat)
+Client → GET /env/temp, Observe: 1                                 (cancel)
 ```
 
-This is the artifact that goes in ADR-003 alongside the URI. Cloud team can generate decoders from it.
+Points to land:
 
-### Part C: Placing CoAP next to HTTP and MQTT — three protocols, one course
+- **Observe moves "when to talk" from the client (who can't know whether the value
+  changed) to the server (who does).** That's the energy win, and it's structural.
+- The 0.5 °C threshold is **application policy**; CoAP only supplies the registration,
+  the Token and the sequence number. Keep them separate in the code (`env_temp.c` does).
+- The sequence number (24 bits, wraps) lets the client drop reordered notifications.
+  Observe is **eventually consistent**, not lossless: a lost NON is simply superseded.
+- Max-Age (60 s here) says how long a value stays fresh. The heartbeat (45 s) keeps the
+  client's copy fresh even on a still day, and as a CON it lets the server discover a
+  vanished observer and drop it.
 
-Students have now shipped working code in all three. Put the comparison table on the board and let them fill in the rows themselves before you reveal yours:
+> **First-principles question to drop**: *"Why doesn't every IoT system use Observe for
+> everything?"* Expected: the server keeps state per observer (address, token, sequence);
+> push only works if the server can reach the client, which breaks behind NATs and
+> firewalls; a sleeping client can't receive pushes at all.
 
-| Aspect | HTTP (Lab 0) | MQTT (Lab 0.5) | CoAP (Lab 3) |
+---
+
+## Segment 5 — CBOR and CDDL (30–36 min)
+
+CBOR (RFC 8949) is a binary encoding of JSON's data model: maps, arrays, numbers,
+strings, each item prefixed by a type-and-length byte.
+
+```
+JSON:  {"t": 24.5}         11 bytes
+       7B 22 74 22 3A 20 32 34 2E 35 7D
+
+CBOR:  A1 61 74 F9 4E 20     6 bytes
+       │  │  │  └──┴──┴── F9 = half-precision float, 4E 20 = 24.5
+       │  │  └── 't'
+       │  └── text string, length 1
+       └── map, 1 pair
+```
+
+Decode `4E 20` on the board: sign 0, exponent `10011` = 19 − 15 = 4, mantissa
+`1000100000` = 1 + 1/2 + 1/32 = 1.53125, so 1.53125 × 2⁴ = **24.5**. Half precision
+gives about 3 significant digits, enough for a soil sensor; that's a design decision to
+write in the contract.
+
+A fuller reading:
+
+| Payload | JSON | CBOR |
+|---|---|---|
+| `{"id": "soil-07", "t": 24.5, "rh": 67, "ts": 1715000000}` | 49 B compact, 56 B with spaces | 30 B |
+
+Roughly **1.6–1.9× smaller**, and still self-describing: any CBOR library decodes it
+without the firmware's source.
+
+**CDDL** (RFC 8610) is to CBOR what JSON Schema is to JSON; it's how the contract is
+written down:
+
+```
+env-reading = { t: float16 }      ; °C
+valve-state = { v: 0 / 1 }        ; 0 = closed, 1 = open
+```
+
+> **First-principles question to drop**: *"Why not a hand-rolled binary struct and get
+> 3× instead of 1.7×?"* Expected: no schema evolution (adding a field breaks every
+> decoder), no tooling, the cloud team needs your firmware changelog to read the data.
+
+### Three protocols, one course
+
+Let students fill this from memory of Lab 0 before revealing it:
+
+| | HTTP (Lab 0) | MQTT (Lab 0) | CoAP (Lab 3) |
 |---|---|---|---|
 | Transport | TCP | TCP | UDP |
-| Header / message | ~200–500 B | ~2 B fixed + topic | **4 B fixed** |
-| Pattern | Request/response | Pub/sub via broker | Request/response **+ Observe** |
-| Who initiates | Dashboard polls device | Device connects to broker, then both publish | Either side, peer-to-peer |
-| Broker required? | No (direct connection) | **Yes** | No |
-| Battery-friendly? | No (TCP + headers) | No (TCP + persistent socket) | **Yes** (UDP + 4-B header) |
-| Best fit | Wi-Fi gadgets, browser-facing APIs | Cloud fan-out, Wi-Fi fleets | Constrained mesh (Thread/6LoWPAN) |
+| Fixed header | none (text) | 2 B + topic | 4 B |
+| Pattern | request/response | publish/subscribe via broker | request/response + Observe |
+| Broker | no | **yes** | no |
+| Reliability | always | per message (QoS 0/1/2) | per message (NON/CON) |
+| Fits | browsers, Wi-Fi gadgets | cloud fan-out, powered fleets | constrained mesh |
 
-The takeaway is not "CoAP wins." The takeaway is **constraints pick the protocol**:
-
-1. The dashboard team in Lab 5 will probably keep using HTTP/MQTT on the Wi-Fi side — that's fine. The Border Router bridges *networks* at the boundary (proximity ↔ access; Table A.4). An *application-layer* CoAP↔HTTP proxy is a separate device that lives behind the Border Router — that's where RAID-style brokering happens, and it shows up in Lab 7.
-2. CoAP is the right choice on the radio side because the radio is the battery, and HTTP/MQTT both keep the radio on for orders of magnitude longer per reading.
-3. **Observe is CoAP's answer to MQTT subscribe** — same idea (push-when-changed instead of poll), no broker required.
-
-> **Teaching hook**: "Pick your protocol based on your *constraints*, not your *preferences*. You'll meet engineers who insist MQTT is the One True IoT Protocol. They built fleets on Wi-Fi. You're building one on 250 kbps radios with battery budgets. Different problem, different answer."
+> **Teaching hook**: "Constraints pick the protocol, not preferences. The Wi-Fi side of
+> the border router (Lab 5) can keep using MQTT or HTTP. The radio side can't afford to."
 
 ---
 
-## Segment 4 — Lab bridge (32–40 min)
+## Segment 6 — Downlink to a sleeping valve (36–42 min)
 
-### What they are about to do
+### The mailbox
 
-Walk through [lab3.md](../lab3.md) at high speed:
+From the Lab 2 role table, the **sleepy end device (SED)**: a child whose radio is off
+between polls. Everything addressed to it waits at its **parent router**.
 
-1. **Task A — `/env/temp` GET, returns CBOR float.** Build on the SOP-03 scaffold, swap the JSON `/sensor` for a CBOR `/env/temp`. The point isn't writing CBOR by hand; it's wiring `tinycbor` (or equivalent) into the response builder and setting `Content-Format: application/cbor` (60).
-2. **Task B — Observe with change threshold.** Add the registration handler, store the observer's token + endpoint, push a notification only when `abs(new - old) > 0.5`. The threshold is the policy; the CoAP machinery is the mechanism. Keep them separate in the code.
-3. **Task C — Packet-size audit.** Capture with Wireshark on the Border Router host (or log `coap_pdu_get_length`) and *compute* the equivalent HTTP exchange. The deliverable is a number: "CoAP exchange = N bytes, equivalent HTTP = M bytes, ratio = M/N."
+```
+poll period = 5 s
+t = 0      C sends CON PUT /act/valve to S
+t ≈ 0.02   reaches S's parent; parent holds it (S is asleep)
+t = 2.5    C's first ACK wait expires → C retransmits; the parent holds that too
+t = 5      S wakes, polls: "any mail?" → parent delivers both copies
+t ≈ 5.02   S runs the handler twice (open, then "no change"), sends two ACKs
+```
+
+Three consequences:
+
+1. **Worst-case downlink latency ≈ the poll period.** The client sees a slow node, not a
+   dead one; the parent stands in for it.
+2. **A poll period longer than `ACK_TIMEOUT` causes duplicate requests.** Harmless with
+   PUT, a second valve movement with a toggle. Fix: raise the client's ACK timeout for
+   sleepy destinations (SOP-03 Experiment B).
+3. **Uplink is unaffected**: the SED can transmit any time; its Observe notifications go
+   straight out.
+
+### The poll-period trade-off
+
+```
+average current ≈ (t_on / poll_period) × I_rx + I_sleep
+```
+
+| Poll period | Worst-case latency | Radio-on for polling (t_on ≈ 10 ms) |
+|---|---|---|
+| 1 s | ~1 s | 1 % |
+| 5 s | ~5 s | 0.2 % |
+| 30 s | ~30 s | 0.03 % |
+
+Students put the ESP32-C6 datasheet's RX and sleep currents into this in their energy
+estimate. The point: manual valve control is human-paced. 5 s is invisible to Daniela;
+1 s costs several times the battery for nothing anyone notices.
+
+**When polling isn't fast enough:** Thread 1.2 added **CSL (Coordinated Sampled
+Listening)**: parent and child agree on a periodic listen window, so the parent transmits
+at a known time instead of waiting for a poll. Mention it so nobody leaves thinking
+"sleepy = seconds of latency, deal with it".
+
+> **First-principles question to drop**: *"Why not always poll every second?"* Expected:
+> battery, and channel occupancy that grows with the fleet. Constraints pick the
+> parameter.
+
+---
+
+## Segment 7 — Lab bridge (42–45 min)
+
+### What they're about to do
+
+1. **Setup:** flash `firmware/lab3_coap` on two boards; C forms the network and runs
+   `ot coap start`, S is the field node.
+2. **Uplink:** `ot coap get <S> env/temp`, decode against the contract; Observe for 5 min
+   and count threshold vs heartbeat notifications against 300 polls.
+3. **Downlink:** `ot coap put <S> act/valve con 1` (LED white), idempotency, then CON vs
+   NON with S gone: time the `ResponseTimeout`.
+4. **Sleepy valve:** `ot mode -`, three poll periods, ping latency; at 5 s, watch the PUT
+   arrive twice.
 
 ### Practical reminders
 
-- **Use the Token, not the Message ID, to match Observe notifications to the registration.** Beginners mix these up; the bug looks like "all my notifications are 'lost'" because the client is matching on Message ID and seeing all-different.
-- **CBOR Content-Format is `60`**, not `50` (that's `application/json`). Wrong Content-Format → server returns 4.15 Unsupported Content-Format and the dashboard shows nothing.
-- **NON for Observe notifications** by default; CON occasionally to verify the observer is still alive (RFC 7641 §4.5). Don't CON every notification — you'll re-add the ACK round-trip you just removed.
-- The `/env/temp` value can be mocked for this lab (a counter, or a sine wave) — the real ADC integration is Lab 4. Don't let students get stuck on hardware.
+- **Never `ot coap start` on S.** OpenThread would take port 5683 from S's server.
+- The shell sends text, so the valve accepts `0`/`1` as text; real clients send CBOR with
+  Content-Format 60. Both are in the contract.
+- The shell doesn't print response codes. S's log does; keep both monitors visible.
+- The ping timeout must exceed the poll period, or Task 5.2 reports loss that isn't.
 
 ### The puzzles to seed
 
-Two this week. Don't answer either.
+Don't answer either.
 
-> *"You implemented Observe with a 0.5°C threshold. The temperature drifts 0.4°C every minute for an hour, then jumps 1°C in one second. How many notifications does the server send? What's the worst-case staleness of the dashboard's value?"*
+> *"The temperature drifts 0.4 °C per minute for an hour, then jumps 1 °C in one second.
+> How many notifications does the server send in that hour? How stale can the client's
+> value get?"*
 
-> *"You move the same `/env/temp` server behind the Border Router (Lab 5) so a phone on Wi-Fi can read it. Wi-Fi is fine. Thread is fine. The phone gets a 4.04 Not Found. What changed at the boundary, and which protocol gave up first?"*
+> *"A 50-valve field polls every 30 s, and the dashboard opens all valves at 06:00 with
+> CON and default timers. Count the retransmissions per valve before the first one
+> wakes, and think about what that does to the channel."*
 
-The first puzzle is to make students notice that the threshold filters *out* small changes — fine for a slow drift, but they need a fallback "send at least every N minutes" heartbeat for the dashboard to know the device is alive. (That's a recurring gotcha; don't tell them, let it bite once.)
-
-The second puzzle previews Lab 5: Observe registrations don't survive a CoAP↔HTTP proxy unless the proxy explicitly bridges them, and the URI path may need rewriting.
+Reference answers (yours, not theirs): (1) the drift needs 75 s to reach 0.5 °C, but the
+45 s heartbeat fires first and resets the baseline, so the threshold never triggers during
+the drift: about 80 heartbeats in the hour, plus one threshold notification for the jump.
+The client's value is at most 45 s old and at most ~0.3 °C behind. Without the heartbeat
+it would have received one notification every 75 s. (2) With a 30 s poll and a 2–3 s first wait, three retransmissions
+(after ~2.5, ~7.5 and ~17.5 s) can go out before a valve wakes: up to 4 copies of each
+command queued at the parents, 200 frames instead of 50, all at the same minute. Raise
+`ACK_TIMEOUT` for sleepy destinations, and stagger the commands.
 
 ### What Lab 4 will answer
 
-> *"Our sensor side is now efficient. But Edwin says actuator commands fail when the valve is asleep. How do you reliably send a command to a device that's off most of the time?"*
-
-Preview: CoAP CON + retransmit isn't enough when the destination is genuinely unreachable for 10 minutes at a time. We'll need the **Mailbox / Proxy** pattern and the **Sleepy End Device** parent-poll behavior from Lab 2 to come together.
+> *"The temperature has been a sine wave all along. What changes when the readings come
+> from a real sensor: noise, calibration, sampling cost, and what to put in the contract
+> about accuracy?"*
 
 ---
 
 ## Instructor checklist
 
-- [ ] HTTP-vs-CoAP byte arithmetic visible on the board (≥ 6 packets / ~500 B vs. 2 packets / ~80 B).
-- [ ] CoAP 4-byte header bitmap drawn out with all five fixed fields labeled.
-- [ ] CON/NON × Polling/Observe decision matrix on the board.
-- [ ] CBOR encoding of `{"t": 24.5}` walked through byte by byte.
-- [ ] HTTP / MQTT / CoAP three-column table on the board (let students fill it from memory of Labs 0 / 0.5 first).
-- [ ] Both puzzles posed and left unanswered at the end.
-- [ ] One live demo: a `coap get` from a second node hitting the SOP-03 `/sensor` endpoint, so students see the request/response on `idf.py monitor` before they extend it.
+- [ ] HTTP vs CoAP arithmetic on the board (7–9 packets vs 2).
+- [ ] CoAP header bitmap with the five fixed fields; the 15-byte GET predicted.
+- [ ] CON/NON matrix and the retransmission ladder (45 s span, 93 s give-up).
+- [ ] PUT vs POST-toggle under a lost ACK.
+- [ ] CBOR `{"t": 24.5}` decoded byte by byte, including `4E 20`.
+- [ ] SED mailbox timeline with the duplicate PUT.
+- [ ] One live demo: `ot coap get` and `ot coap put … con 1` from a client board, with the server's log visible.
+- [ ] Both puzzles posed and left unanswered.
 
 ---
 
 ## References for students
 
-- [lab3.md](../lab3.md) — the hands-on guide for today.
-- [SOP-03: Thread/CoAP Basic](../sops/sop03_coap_basic.md) — the implementation scaffold.
-- [5_theory_foundations.md](../../5_theory_foundations.md) §4 — CoAP message format, CON/NON, Observe, idempotency.
-- [2_iso_architecture.md](../../2_iso_architecture.md) — Functional viewpoint; ASD service contracts.
-- RFC 7252 — CoAP (the one to actually read; skim §3 message format and §4.2 reliability).
-- RFC 7641 — Observe option.
-- RFC 8949 — CBOR.
-- RFC 8610 — CDDL (skim only; for ADR-003).
-- ISO/IEC 30141:2024 — Functional viewpoint, §6.2.2.3.3 (functional/management separation).
+- [lab3.md](../lab3.md) and [SOP-03](../sops/sop03_coap_basic.md).
+- [5_theory_foundations.md](../../5_theory_foundations.md) §4 — CoAP in more depth.
+- RFC 7252 (CoAP; read §3 message format and §4 reliability), RFC 7641 (Observe), RFC 8949 (CBOR), RFC 8610 (CDDL).
+- ISO/IEC 30141:2024 — Functional viewpoint, §6.2.2.3.3.

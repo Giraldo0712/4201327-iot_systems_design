@@ -105,7 +105,7 @@ Components:
 ## Thread CLI Quick Reference
 
 Commands are shown bare, as on ESP-IDF's `ot_cli` (`>` prompt). On Zephyr
-(`firmware/lab1_radio`, `firmware/lab2_mesh`) prefix each one with `ot` at the `uart:~$` prompt:
+(`firmware/lab1_radio`, `firmware/lab2_mesh`, `firmware/lab3_coap`) prefix each one with `ot` at the `uart:~$` prompt:
 `ot state`, `ot ping …`.
 
 ### Network Formation

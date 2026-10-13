@@ -151,6 +151,25 @@ A compact way to encode data for transmission
 - **Think of it as**: JSON's more efficient cousin
 - **Why not JSON**: JSON wastes bandwidth with text encoding
 
+### CON / NON (CoAP message types)
+Whether a CoAP message must be acknowledged
+- **CON** (Confirmable): the receiver sends an ACK; the sender retransmits with doubling waits and gives up after ~1.5 min
+- **NON** (Non-confirmable): no ACK, no retransmission; a loss is invisible to the sender
+- **Lab 3 focus**: NON for readings, CON for valve commands
+
+### Observe (CoAP)
+Register once and let the server push new values (RFC 7641)
+- **How**: a GET with the Observe option; the server answers every change with the same token and a rising sequence number
+- **Why**: the server knows when the value changed; a polling client doesn't
+
+### Content-Format
+A CoAP option naming the payload's encoding, as a number
+- **Common values**: 0 = text/plain, 50 = application/json, 60 = application/cbor
+
+### SED (Sleepy End Device)
+A Thread child that switches its radio off and wakes every *poll period* to ask its parent for queued messages
+- **Trade-off**: longer poll period = longer battery life and longer downlink latency
+
 ### MQTT (Message Queuing Telemetry Transport)
 Another IoT protocol (alternative to CoAP)
 - **Architecture**: Publish/subscribe with a central broker
