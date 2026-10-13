@@ -1,368 +1,123 @@
-# SOP-03: Thread / CoAP / CBOR + Observe
+# SOP-03: CoAP Firmware Tour and Experiments
 
-> **Lab guide:** [Lab 3](../lab3.md) — read it first; the API contract, tasks, and DDR deliverables live there.
-> **This SOP:** firmware paste, build/flash/test steps, optional dashboard, troubleshooting. Total student-authored C: **two lines** (a forward declaration and a function call in `app_main`).
+> **Main Lab Guide:** [Lab 3: CoAP](../lab3.md) — the contracts, tasks and deliverables
+> live there.
+> **ISO Domains:** ASD (Application & Service), SCD (Sensing & Controlling)
+> **Firmware:** [`firmware/lab3_coap`](../../../firmware/lab3_coap), the same image on
+> every board.
 
-The Thread mesh from [Lab 2](../lab2.md) is a prerequisite. Two ESP32-C6 boards. ESP-IDF v5.1+. If your CLI rejects `dataset masterkey`, use `dataset networkkey` — they're aliases on older builds.
+## 1. What's in the firmware
 
----
+| File | What it does |
+|---|---|
+| `src/main.c` | Defines the CoAP service `soilsense` on UDP 5683, drives the role LED (white while the valve is open), and holds two helpers: `response_init()` and `peer_str()`. |
+| `src/env_temp.c` | `/env/temp`: the simulated sensor (sampled every second), the CBOR encoder, GET, and the Observe policy (threshold → NON, heartbeat → CON). |
+| `src/valve.c` | `/act/valve`: PUT and GET, the CBOR/text decoder, and the valve state. |
+| `prj.conf` | OpenThread shell with its CoAP client (`OPENTHREAD_COAP`, `OPENTHREAD_COAP_OBSERVE`), the Zephyr CoAP server (`COAP_SERVER`), zcbor (`ZCBOR_CANONICAL`), the LED. |
+| `sections-ram.ld` + `CMakeLists.txt` | Collect every `COAP_RESOURCE_DEFINE(..., soilsense, ...)` into one list the server walks. |
 
-## 1. Project & build configuration
+A resource is a path, a handler per method, and optionally a notify callback for
+observers. Compare it with Lab 0's `HTTP_RESOURCE_DEFINE`:
 
-Create the project from the OpenThread CLI example and target the C6:
+```c
+static const char *const env_temp_path[] = { "env", "temp", NULL };
+COAP_RESOURCE_DEFINE(env_temp, soilsense, {
+	.get = env_temp_get,
+	.path = env_temp_path,
+	.notify = env_temp_notify,
+});
+```
+
+The CBOR encoder is four zcbor calls; `ZCBOR_CANONICAL` makes the map definite-length
+(`A1`) instead of `BF … FF`:
+
+```c
+zcbor_map_start_encode(zs, 1) && zcbor_tstr_put_lit(zs, "t") &&
+zcbor_float16_put(zs, t) && zcbor_map_end_encode(zs, 1)
+```
+
+## 2. Two CoAP stacks, one port
+
+Every board runs the Zephyr CoAP server on port 5683 from boot. The shell's `ot coap`
+client lives inside OpenThread, which also wants port 5683. They don't clash because of
+how Zephyr hands packets between them: once `ot coap start` binds 5683 inside
+OpenThread, OpenThread keeps every packet for that port and stops passing it up to
+Zephyr's IP stack. So:
+
+- the board where you ran `ot coap start` is a **client**, and its own server is deaf;
+- every other board is a **server**.
+
+`ot coap stop` hands the port back.
+
+## 3. Command reference
+
+| Command | Does |
+|---|---|
+| `ot coap start` / `ot coap stop` | start / stop the OpenThread CoAP client on this board |
+| `ot coap get <addr> <path> [con]` | GET; NON unless you add `con` |
+| `ot coap put <addr> <path> [con\|non-con] [text]` | PUT with a text payload (no Content-Format) |
+| `ot coap observe <addr> <path>` | GET with Observe: 0; notifications print as they arrive |
+| `ot coap cancel` | deregister the current observation (GET with Observe: 1) |
+| `ot coap parameters request [default \| <ack_timeout_ms> <num> <den> <max_retransmit>]` | show or set CON timers for requests |
+
+Output: `coap response from <addr> [OBS=<n>] with payload: <hex>`. The shell doesn't
+print the response code; S's log does. A request that runs out of retries ends with
+`coap receive response error 28: ResponseTimeout`.
+
+## 4. Experiments
+
+### A. Resource discovery
+
+CoAP servers list their resources at `/.well-known/core` (RFC 6690, "link format"):
 
 ```bash
-idf.py create-project-from-example "$IDF_PATH/examples/openthread/ot_cli" lab03
-cd lab03
-idf.py set-target esp32c6
+uart:~$ ot coap get <S-mleid> .well-known/core
+coap response from ... with payload: 3c2f656e762f74656d703e2c3c2f6163742f76616c76653e
 ```
 
-The default flags from the `ot_cli` example are fine — OpenThread / FTD / CLI on, IPv6 on. No `menuconfig` changes are required. Node B needs **one extra compile flag** added to the project's top-level `CMakeLists.txt` to expose `coap observe` on the CLI (see callout below).
+Decode the hex as ASCII. This is how a gateway or dashboard finds out what a node offers
+without reading its firmware.
 
-> **Two CoAP stacks are in play, and neither is a `menuconfig` toggle.**
->
-> 1. **OT CLI's `coap` sub-command (Node B)** comes from OpenThread itself, gated by `OPENTHREAD_CONFIG_COAP_API_ENABLE`. Upstream OpenThread defaults this to `0`, but Espressif's IDF overlay (`components/openthread/private_include/openthread-core-esp32x-ftd-config.h`) flips it to `1` for every ESP-IDF project. That's why basic `coap get` / `coap post` "just work" without you doing anything. The companion flag `OPENTHREAD_CONFIG_COAP_OBSERVE_API_ENABLE` is **not** flipped by the overlay — it stays `0`, so `coap observe ...` returns `Error 35: InvalidCommand`.
-> 2. **libcoap (Node A)** powers the server in `coap_demo.c` and is pulled in as a managed component via `idf_component.yml`. Adding `espressif/coap` to dependencies fetches *that* library; it has nothing to do with the OT CLI on Node B.
->
-> **The clean way to enable Observe on Node B** — do *not* edit any header inside `~/.espressif/.../components/openthread/`. Those headers belong to ESP-IDF, get clobbered on upgrade, and silently affect every other project on your machine. Instead, override the macro project-locally by adding **one line** to your project's top-level `CMakeLists.txt` (the one next to `main/`, not the one inside `main/`), right after the `include(...)` line:
->
-> ```cmake
-> cmake_minimum_required(VERSION 3.16)
-> include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-> idf_build_set_property(COMPILE_OPTIONS "-DOPENTHREAD_CONFIG_COAP_OBSERVE_API_ENABLE=1" APPEND)
-> project(lab03)
-> ```
->
-> This adds the define to **every** component's compile line, so the `#ifndef` guard in OpenThread's `coap.h` picks it up before the default `0` is set. Then `idf.py fullclean && idf.py build flash monitor` on Node B. Do this once, before §6. Same line on every team's laptop — no per-machine drift.
+### B. Tune CON for a sleeping valve
 
-Open `main/idf_component.yml` and add `espressif/coap` to the existing `dependencies:` block:
-
-```yaml
-dependencies:
-  espressif/coap:
-    version: "^4.3.0"
-  # ... keep the existing entries (esp_ot_cli_extension, idf, ot_led, ot_examples_common)
-```
-
-Edit `main/CMakeLists.txt` to add `coap_demo.c` as a source and the components the file uses:
-
-```cmake
-idf_component_register(SRCS "esp_ot_cli.c" "coap_demo.c"
-                       INCLUDE_DIRS "."
-                       REQUIRES esp_event esp_netif nvs_flash openthread vfs
-                                ot_examples_common ot_led
-                                espressif__esp_ot_cli_extension coap)
-```
-
-> The CLI source file may be named `esp_ot_cli.c` or `main.c` depending on your ESP-IDF version. Use whichever is in `main/`.
-
-Run `idf.py reconfigure` once after saving so the component manager fetches libcoap into `managed_components/espressif__coap/` before the next build.
-
----
-
-## 2. Hook into `app_main` (your two lines)
-
-Open the existing CLI source file. Add at the top, after the includes and before `app_main`:
-
-```c
-// Forward declaration — implemented in coap_demo.c
-void start_coap_server(void);
-```
-
-And add **one line at the very end of `app_main`**, after the existing initialization block (after `esp_openthread_start()` and any `#if CONFIG_OPENTHREAD_*` blocks):
-
-```c
-start_coap_server();
-```
-
-That is the entire student-authored change to existing files.
-
----
-
-## 3. Create `main/coap_demo.c`
-
-Paste verbatim. Complete server: CBOR encoding by hand, Observe push, 0.5 °C threshold gate.
-
-```c
-#include <string.h>
-#include <math.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-
-#include <math.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "esp_log.h"
-#include "esp_random.h"
-#include "esp_timer.h"
-
-#include "coap3/coap.h"
-
-static const char *TAG = "coap_demo";
-#define COAP_PORT 5683
-
-// Observe freshness: send a notification at least every MAX_AGE_S seconds even
-// if the value didn't move, so clients don't time out on RFC 7641 §3.4 staleness.
-// Default libcoap Max-Age is 60 s; we publish 60 explicitly and heartbeat at 45.
-#define ENV_TEMP_MAX_AGE_S    60u
-#define ENV_TEMP_HEARTBEAT_S  45u
-
-static float g_current_temp = 24.5f;
-static float g_last_notified_temp = 24.5f;
-static int64_t g_last_notify_us = 0;
-static coap_resource_t *g_env_temp_resource = NULL;
-
-// CBOR encoder for {"t": <float16>} — six bytes.
-//   A1            map(1)
-//   61 74         text(1) "t"
-//   F9 hh ll      float16, big-endian, IEEE 754 half-precision
-
-static uint16_t float32_to_float16(float f)
-{
-    uint32_t x;
-    memcpy(&x, &f, sizeof(x));
-    uint32_t sign = (x >> 16) & 0x8000;
-    int32_t  exp  = ((x >> 23) & 0xFF) - 127 + 15;
-    uint32_t mant = (x >>  13) & 0x3FF;
-    if (exp <= 0)   return (uint16_t)sign;                  // underflow → ±0
-    if (exp >= 31)  return (uint16_t)(sign | 0x7C00);       // overflow → ±inf
-    return (uint16_t)(sign | ((uint32_t)exp << 10) | mant);
-}
-
-static size_t encode_env_temp_cbor(float value, uint8_t out[6])
-{
-    uint16_t h = float32_to_float16(value);
-    out[0] = 0xA1; out[1] = 0x61; out[2] = 0x74;
-    out[3] = 0xF9; out[4] = (uint8_t)(h >> 8); out[5] = (uint8_t)(h & 0xFF);
-    return 6;
-}
-
-// /env/temp GET handler — libcoap-3 opaque-PDU API
-static void hnd_env_temp_get(coap_resource_t *resource,
-                             coap_session_t  *session,
-                             const coap_pdu_t *request,
-                             const coap_string_t *query,
-                             coap_pdu_t      *response)
-{
-    (void)session; (void)request; (void)query;
-
-    uint8_t buf[6];
-    size_t  len = encode_env_temp_cbor(g_current_temp, buf);
-
-    coap_pdu_set_code(response, COAP_RESPONSE_CODE_CONTENT);  // 2.05
-
-    unsigned char encoded[4];
-    coap_add_option(response, COAP_OPTION_CONTENT_FORMAT,
-                    coap_encode_var_safe(encoded, sizeof(encoded),
-                                          COAP_MEDIATYPE_APPLICATION_CBOR),
-                    encoded);
-    coap_add_option(response, COAP_OPTION_MAXAGE,
-                    coap_encode_var_safe(encoded, sizeof(encoded),
-                                          ENV_TEMP_MAX_AGE_S),
-                    encoded);
-    coap_add_data(response, len, buf);
-
-    ESP_LOGI(TAG, "GET /env/temp -> %.2f C (6 B CBOR)", g_current_temp);
-}
-
-// Drives Observe notifications. Mocks a sensor as a slow sine (±1 °C, 60 s
-// period) plus small noise — predictable enough that students see notifications
-// every ~15 s, random enough that no two runs are identical. Lab 4 swaps this
-// for a real ADC reading.
-//
-// Two notification triggers, both required:
-//   (a) value moved by more than 0.5 °C since the last notification (the lesson)
-//   (b) heartbeat: more than ENV_TEMP_HEARTBEAT_S since the last notification
-//       (RFC 7641 §3.4 — without this, clients time out on Max-Age and cancel)
-static void temp_update_task(void *arg)
-{
-    coap_context_t *ctx = (coap_context_t *)arg;
-    const float baseline = 24.5f;
-    const float amp_c    = 1.0f;
-    const float period_s = 60.0f;
-    g_last_notify_us = esp_timer_get_time();
-
-    while (1) {
-        float t_s   = (float)esp_timer_get_time() / 1e6f;
-        float noise = ((float)(esp_random() % 1000) / 1000.0f - 0.5f) * 0.2f;  // ±0.1
-        g_current_temp = baseline + amp_c * sinf(2.0f * (float)M_PI * t_s / period_s) + noise;
-
-        float diff       = fabsf(g_current_temp - g_last_notified_temp);
-        int64_t since_us = esp_timer_get_time() - g_last_notify_us;
-        bool threshold   = diff > 0.5f;
-        bool heartbeat   = since_us > (int64_t)ENV_TEMP_HEARTBEAT_S * 1000000;
-
-        if (threshold || heartbeat) {
-            ESP_LOGI(TAG, "notify (%s): T=%.2f C, Δ=%.2f C, %llds since last",
-                     threshold ? "threshold" : "heartbeat",
-                     g_current_temp, diff, since_us / 1000000);
-            g_last_notified_temp = g_current_temp;
-            g_last_notify_us     = esp_timer_get_time();
-            if (g_env_temp_resource) coap_resource_notify_observers(g_env_temp_resource, NULL);
-        }
-
-        coap_io_process(ctx, 0);
-        vTaskDelay(pdMS_TO_TICKS(5000));
-    }
-}
-
-static void coap_server_task(void *pvParameters)
-{
-    (void)pvParameters;
-
-    coap_address_t addr;
-    coap_address_init(&addr);
-    addr.addr.sin6.sin6_family = AF_INET6;
-    addr.addr.sin6.sin6_port   = htons(COAP_PORT);
-    addr.addr.sin6.sin6_addr   = in6addr_any;
-
-    coap_set_log_level(COAP_LOG_WARN);
-    coap_context_t *ctx = coap_new_context(NULL);
-    if (!ctx) { ESP_LOGE(TAG, "coap_new_context failed"); vTaskDelete(NULL); return; }
-    coap_context_set_block_mode(ctx, COAP_BLOCK_USE_LIBCOAP);
-
-    if (!coap_new_endpoint(ctx, &addr, COAP_PROTO_UDP)) {
-        ESP_LOGE(TAG, "coap_new_endpoint failed");
-        coap_free_context(ctx); vTaskDelete(NULL); return;
-    }
-
-    g_env_temp_resource = coap_resource_init(coap_make_str_const("env/temp"), 0);
-    coap_register_handler(g_env_temp_resource, COAP_REQUEST_GET, hnd_env_temp_get);
-    coap_resource_set_get_observable(g_env_temp_resource, 1);
-    coap_add_resource(ctx, g_env_temp_resource);
-
-    ESP_LOGI(TAG, "CoAP server listening on UDP/%d, resource /env/temp", COAP_PORT);
-
-    xTaskCreate(temp_update_task, "temp_update", 4096, ctx, 4, NULL);
-    while (1) coap_io_process(ctx, 1000);
-}
-
-void start_coap_server(void)
-{
-    xTaskCreate(coap_server_task, "coap_server", 6144, NULL, 5, NULL);
-}
-```
-
-> **API note:** this is the **libcoap-3** opaque-PDU API (`coap_pdu_set_code`, `coap_add_data`, `coap_resource_notify_observers`). Tutorials that access `request->code` directly are libcoap-2 and will not compile on current ESP-IDF.
-
----
-
-## 4. Build, flash, commission
+Lab 3 Task 5.3 showed the PUT arriving twice when the poll period (5 s) is longer than
+CoAP's first ACK wait (2–3 s). Fix it on the client:
 
 ```bash
-idf.py build
-idf.py -p /dev/ttyUSB0 flash monitor      # Node A (Server)
-idf.py -p /dev/ttyUSB1 flash monitor      # Node B (Client) — same firmware, used as CLI
+uart:~$ ot coap parameters request 8000 3 2 4
+uart:~$ ot coap put <S-mleid> act/valve con 1
+uart:~$ ot coap parameters request default
 ```
 
-Form the Thread mesh exactly as in [SOP-02](sop02_6lowpan.md). On Node A, after `state` shows `leader`, copy `dataset active -x` and paste it on Node B with `dataset set active <hex>`. Node A's monitor should print:
+**DDR question:** what's the new worst-case time before `ResponseTimeout`? What's the
+cost of a longer `ACK_TIMEOUT` when the valve really is gone?
 
-```
-I (4321) coap_demo: CoAP server listening on UDP/5683, resource /env/temp
-```
+### C. Two observers (third board)
 
-On Node A, grab the address Node B will target:
+Flash a third board, join it to the mesh, `ot coap start` on it, and observe `/env/temp`
+from both clients. S sends each notification once per observer. Then unplug one client
+without cancelling and watch S's log over the next heartbeats: the CON notification to
+the missing client is retried and fails, and S stops sending to it.
 
-```
-> ipaddr mleid
-fd11:22:33:44:0:0:0:1
-```
+### D. Add a resource
 
----
+Add `/env/hum` (relative humidity, simulated, CBOR `{"h": uint}` in %) next to
+`/env/temp`:
 
-## 5. Test from Node B's CLI
-
-Confirm the CoAP CLI is available:
-
-```
-> help
-... ipaddr ... ifconfig ... coap ... thread ...
-```
-
-Then:
-
-```
-> coap start
-> coap get fd11:22:33:44:0:0:0:1 /env/temp
-coap response from fd11:22:33:44:0:0:0:1 with payload: a16174f94e40
-
-> coap observe fd11:22:33:44:0:0:0:1 /env/temp
-   ...notifications arrive whenever Node A crosses the 0.5 °C threshold...
-
-> coap cancel fd11:22:33:44:0:0:0:1 /env/temp
-```
-
-The hex `a16174f94e40` decodes to `{"t": 24.5}` — that's the contract from [lab3.md §3](../lab3.md#3-the-api-contract--envtemp). Decode by hand or paste into [cbor.me](https://cbor.me).
-
----
-
-## 6. Packet-size audit (for Task C)
-
-Add this one line inside `hnd_env_temp_get` just before `coap_add_data` if you want the payload length logged:
-
-```c
-ESP_LOGI(TAG, "CoAP response payload bytes: %u", (unsigned)len);
-```
-
-The total CoAP message size is fixed by the protocol — fill the right column with **your** measured payload:
-
-| Layer | Bytes | Note |
-|---|---|---|
-| CoAP fixed header | 4 | Ver/T/TKL + Code + Message ID |
-| Token | 4 | Default in OpenThread CLI |
-| Uri-Path `env` | 4 | Option header (1) + 3 chars |
-| Uri-Path `temp` | 5 | Option header (1) + 4 chars |
-| Content-Format | 2 | Value 60 fits in one byte |
-| Payload marker `0xFF` | 1 | |
-| Payload (CBOR) | 6 | From your log |
-| **Total CoAP** | **26 B** | |
-| UDP header | 8 | |
-| IPv6 header (uncompressed) | 40 | After 6LoWPAN IPHC: ~2–6 B |
-| **Total over 802.15.4 (compressed)** | **~36 B** | |
-
-Compare this against the HTTP equivalent for the same payload (see the [lecture's](../lectures/lab3_lecture.md) per-packet breakdown — ≥ 6 packets, ~500 B). The deliverable is the ratio.
-
----
+1. Copy the `COAP_RESOURCE_DEFINE` block and a GET handler from `env_temp.c` into a new
+   `src/env_hum.c`; add the file to `CMakeLists.txt`.
+2. Encode with `zcbor_uint32_put()` instead of `zcbor_float16_put()`.
+3. Write the contract (table + CDDL) before the code, and check it with
+   `ot coap get <S-mleid> env/hum` and `.well-known/core`.
 
 ## Troubleshooting
 
-| Symptom | Fix |
+| Symptom | Cause and fix |
 |---|---|
-| `coap get` returns `4.04 Not Found` | The CLI strips the leading `/`; the resource is registered as `env/temp`. Path on the wire and registration must match. |
-| `coap observe ...` returns `Error 35: InvalidCommand` | OT CLI was built without `OPENTHREAD_CONFIG_COAP_OBSERVE_API_ENABLE`. Add the `idf_build_set_property(COMPILE_OPTIONS "-DOPENTHREAD_CONFIG_COAP_OBSERVE_API_ENABLE=1" APPEND)` line to the project's top-level `CMakeLists.txt` (see §1 callout), then `fullclean` + rebuild Node B. Do **not** edit headers inside ESP-IDF itself. |
-| `coap observe` returns 2.05 once and never again | `coap_resource_set_get_observable(..., 1)` must be called **before** `coap_add_resource`. |
-| `coap observe` gets first notification, then silence ~60 s, then timeout/cancel | RFC 7641 §3.4 staleness: client cancels after `Max-Age` (default 60 s) elapses without a new notification. Server must send a heartbeat notification within that window even if the value hasn't moved — see the `heartbeat` branch in `temp_update_task` and the `COAP_OPTION_MAXAGE` advertised in `hnd_env_temp_get`. If you removed either, restore both. |
-| Notifications stop arriving | Node B left the network. Re-run `coap observe ...`. |
-| Build error: `'coap_pdu_t' has no member named 'code'` | Tutorial code is libcoap-2. Use the v3 accessors in §3 above. |
-| `coap` not in `help` output | OpenThread was built without `OPENTHREAD_CONFIG_COAP_API_ENABLE` (rare on ESP-IDF v5.1+; Espressif's overlay sets it by default). If missing, add `idf_build_set_property(COMPILE_OPTIONS "-DOPENTHREAD_CONFIG_COAP_API_ENABLE=1" APPEND)` to the project's top-level `CMakeLists.txt`, same pattern as the Observe flag. |
-| `state` stays `detached` on Node B | PANID / channel / network key mismatch. Re-paste `dataset active -x` from Node A; never type by hand. |
-
----
-
-## Appendix — Optional: a local dashboard (stretch goal)
-
-**This is not required for the lab.** The two `idf.py monitor` terminals already show everything you need to score the rubric. Skip this unless you've finished the deliverables and want to see the same Chart.js view as the Lab 0 / 0.5 dashboards, with live counters for "notifications received" and "1 Hz polls avoided".
-
-The dashboard reads Node B's monitor stream (no firmware change, no Border Router) and decodes each Observe notification's CBOR payload.
-
-**1. Pipe Node B's monitor through `tee`** (replaces the plain `idf.py monitor` you launched in §4):
-
-```bash
-idf.py -p /dev/ttyUSB1 monitor | tee /tmp/nodeB.log
-```
-
-`tee` preserves the live console you already use *and* writes a copy to the file the dashboard reads. Linux/macOS native; on Windows use Git Bash, WSL, or PowerShell's `Tee-Object`.
-
-**2. In a third terminal:**
-
-```bash
-pip install flask
-python tools/dashboard_coap.py --log /tmp/nodeB.log
-```
-
-Open `http://localhost:5000`. Same Chart.js view as Labs 0 / 0.5; the stats card shows the live notification count and how many polls a 1 Hz client would have spent over the same window.
-
-**Why we keep this optional in Lab 3:** the goal of this lab is to understand the full stack from the CLI — `coap get`, the raw `a16174f9...` bytes, the `notify (threshold|heartbeat)` log lines. Once those are clear, a graphical view adds polish but no insight. We bring the dashboard back as a first-class artifact in Lab 6, where it pairs naturally with secured CoAP (DTLS).
+| `ot coap get` prints nothing, S logs nothing | `ot coap start` was run on S too, so S's server is deaf. `ot coap stop` on S. |
+| `coap receive response error 28: ResponseTimeout` on a GET | Wrong address, or S is not attached. Check `ot state` on S and use its `ot ipaddr mleid`. |
+| A GET or PUT gets no reply but S is attached | Path typo or a leading `/`: S answers `4.04 Not Found`, but only to a `con` request; a NON request with an error gets no reply at all. Use `env/temp`. |
+| Observe stops after a while | S dropped you after a failed CON heartbeat (C was busy or out of range). Run `ot coap observe` again. |
+| PUT logs `4.00` on S | The payload wasn't `0` or `1`. |
+| `ot mode -` and S never becomes `child` | C is not a router or leader, or S was the leader. Form the network on C (Lab 3 Task 1.2). |
+| Pings to the sleepy S time out | The ping timeout (last argument) must exceed the poll period. |

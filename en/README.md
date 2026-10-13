@@ -35,8 +35,8 @@ in Week 2.
 |-----|----------------|-----------------|-------------|
 | [1](labs/lab1.md) | Measure how far your radio reaches and what blocks it | RF characterization, 802.15.4 | SCD |
 | [2](labs/lab2.md) | Get the sensors talking over IPv6 | 6LoWPAN, Thread mesh | SCD |
-| [3](labs/lab3.md) | Design a lightweight protocol for sensor readings | CoAP, CBOR | ASD |
-| [4](labs/lab4.md) | Read real temperature/moisture and ship it over the mesh | Sensor integration | ASD, SCD |
+| [3](labs/lab3.md) | Read sensors and command valves without wasting the battery | CoAP, CBOR, Observe, CON | ASD, SCD |
+| [4](labs/lab4.md) | Replace the simulated reading with real temperature/moisture sensors | Sensor integration | PED, SCD |
 | [5](labs/lab5.md) | Bridge the mesh to Wi-Fi and the Internet | Border router | SCD |
 | [6](labs/lab6.md) | Encrypt the traffic, update firmware wirelessly | DTLS, OTA | OMD, RAID |
 | [7](labs/lab7.md) | Build the interface the farmer actually looks at | Dashboard, telemetry | UD, ASD |
@@ -93,7 +93,7 @@ We assess architectural understanding, not just whether the code compiles.
 ESP32-C6 DevKitC · Zephyr · OpenThread (Thread mesh) · CoAP · CBOR · DTLS with
 AES-128-CCM.
 
-> **Migration in progress.** Setup, the Lab 0 builds and Labs 1–2 are Zephyr. Labs 3–8
+> **Migration in progress.** Setup, the Lab 0 builds and Labs 1–3 are Zephyr. Labs 4–8
 > still document ESP-IDF v5.1+ while they're being ported — follow the setup guide, and
 > each lab will say which framework it expects.
 

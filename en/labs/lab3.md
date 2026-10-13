@@ -1,143 +1,323 @@
-# Lab 3: Efficient Data Transport (CoAP & CBOR)
-> **Technical Guide:** [SOP-03: Thread/CoAP Basic](sops/sop03_coap_basic.md) — firmware paste, build steps, troubleshooting.
-> **Lecture:** [lab3_lecture.md](lectures/lab3_lecture.md)
+# Lab 3: CoAP — Reading Sensors and Commanding Valves
 
-**GreenField Technologies — SoilSense Project**
+**GreenField Technologies — SoilSense Project** · Phase: Application layer · 3 hours
 
-**Phase:** Application Optimization
+**From:** Daniela (pilot farmer), forwarded by Edwin (Field Operations)
+**Subject:** Two complaints from the pilot
 
-**Duration:** 3 hours
-
-**ISO Domains:** ASD (Application & Service), SCD (Sensing & Controlling)
-
----
-
-## 1. Project Context
-
-**From:** Daniela (Pilot Customer) via Product Team — *"Batteries die in 4 days, dashboard takes forever to update."*
-
-You shipped HTTP/JSON in [Lab 0](../0_2_Minimal_IoT_Implementation_http.md) and MQTT in [Lab 0.5](../0_3_Minimal_IoT_Implementation_mqtt.md). Both keep the radio on too long for a battery-powered Thread node. **Mission:** switch the sensor uplink to **CoAP + CBOR**, with **Observe** replacing polling. Goals: ≥40 % packet-size reduction; push-on-change instead of poll.
+> 1. *"The Wi-Fi prototype's batteries died in 4 days, and the dashboard takes forever
+>    to update."*
+> 2. *"The 'open valve' command went out at 06:00. The valve didn't move until 06:14, and
+>    nobody could tell me whether it had received the command at all."*
+>
+> The mesh from Lab 2 works. Now the application on top of it has to be cheap on the
+> radio, push readings when they change, and deliver valve commands with proof.
+>
+> — Edwin
 
 | Stakeholder | Their question | How this lab answers |
 |---|---|---|
-| **Daniela (Farmer)** | Why do batteries die so fast? | CoAP/UDP + Observe slashes radio-on time per reading. |
-| **Cloud Team** | Why is ingress bandwidth so high? | CBOR is ~1.7× smaller than JSON. |
-| **ISO 30141 Auditor** | Is the data interface documented? | You publish an ASD service contract (§3 below). |
+| **Daniela (farmer)** | Why do batteries die, and why is the dashboard stale? | Part 3: one UDP datagram per reading, pushed on change with Observe. |
+| **Edwin (Ops)** | How do I command a valve and *know* it moved? | Part 4: CON requests are acknowledged or retried, and fail loudly. |
+| **Samuel (architect)** | Which delivery mode for which message, and what does a sleeping valve cost? | Parts 4–5: CON vs NON, and latency vs poll period. |
+| **ISO 30141 auditor** | Are the data interfaces documented? | Part 2: two published API contracts. |
+
+Unfamiliar terms (CON, NON, Observe, CBOR, Content-Format…) are in the
+[glossary](../glossary.md). Done early? [SOP-03](sops/sop03_coap_basic.md) tours the
+firmware and has extension experiments.
 
 ---
 
-## 2. ISO/IEC 30141 placement
+## Background: the same API as Lab 0, without the overhead
 
-```mermaid
-graph TD
-    subgraph ASD [Application & Service Domain]
-        CoAP[CoAP /env/temp]
-        CBOR[CBOR payload]
-    end
-    subgraph Net [Network]
-        UDP --> Thread[Thread / 6LoWPAN / 802.15.4]
-    end
-    CoAP --> UDP
-    CoAP --> CBOR
-    style ASD fill:#f9f,stroke:#333
-    style Net fill:#bbf,stroke:#333
+In Lab 0 your board served `GET /api/sensor` and `/api/control` over HTTP on Wi-Fi.
+**CoAP** (RFC 7252) keeps that model, resources with URIs and methods, and changes
+what goes on the air:
+
+| | HTTP (Lab 0) | CoAP (today) |
+|---|---|---|
+| Transport | TCP: handshake, then request, then teardown | **UDP**: one datagram each way |
+| Header | text, often hundreds of bytes | **4 bytes** + options |
+| Payload | JSON text | **CBOR**: the same data model, binary |
+| Reliability | always (TCP) | **per message**: CON (acknowledged) or NON (fire and forget) |
+| Push | the client polls | **Observe**: register once, the server pushes on change |
+
+The firmware gives every board both sides: a **CoAP server** with two resources, and the
+**OpenThread CoAP client** in the shell (`ot coap …`).
+
+## Part 1 — Setup
+
+**Per pair:** 2 boards. **S** is the field node (temperature sensor + valve), **C** is the
+client standing in for the gateway. A third board is optional.
+
+**Task 1.1** — flash [`firmware/lab3_coap`](../../firmware/lab3_coap) to both boards, same
+commands as Lab 2 (Super Mini: add the USB console options from Lab 1):
+
+```bash
+source ~/zephyrproject/env.sh
+cd firmware/lab3_coap
+
+west build -p always -b esp32c6_devkitc/esp32c6/hpcore .
+west flash
+west espressif monitor -p /dev/ttyUSB0
 ```
 
-**Mostly ASD, with a foot in SCD.** The Thread mesh + UDP transport from Lab 2 stay where they were (SCD's communication subsystem). What you add today — the URI `/env/temp`, the CBOR data contract, the Observe interaction pattern — is squarely **ASD**. Lab 5's Border Router is an SCD-hosted IoT gateway that extends this ASD contract outward to the access network; **RAID** (access management + interchange to outside consumers) lights up later, in Lab 6 (DTLS) and Lab 7 (dashboard API).
+**Task 1.2** — form the network with **C as the leader** (Part 5 makes S a sleepy child
+of C), exactly as in Lab 2: `ot factoryreset` on both, `ot dataset init new` → `commit
+active` → `ifconfig up` → `thread start` on C, then paste C's `ot dataset active -x` on S.
 
-**Functional / management plane separation (ISO §6.2.2.3.3):** CoAP carries application data; Thread MLE handles routing and leader election. Independent — you can swap CoAP for MQTT-SN without touching MLE.
+**Task 1.3** — make C the client. OpenThread then keeps CoAP traffic on C for its own
+client, and S's server answers:
 
----
+```bash
+# C:
+uart:~$ ot coap start
+# S: note its address
+uart:~$ ot ipaddr mleid
+fdde:ad00:beef:0:6a1b:3c4d:9e2f:1a07
+```
 
-## 3. The API contract — `/env/temp`
+Never run `ot coap start` on S: it would take port 5683 away from S's server.
 
-This is the artifact you cite in ADR-003 and add to your DDR §4 (ISO Mapping → ASD entries). The firmware in [SOP-03 §5](sops/sop03_coap_basic.md#5-create-maincoap_democ) produces exactly this — if you change the firmware, change this section first.
+## Part 2 — The API contracts
+
+These two tables are the artifacts you cite in your ADRs and DDR §4. The firmware
+produces exactly this; if you change the firmware, change the contract first.
+
+### `/env/temp` — air temperature
 
 | | |
 |---|---|
-| **Resource** | `/env/temp` |
-| **Transport** | CoAP / UDP / port 5683 |
-| **Methods** | `GET`, `GET + Observe` (RFC 7641) |
+| **Methods** | `GET`, `GET` + Observe (RFC 7641) |
 | **Content-Format** | `60` (`application/cbor`) |
-| **Observe policy** | NON; notify only when `|new − last_notified| > 0.5 °C`; 24-bit seq with wrap |
-
-**Payload (always 6 bytes):**
+| **Payload** | `{"t": float16}`, °C, always 6 bytes |
+| **Max-Age** | 60 s |
+| **Observe policy** | NON notification when the value moved > 0.5 °C since the last one; CON heartbeat after 45 s without one |
 
 ```
-A1            map(1)
-61 74         text(1) "t"
-F9 hh ll      float16, big-endian, IEEE 754 half-precision
+A1            map, 1 pair
+61 74         text, 1 byte: "t"
+F9 hh ll      half-precision float (IEEE 754), big-endian
 ```
 
-| `t` | Wire bytes |
+| `t` (°C) | Wire bytes |
 |---|---|
 | 0.0 | `A1 61 74 F9 00 00` |
-| 24.5 | `A1 61 74 F9 4E 40` |
-| 25.0 | `A1 61 74 F9 4E 80` |
-| -10.0 | `A1 61 74 F9 C9 00` |
+| 24.5 | `A1 61 74 F9 4E 20` |
+| 25.0 | `A1 61 74 F9 4E 40` |
+| −10.0 | `A1 61 74 F9 C9 00` |
 
-**CDDL schema (RFC 8610):**
+### `/act/valve` — irrigation valve
+
+| | |
+|---|---|
+| **Methods** | `PUT` (set), `GET` (read) |
+| **Request payload** | CBOR `{"v": 0 \| 1}` with Content-Format 60, or the text `0` / `1` with no Content-Format (the OpenThread shell can only send text) |
+| **Response payload** | the valve state as CBOR `{"v": 0 \| 1}`, Content-Format 60 |
+| **Codes** | `2.04 Changed` after PUT · `2.05 Content` after GET · `4.00 Bad Request` for any other payload |
+| **Idempotent** | yes: the same PUT twice leaves the same state |
 
 ```
-env-reading = {
-  t: float16   ; air temperature, degrees Celsius
-}
+A1 61 76 00   {"v": 0}  closed
+A1 61 76 01   {"v": 1}  open
 ```
 
-**Response codes:** `2.05 Content` on success and on each Observe notification; `4.04 Not Found` on path mismatch; `4.05 Method Not Allowed` for anything but GET.
+**CDDL** (RFC 8610, the schema language for CBOR):
 
----
+```
+env-reading = { t: float16 }        ; °C
+valve-state = { v: 0 / 1 }          ; 0 = closed, 1 = open
+```
 
-## 4. Execution
+## Part 3 — Uplink: readings that cost one datagram
 
-The firmware is provided in full — [SOP-03 §1–§5](sops/sop03_coap_basic.md). Paste, build, flash two boards, commission the Thread mesh from Lab 2, run `coap get` and `coap observe` from Node B's CLI. **You author no C code beyond two declaration lines** that the SOP shows you exactly where to place. The lab is observed and evaluated entirely from the two `idf.py monitor` terminals — same workflow as Lab 2. (A graphical dashboard exists as an [optional stretch goal](sops/sop03_coap_basic.md#appendix--optional-a-local-dashboard-stretch-goal) in the SOP appendix; it adds nothing to the rubric and we bring it back as a first-class artifact in Lab 6.)
+**Task 3.1** — read the temperature once, from C:
 
-### Task A — API live check
-- `coap get fd<...>::1 /env/temp` from Node B.
-- Decode the 6 returned bytes and verify they match the contract in §3.
-- **Evidence:** Node B log + your decode + one-line statement of conformance.
+```bash
+uart:~$ ot coap get <S-mleid> env/temp
+coap response from fdde:ad00:beef:0:6a1b:3c4d:9e2f:1a07 with payload: a16174f94e2a
+```
 
-### Task B — Observe vs polling
-- Run `coap observe` for ≥ 5 minutes.
-- **Count** notifications received (from the server log: `notify (threshold|heartbeat): T=... C, Δ=... C, ...`). Distinguish the two: **threshold** notifications are the ones the lesson is about (sent because the value moved); **heartbeat** notifications are the freshness keep-alive that prevents client-side `Max-Age` timeout (RFC 7641 §3.4) and would still happen if nothing changed. Report both counts. Compare to the GETs a 1 Hz polling client would have made over the same window (= seconds elapsed).
-- **Evidence:** server log + the ratio (notifications / polls-avoided).
+S logs the other side, including the sizes you need for Part 6:
 
-### Task C — Efficiency audit (the headline number)
+```
+<inf> env_temp: GET /env/temp from fdde:...: 2.05, 24.66 C, CoAP 17 B (CBOR a16174f94e2a), request 15 B
+```
 
-For a single `{"t": 24.5}` reading, here is the on-wire cost of each protocol you've used in this course. Fill in the **Your CoAP measurement** column from your own logs ([SOP-03 §6](sops/sop03_coap_basic.md#6-packet-size-audit-for-task-c) walks the byte arithmetic):
+Decode the 6 bytes by hand against the contract, then check with [cbor.me](https://cbor.me).
 
-| Stack | One-reading exchange | Bytes on the wire | Packets | vs CoAP |
+**Task 3.2** — Observe instead of polling. Register for 5 minutes, then cancel:
+
+```bash
+uart:~$ ot coap observe <S-mleid> env/temp
+coap response from fdde:... OBS=3 with payload: a16174f94e43
+...
+uart:~$ ot coap cancel
+```
+
+S logs every notification with its reason and running counters:
+
+```
+<inf> env_temp: notify (threshold, NON): T=25.04 C, delta=0.52 C, 6s since last [threshold 7, heartbeat 1]
+```
+
+| Window | Notifications (threshold) | Notifications (heartbeat) | GETs a 1 Hz poller would have sent | Ratio |
 |---|---|---|---|---|
-| **HTTP / JSON** (Lab 0)    | TCP SYN/SYN-ACK/ACK + GET + 200 OK + FIN×2  | **~500 B**        | 6   | 14× |
-| **MQTT / JSON** (Lab 0.5)  | PUBLISH (already-open TCP socket)            | **~40 B**         | 1\* | 1.1× |
-| **CoAP / CBOR** (today)    | One UDP datagram                              | **~36 B** (your number: ____) | 1 | 1× |
+| 5 min | | | 300 | |
 
-\* MQTT counts 1 packet *per reading*, but it pays a one-time TCP + MQTT CONNECT (~7 packets) at startup and a TCP keep-alive every ~60 s, both invisible per-reading but very visible on the energy budget.
+The simulated sensor swings ±1 °C over 60 s. Heartbeats are sent as **CON**: if C has
+vanished, the retries fail and S drops the registration.
 
-**Deliverable in your DDR:** the table above with your measured CoAP number filled in, plus one sentence explaining why MQTT-on-Wi-Fi looks competitive on bytes/reading but loses on energy (TCP socket held open, keepalives, broker round-trip — none of which CoAP needs).
+## Part 4 — Downlink: commands with proof
 
----
+**Task 4.1** — open and close the valve with CON requests. S's LED turns **white** while
+the valve is open:
 
-## 5. Deliverables — DDR updates
+```bash
+uart:~$ ot coap put <S-mleid> act/valve con 1
+coap response from fdde:... with payload: a1617601
+uart:~$ ot coap get <S-mleid> act/valve
+coap response from fdde:... with payload: a1617601
+uart:~$ ot coap put <S-mleid> act/valve con 0
+coap response from fdde:... with payload: a1617600
+```
 
-Update [your DDR](../3_deliverables_template.md):
+Send `con 1` twice in a row and read S's log: the second PUT reports `OPEN, no change`.
+That's idempotency, and Task 5.3 shows why it matters. Then send a bad payload
+(`con 7`) and check S's log for the 4.00.
 
-- **§2 Lab Log → "Lab 3: Thread & CoAP" → To Daniela.** Two short paragraphs: how much smaller is one reading, how much less radio-on per minute under Observe vs polling, what it means for batteries.
-- **§3 ADR-003: Use CoAP/UDP + CBOR for sensor uplink.** Context, decision, rationale (cite the §3 contract and your Task C numbers), status. Explicitly state why MQTT (Lab 0.5) was *not* chosen for the radio side.
-- **§4 ISO Mapping.** Add `/env/temp` and the CDDL schema as ASD entries; CoAP as an Application Interface capability.
-- **§5 First Principles, Lab 3.** One sentence each: why CoAP gets away with UDP where HTTP can't; why Observe saves battery vs `GET every 60 s`; why CBOR is not a custom binary format.
-- **§6 Performance Baselines.** Fill in the "Lab 3: CoAP Latency" row from your `coap get` round-trip — target < 200 ms over 1 hop.
-- **§7 Ethics & Sustainability.** Sustainability check is the Task B ratio; transparency check is the §3 contract being publishable.
-- **Energy calculation.** If CoAP saves 50 ms of radio time per transmission, how much battery life is added over a year? Use the radio-RX current from [references.md](../references.md) and the duty cycle implied by your Observe rate. Show the work.
+**Task 4.2** — CON vs NON under loss. Make S disappear (`ot thread stop` on S), then:
 
----
+1. On C: `ot coap put <S-mleid> act/valve con 1` and start a stopwatch. C retransmits on
+   its own; eventually it prints `coap receive response error 28: ResponseTimeout`.
+   Record the time.
+2. Repeat with `non-con` instead of `con`. Wait two minutes. What does C print?
+3. `ot thread start` on S, wait for it to rejoin, and send the CON PUT again.
 
-## Grading rubric (100 pts)
+Predict the timeout before you measure: the first wait is random in 2–3 s and doubles
+after each of the 4 retransmissions.
 
-**Technical execution (40)** — `/env/temp` + CBOR working (15) · Observe push functional (15) · Packet-size comparison (10)
+## Part 5 — A valve that sleeps
 
-**ISO/IEC 30141 alignment (30)** — ASD service contract documented (15) · Protocol stack mapping (15)
+A battery valve can't keep its receiver on like a router. As a **sleepy end device
+(SED)** it turns the radio off and wakes every *poll period* to ask its parent "any mail
+for me?". Until then, the parent holds the message.
 
-**Analysis (20)** — ADR-003 justification (10) · Energy calculation (10)
+**Task 5.1** — make S sleepy, polling every second:
 
-**Ethics (pass/fail)** — Sustainability: Observe actually reduced traffic vs Polling · Transparency: CBOR/CDDL documented so others can decode it
+```bash
+# S:
+uart:~$ ot mode -                    # rx-off-when-idle, minimal device
+uart:~$ ot pollperiod 1000           # milliseconds
+uart:~$ ot state                     # child (LED yellow); C is its parent
+```
+
+**Task 5.2** — measure the downlink latency from C with pings, at three poll periods (set
+each on S with `ot pollperiod`). The timeout must be longer than the poll period:
+
+```bash
+uart:~$ ot ping <S-mleid> 16 10 1.3 64 40
+```
+
+| Poll period | RTT min / avg / max (ms) | Radio-on fraction for polling (estimate) |
+|---|---|---|
+| 1 s | | |
+| 5 s | | |
+| 15 s | | |
+
+**Task 5.3** — at a 5 s poll period, open the valve (`con 1`) and watch S's log. How many
+times does the PUT arrive, and why? (Compare CoAP's first retransmission time with the
+poll period.)
+
+Restore S when you're done: `ot mode rdn`, then `ot pollperiod 0`.
+
+## Part 6 — The byte budget
+
+Fill in the CoAP rows from S's logs (Task 3.1 and Task 4.1):
+
+| Exchange | Request | Response | Packets | Notes |
+|---|---|---|---|---|
+| HTTP/JSON reading (Lab 0) | ~150 B + TCP | ~120 B + TCP | 7+ | handshake, GET, 200 OK, teardown |
+| MQTT/JSON reading (Lab 0) | — | ~40 B | 1 | on a TCP connection kept open with keepalives |
+| CoAP GET `/env/temp` | ____ B | ____ B | 2 | |
+| CoAP Observe notification | — | ____ B | 1 | |
+| CoAP PUT `/act/valve` (CON) | ____ B | ____ B | 2 | |
+
+Add UDP (8 B) and the compressed IPv6 header (Lab 2) and check that every CoAP message
+fits in a single 802.15.4 frame.
+
+## Part 7 — The "why" questions (DDR Section 5)
+
+1. **Why can CoAP use UDP where HTTP needs TCP?** What does CON give back, and what does
+   NON deliberately give up?
+2. **Why does Observe save battery compared with `GET` every 60 s?** Who knows when the
+   value changed, and who pays for the radio?
+3. **Why did the SED receive the same PUT twice in Task 5.3, and why was that harmless?**
+   What would have happened with a "toggle valve" command?
+4. **Why CBOR and not a hand-made binary struct?** (Key terms: self-describing, schema
+   evolution, CDDL.)
+
+## ISO/IEC 30141 mapping
+
+Mostly **ASD**: the URIs, methods, CBOR contracts and the Observe/CON interaction
+patterns are the service the rest of the system consumes. The mesh and UDP underneath
+stay in the **SCD**, and so does the SED parent-poll mechanism: it belongs to the
+device's communication subsystem, not to the application.
+
+```mermaid
+graph LR
+    subgraph ASD [Application & Service Domain]
+        T["/env/temp<br/>GET · Observe · NON"]
+        V["/act/valve<br/>PUT · GET · CON"]
+    end
+    subgraph SCD [Sensing & Controlling Domain]
+        Mesh[UDP · IPv6 · Thread mesh]
+        Poll[SED parent poll]
+    end
+    T --> Mesh
+    V --> Mesh
+    Mesh -.-> Poll
+    style ASD fill:#e8f5e9
+    style SCD fill:#fff4e1
+```
+
+CoAP sits on the **functional plane**; Thread MLE (Lab 2) keeps the mesh and the SED's
+parent link alive on the **management plane**. Either can change without touching the
+other.
+
+## Deliverables
+
+1. **DDR update:**
+   - Section 3: **ADR-003** (CoAP + CBOR for uplink and downlink, citing your Part 6
+     numbers and why MQTT wasn't chosen for the radio side) and **ADR-004** (the poll
+     period for battery valves, citing Task 5.2 and your energy estimate).
+   - Section 4: both API contracts and the CDDL as ASD entries.
+   - Section 5: the "why" answers.
+   - Section 6: GET round-trip time over one hop, CON timeout, latency per poll period.
+2. **Energy estimate** for a sleepy valve: take the radio RX and sleep currents from the
+   ESP32-C6 datasheet (cite the table), assume each poll keeps the radio on ~10 ms, and
+   compute the average current and the 2× AA battery life at your chosen poll period.
+3. **Summary for Edwin** (three lines): how a command is confirmed, what happens when the
+   valve is unreachable, and the latency his crew should expect.
+4. **Safety design** (DDR Section 7): the valve receives OPEN, then the network dies
+   before CLOSE. What should the valve do on its own, and after how long?
+
+## Grading (100 pts)
+
+| | pts |
+|---|---|
+| **Technical execution** — GET + decode against the contract (8) · Observe counts and ratio (8) · valve PUT/GET + idempotency (8) · CON timeout and NON comparison (8) · SED latency table (8) | 40 |
+| **ISO/IEC 30141** — both API contracts + CDDL (15) · ASD/SCD split explained (10) · ADR format (5) | 30 |
+| **First principles** — Q1 (5) · Q2 (5) · Q3 (5) · Q4 (5) | 20 |
+| **Communication** — Edwin summary (5) · energy estimate (5) | 10 |
+| **Ethics (pass/fail)** — safety design for a lost CLOSE; poll period justified by a stakeholder need, not by "it felt snappy" | ✓ |
+
+## Resources & next week
+
+RFC 7252 (CoAP) · RFC 7641 (Observe) · RFC 8949 (CBOR) · RFC 8610 (CDDL) ·
+[OpenThread CLI: coap](https://openthread.io/reference/cli/commands#coap) ·
+[Zephyr CoAP server](https://docs.zephyrproject.org/latest/connectivity/networking/api/coap_server.html) ·
+[cbor.me](https://cbor.me)
+
+**Lab 4:** the simulated temperature goes away. You'll read real sensors and serve them
+through the same contracts.

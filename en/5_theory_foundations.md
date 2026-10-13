@@ -504,7 +504,7 @@ Total: ~5-20 ms per hop
 
 ---
 
-## Lab 4: CoAP Application Protocol
+## Lab 3: CoAP Application Protocol
 
 ### 4.1 Why REST for IoT?
 
@@ -568,11 +568,12 @@ Client                          Server
 
 **If ACK not received** (exponential backoff):
 ```
-Attempt 1: Wait random(2-3 seconds)
-Attempt 2: Wait random(4-6 seconds)
-Attempt 3: Wait random(8-12 seconds)
-Attempt 4: Wait random(16-24 seconds)
-Max wait: ~45 seconds
+Send:           wait random(2-3 s)
+Retransmit 1:   wait 4-6 s
+Retransmit 2:   wait 8-12 s
+Retransmit 3:   wait 16-24 s
+Retransmit 4:   wait 32-48 s
+Last retransmission after 30-45 s; give up after 62-93 s
 ```
 
 **When to use CON vs NON**:
@@ -582,7 +583,7 @@ Max wait: ~45 seconds
 | Critical sensor reading | CON | Must ensure delivery |
 | Periodic telemetry | NON | Occasional loss OK |
 | Actuator command | CON | Must confirm execution |
-| Heartbeat | NON | Next one arrives soon |
+| Observe heartbeat | CON | Proves the observer is still listening (RFC 7641 §4.5) |
 
 ---
 
@@ -607,7 +608,7 @@ Idempotent (PUT): LED still "on" ✓
 Non-Idempotent (POST counter++): Counter incremented twice ✗
 ```
 
-**Solution**: Use idempotent operations or duplicate detection.
+**Solution**: Use idempotent operations. Duplicate detection in the server is optional in RFC 7252, and the Zephyr CoAP server used in Lab 3 doesn't do it: every retransmission reaches the handler.
 
 ---
 
@@ -639,7 +640,7 @@ Client                          Server
 
 ---
 
-### Lab 4 Discussion Questions
+### Lab 3 Discussion Questions
 
 1. **Why does CoAP use UDP instead of TCP?**
    - TCP overhead: 3-way handshake, state maintenance
