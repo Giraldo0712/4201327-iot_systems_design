@@ -91,9 +91,9 @@ The memory of this course should include at least one real calculation. Do this 
 > A field tech visit to swap batteries costs, conservatively, **~$50** (vehicle + hour of labor) — per visit, regardless of how cheap the battery is. On a 500-node farm:
 >
 > - Lab 1 firmware (no sleep): batteries die in weeks → battery service alone dwarfs the **~$3–4/node** the ESP32-C6 module costs. The hardware is the *cheap* part.
-> - Lab 4 firmware (SED, tuned poll period): months to years of battery → maintenance drops an order of magnitude.
+> - Lab 3 firmware (SED, tuned poll period): months to years of battery → maintenance drops an order of magnitude.
 >
-> The poll-period engineering from Lab 4 wasn't a power optimization — it was the difference between a viable service business and one that loses money on every farm.
+> The poll-period engineering from Lab 3 wasn't a power optimization — it was the difference between a viable service business and one that loses money on every farm.
 
 Then the **scalability** check: going from the 3-node pilot to 500 nodes, what changes in *their* architecture? (Mesh: nothing structural — that's what scalability means. Broker: a config line, per Lab 7. The bridge: unchanged.) And the **interoperability** check: Thread and CoAP are open standards, so if GreenField folds, Daniela's hardware still works — they already answered this in the ethics reflection ("if GreenField shuts down in 5 years…"). The ethics question and the business question turn out to be the same question.
 

@@ -8,7 +8,7 @@
 
 **Follows**: [Lab 5 Lecture](lab5_lecture.md) — students have `/env/temp` and `/act/valve` reachable from outside the mesh through the OTBR, and have seen the forward hook: "anyone who knows the global address can read the sensor and command the valve."
 
-**Builds on**: [Lab 4 Lecture](lab4_lecture.md) — students know the CoAP method semantics (GET/PUT/POST), CON reliability, and that `/act/valve` is the safety-critical resource.
+**Builds on**: [Lab 3 Lecture](lab3_lecture.md) — students know the CoAP method semantics (GET/PUT/POST), CON reliability, and that `/act/valve` is the safety-critical resource; [Lab 4 Lecture](lab4_lecture.md) — they have met the Trustworthiness viewpoint and audited availability, integrity against faults, reliability and resilience.
 
 ---
 
@@ -16,7 +16,7 @@
 
 By the end of the lecture, students should be able to:
 
-1. Explain why the **lens shifts from a place on the map to a cross-cutting viewpoint** — Trustworthiness (§6.6) is audited across every domain, not added as a seventh domain.
+1. Explain why the **lens shifts back from a place on the map to the cross-cutting viewpoint opened in Lab 4** — Trustworthiness (§6.6) is audited across every domain, not added as a seventh domain.
 2. Locate where DTLS lands in the **Functional six-domain map**: it is the **RAID access-management** control (Figure A.5) — the domain that has been gray since Lab 1 and finally lights up here, *not* a new "security domain."
 3. Decompose a **DTLS-PSK handshake** (~6 flights), and explain why DTLS — not TLS — is the right fit for CoAP-over-UDP.
 4. Distinguish the **two security properties** an AEAD cipher delivers — confidentiality (privacy loss if absent) vs integrity/authentication (safety loss if absent) — and map each to a row of the §6.6 audit.
@@ -121,7 +121,7 @@ Students know TLS from HTTPS (Lab 0). The instinct is "just use TLS." But TLS as
 | A held-open connection | DTLS keeps a *session* (keys), not a socket — fits a sleepy device |
 | No replay across a stream | Per-record anti-replay window |
 
-> **First-principles question to drop:** *"CoAP added CON to make UDP reliable (Lab 4). Why doesn't DTLS just rely on CoAP's CON to retransmit the handshake?"* Expected: layering. DTLS sits *below* CoAP — it has to secure the channel before CoAP exists on it. So DTLS retransmits the **handshake** itself; CON retransmits **application requests** once the secure channel is up. Two reliability mechanisms at two layers, doing different jobs.
+> **First-principles question to drop:** *"CoAP added CON to make UDP reliable (Lab 3). Why doesn't DTLS just rely on CoAP's CON to retransmit the handshake?"* Expected: layering. DTLS sits *below* CoAP — it has to secure the channel before CoAP exists on it. So DTLS retransmits the **handshake** itself; CON retransmits **application requests** once the secure channel is up. Two reliability mechanisms at two layers, doing different jobs.
 
 ### Part B: The PSK handshake, flight by flight
 
@@ -177,7 +177,7 @@ TLS_PSK_WITH_AES_128_CCM_8
 
 ### Part D: Where the lock sits in the stack
 
-Tie it back to the OSI picture from the Lab 4 lecture:
+Tie it back to the stack students built in Labs 1–3:
 
 ```
    Layer 7  Application   ── CoAP  (unchanged: /env/temp, /act/valve)
@@ -209,7 +209,7 @@ The handshake is ~6 flights ≈ **200–300 ms of extra radio-on time** the firs
      → handshake energy amortised to near zero per reading
 ```
 
-This is the direct sequel to the Lab 4 poll-period lesson: **a security mechanism has an energy cost, and the engineering is in how often you pay it.** The §6 performance baseline and the Task C "readings per handshake" number are where students show they understood this.
+This is the direct sequel to the Lab 3 poll-period lesson: **a security mechanism has an energy cost, and the engineering is in how often you pay it.** The §6 performance baseline and the Task C "readings per handshake" number are where students show they understood this.
 
 > **First-principles question to drop:** *"The handshake costs 250 ms. The valve is a Sleepy End Device that wakes every 5 s. What happens to the handshake if the session times out between commands?"* Expected: you re-handshake, and on a SED that means waiting for poll cycles for each of the ~6 flights → the handshake can take *seconds*, not 250 ms. The answer is to keep the session alive (DTLS Connection ID / session resumption) or accept the latency for rare commands. This is a real tension, not a solved problem — let students sit with it.
 
@@ -392,7 +392,7 @@ Preview: the lens shifts to the **Usage viewpoint** + the **OMD** (Operation & M
 - [ ] DTLS-vs-TLS table (why UDP changes things).
 - [ ] PSK handshake drawn flight-by-flight (~6 flights), with the HelloVerifyRequest cookie called out as anti-DoS.
 - [ ] AEAD decoded: `AES_128_CCM_8` → confidentiality + integrity in one tag. The privacy-loss-vs-safety-loss distinction stated explicitly.
-- [ ] Session-reuse energy story: handshake once, not per reading. Tie to Lab 4's poll-period lesson.
+- [ ] Session-reuse energy story: handshake once, not per reading. Tie to Lab 3's poll-period lesson.
 - [ ] STRIDE table walked; Repudiation flagged as a real PSK gap.
 - [ ] Threat model widened from one-laptop to fleet scale: insider node, lost/stolen device, supply chain — shared PSK as the single point of compromise.
 - [ ] PSK-vs-certificate trade table; ADR-006 picks PSK for the pilot and names the fleet size that forces certificates.

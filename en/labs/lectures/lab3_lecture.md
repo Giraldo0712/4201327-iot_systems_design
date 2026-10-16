@@ -71,9 +71,9 @@ They share the radio, not the protocol: swap CoAP for MQTT-SN without touching M
 
 > **Optional aside (cut first if short)**: the domain map is one diagram in one viewpoint.
 > ISO/IEC 30141 has six viewpoints (Foundational, Business, Usage, Functional,
-> Trustworthiness, Construction). Labs 1–4 climb the Functional viewpoint's domains; from
-> Lab 5 the lens changes to networking patterns (Table A.4), then Trustworthiness (Lab 6),
-> Usage (Lab 7) and Construction (Lab 8).
+> Trustworthiness, Construction). Labs 1–3 climb the Functional viewpoint's domains; Lab 4
+> opens Trustworthiness, Lab 5 changes the lens to networking patterns (Table A.4), Lab 6
+> returns to Trustworthiness, then Usage (Lab 7) and Construction (Lab 8).
 
 ---
 

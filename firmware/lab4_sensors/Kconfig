@@ -1,0 +1,7 @@
+# BMP280: measure on request and sleep in between, instead of sampling
+# continuously. Declared before Kconfig.zephyr so this default comes first.
+choice BME280_MODE
+	default BME280_MODE_FORCED
+endchoice
+
+source "Kconfig.zephyr"

@@ -26,7 +26,7 @@
 ### Lab 3: Thread & CoAP
 *   **To Daniela (Customer):**
 
-### Lab 4: Sensors & Control
+### Lab 4: Real Sensors
 *   **To Edwin:**
 
 ### Lab 5: Border Router
@@ -89,7 +89,9 @@
 | Lab 1: Max Range | > 20m | ___ m | [ ] Pass |
 | Lab 2: Healing Time | < 120s | ___ s | [ ] Pass |
 | Lab 3: CoAP Latency | < 200ms| ___ ms | [ ] Pass |
-| Lab 4: Poll Latency | < 5s | ___ s | [ ] Pass |
+| Lab 3: Poll Latency (5 s period) | < 5s | ___ s | [ ] Pass |
+| Lab 4: Time to see a lost sensor | ≤ 60s | ___ s | [ ] Pass |
+| Lab 4: Read failures, radio busy | < 5% | ___ % | [ ] Pass |
 | Lab 6: DTLS Time | < 3s | ___ s | [ ] Pass |
 
 ---
@@ -97,7 +99,7 @@
 ## 7. Ethics & Sustainability Checklist
 
 *   [ ] **Lab 1:** Verified interference doesn't disrupt neighbors.
-*   [ ] **Lab 4:** Data collection minimized (Privacy).
+*   [ ] **Lab 4:** Safe default when sensor data is missing (Safety).
 *   [ ] **Lab 5:** System works locally without cloud (Sustainability).
 *   [ ] **Lab 6:** Encryption enabled (Privacy).
 *   [ ] **Lab 8:** End-of-Life plan considered.
@@ -117,7 +119,7 @@
 
 ---
 
-## 9. Trustworthiness Audit (Lab 6+)
+## 9. Trustworthiness Audit (Lab 4+)
 
 | Characteristic | Addressed? | How | Gaps |
 |----------------|------------|-----|------|

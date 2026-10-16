@@ -6,7 +6,7 @@
 
 **Pairs with**: [lab5.md](../lab5.md)
 
-**Follows**: [Lab 4 Lecture](lab4_lecture.md) — students have `/env/temp` (uplink, Lab 3) and `/act/valve` (downlink, Lab 4) working on the Thread mesh, and have seen the forward hook to the four-networks redraw.
+**Follows**: [Lab 4 Lecture](lab4_lecture.md) — students have `/env/temp` (uplink) and `/act/valve` (downlink) working on the Thread mesh from Lab 3, a real sensor behind `/env/temp` from Lab 4, and the question of what "reachable" means once the client leaves the mesh.
 
 ---
 
@@ -37,7 +37,7 @@ By the end of the lecture, students should be able to:
 
 ### Callback to last week
 
-Lab 4 ended with Edwin's complaint solved: `/act/valve` opens reliably under loss because CON retransmits plus a sane SED poll period get the bytes there. Both contracts (`/env/temp` from Lab 3, `/act/valve` from Lab 4) are *production-grade inside the Thread mesh*.
+Lab 3 solved Edwin's valve complaint: `/act/valve` opens reliably under loss because CON retransmits plus a sane SED poll period get the bytes there. Lab 4 put a real sensor behind `/env/temp` and made the node say when its data is stale. Both contracts are *production-grade inside the Thread mesh*.
 
 But Daniela can't see any of it from the market. This week:
 
