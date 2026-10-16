@@ -83,7 +83,7 @@ This is the artifact you cite in ADR-007 and add to your DDR §4. Two things are
 | **Signals** | `batt` (mV), `rssi` (dBm), `up` (seconds since boot) |
 | **Encoding** | CBOR map, same wire format as the Lab 3 `/env/temp` contract |
 | **Delivery** | **Option 1 — piggyback:** add the three keys to the existing `/env/temp` map (one packet, energy-efficient). **Option 2 — separate `/sys/health` resource:** a clean, independently-observable resource (more packets). **ADR-007 decides.** |
-| **Report interval** | Far slower than business data — battery and uptime drift over hours, not seconds. Tune for energy (the Lab 4 poll-period lesson, again). |
+| **Report interval** | Far slower than business data — battery and uptime drift over hours, not seconds. Tune for energy (the Lab 3 poll-period lesson, again). |
 
 **The two paths — local CLI vs off-mesh egress.** This is the heart of the lab. The same readings can be consumed two completely different ways:
 

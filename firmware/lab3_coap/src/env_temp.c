@@ -27,7 +27,7 @@ static uint32_t n_threshold, n_heartbeat;
 /* A1 61 74 F9 hh ll = {"t": <half-precision float>} */
 static size_t encode_reading(float t, uint8_t *buf, size_t size)
 {
-	ZCBOR_STATE_E(zs, 0, buf, size, 1);
+	ZCBOR_STATE_E(zs, 1, buf, size, 1);
 
 	if (!(zcbor_map_start_encode(zs, 1) && zcbor_tstr_put_lit(zs, "t") &&
 	      zcbor_float16_put(zs, t) && zcbor_map_end_encode(zs, 1))) {
