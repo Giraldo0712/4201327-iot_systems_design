@@ -185,7 +185,8 @@ Keep C observing `/env/temp` throughout.
 2. Every 15 s, run `ot coap get <S-mleid> env/temp` on C. In S's log, follow the
    reading's age and the Max-Age it was served with.
 3. About 60 s after the last good reading, S logs `GET now answers 5.03` and ends the
-   observation. Record what C prints, and what a GET returns now.
+   observation. Record what C prints, and what a GET returns now. The shell prints only
+   payloads: decode the hex as ASCII, and read the response code in S's log.
 
 **Task 4.2** — the node dies. Plug the data wire back in, wait for `Sensor back`, and
 register the observation again on C. Then make S unreachable with `ot thread stop` on S.

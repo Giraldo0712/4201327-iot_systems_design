@@ -200,7 +200,11 @@ fails. Locking interrupts for the whole read fixes the sensor and starves the ra
 22 ms: the trade-off students measure in SOP-04 Experiment B.
 
 The lab measures the failure rate with the radio quiet, then with C pinging S ten times
-a second. Ask students to predict which sensors suffer before they measure.
+a second. Ask students to predict which sensors suffer before they measure. On the course
+bench a DHT22 failed 0 of 60 reads quiet and 11 of 63 (17.5 %) under the pings, while C's
+pings lost 1 of 1200: the radio won, the sensor lost. That misses the DDR's < 5 % target,
+which is the finding: a reliability gap with a named cause and three remedies (retry,
+lock interrupts, a sensor with bus hardware).
 
 ### What heals by itself, and what doesn't
 
