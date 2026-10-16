@@ -158,7 +158,7 @@ uart:~$ ot coap cancel
 S logs every notification with its reason and running counters:
 
 ```
-<inf> env_temp: notify (threshold, NON): T=25.04 C, delta=0.52 C, 6s since last [threshold 7, heartbeat 1]
+<inf> env_temp: notify (threshold, NON): T=25.04 C, delta=0.52 C, 6s since last, CoAP 19 B [threshold 7, heartbeat 1]
 ```
 
 | Window | Notifications (threshold) | Notifications (heartbeat) | GETs a 1 Hz poller would have sent | Ratio |
@@ -225,15 +225,16 @@ uart:~$ ot ping <S-mleid> 16 10 1.3 64 40
 | 5 s | | |
 | 15 s | | |
 
-**Task 5.3** — at a 5 s poll period, open the valve (`con 1`) and watch S's log. How many
-times does the PUT arrive, and why? (Compare CoAP's first retransmission time with the
-poll period.)
+**Task 5.3** — at a 5 s poll period, send five PUTs (`con 1`, `con 0`, …) about 15 s
+apart. For each, note how long C waited for the response and how many times S logged the
+PUT. Which ones arrived twice, and why? (Compare CoAP's first retransmission time with
+the poll period.)
 
 Restore S when you're done: `ot mode rdn`, then `ot pollperiod 0`.
 
 ## Part 6 — The byte budget
 
-Fill in the CoAP rows from S's logs (Task 3.1 and Task 4.1):
+Fill in the CoAP rows from S's logs (Tasks 3.1, 3.2 and 4.1):
 
 | Exchange | Request | Response | Packets | Notes |
 |---|---|---|---|---|

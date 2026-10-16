@@ -23,6 +23,7 @@ static float last_notified_c = 24.5f;
 static int64_t last_notify_ms;
 static uint8_t notify_type = COAP_TYPE_NON_CON;
 static uint32_t n_threshold, n_heartbeat;
+static uint16_t notify_size;
 
 /* A1 61 74 F9 hh ll = {"t": <half-precision float>} */
 static size_t encode_reading(float t, uint8_t *buf, size_t size)
@@ -114,6 +115,7 @@ static void env_temp_notify(struct coap_resource *res, struct coap_observer *obs
 		r = build_reading(&pkt, true, res->age);
 	}
 	if (r == 0) {
+		notify_size = pkt.offset;
 		r = coap_resource_send(res, &pkt, net_sad(&obs->addr),
 				       net_family2size(obs->addr.ss_family), NULL);
 	}
@@ -154,14 +156,16 @@ static void sample(struct k_work *work)
 		} else {
 			n_heartbeat++;
 		}
-		LOG_INF("notify (%s, %s): T=%.2f C, delta=%.2f C, %llds since last "
-			"[threshold %u, heartbeat %u]",
-			threshold ? "threshold" : "heartbeat", threshold ? "NON" : "CON",
-			(double)temp_c, (double)delta, (now - last_notify_ms) / MSEC_PER_SEC,
-			n_threshold, n_heartbeat);
+		int64_t since_ms = now - last_notify_ms;
+
 		last_notified_c = temp_c;
 		last_notify_ms = now;
 		coap_resource_notify(&env_temp);
+		LOG_INF("notify (%s, %s): T=%.2f C, delta=%.2f C, %llds since last, CoAP %u B "
+			"[threshold %u, heartbeat %u]",
+			threshold ? "threshold" : "heartbeat", threshold ? "NON" : "CON",
+			(double)temp_c, (double)delta, since_ms / MSEC_PER_SEC, notify_size,
+			n_threshold, n_heartbeat);
 	}
 
 	k_work_schedule(k_work_delayable_from_work(work), K_SECONDS(1));

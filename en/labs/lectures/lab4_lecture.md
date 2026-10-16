@@ -160,7 +160,7 @@ t ≈ 6 s  "Sensor lost" (3 failed reads)               (nothing is sent)
          GETs still get the last value,               GET con: C retransmits…
          Max-Age shrinking (54, 39, 24…)              Observe: silence
 t ≈ 60 s 5.03 to every observer,             t ≈ 45 s a heartbeat is overdue
-         observations end;                   t ≈ 93 s GET: ResponseTimeout
+         observations end;                   t = 62–93 s GET: ResponseTimeout
          GET → 5.03 "no fresh reading"
 ```
 
