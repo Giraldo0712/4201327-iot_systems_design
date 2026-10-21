@@ -18,7 +18,7 @@ static bool valve_open;
 /* A1 61 76 0X = {"v": X} */
 static size_t encode_state(bool open, uint8_t *buf, size_t size)
 {
-	ZCBOR_STATE_E(zs, 0, buf, size, 1);
+	ZCBOR_STATE_E(zs, 1, buf, size, 1);
 
 	if (!(zcbor_map_start_encode(zs, 1) && zcbor_tstr_put_lit(zs, "v") &&
 	      zcbor_uint32_put(zs, open) && zcbor_map_end_encode(zs, 1))) {
@@ -39,7 +39,7 @@ static int decode_command(const struct coap_packet *req, bool *open)
 	}
 
 	if (format == COAP_CONTENT_FORMAT_APP_CBOR) {
-		ZCBOR_STATE_D(zs, 0, p, len, 1, 0);
+		ZCBOR_STATE_D(zs, 1, p, len, 1, 0);
 		uint32_t v;
 
 		if (!(zcbor_map_start_decode(zs) && zcbor_tstr_expect_lit(zs, "v") &&
