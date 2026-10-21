@@ -69,6 +69,20 @@ Six different perspectives for analyzing an IoT system:
 - **Trustworthiness**: How is it secure and reliable?
 - **Construction**: How do we build it?
 
+### Trustworthiness characteristics (ISO 30141 §6.6)
+Seven properties the Trustworthiness viewpoint audits across every domain: availability, confidentiality, integrity, reliability, resilience, safety, compliance
+- **Lab 4**: availability, integrity (faulty devices, environment), reliability, resilience
+- **Lab 6**: confidentiality and integrity against attackers
+
+### Resolution, accuracy, noise, response time
+Four different things a sensor's numbers can tell you
+- **Resolution**: the smallest step it reports · **Accuracy**: how far from the truth it may be · **Noise**: how much it wanders when nothing changes · **Response time**: how fast it follows a real change
+- **Example**: a DHT11 has 1 °C resolution and ±2 °C accuracy; a steel DS18B20 probe is accurate (±0.5 °C) but slow
+
+### Plausibility check
+A test that rejects a reading that can't be real: outside the sensor's range, or a jump faster than the physical quantity can change
+- **Limit**: it catches faults, not values that are wrong but believable
+
 ### DDR (Design Decision Record)
 A living document that tracks your architectural decisions throughout the course
 - **Format**: One DDR per team, updated each lab
@@ -165,6 +179,14 @@ Register once and let the server push new values (RFC 7641)
 ### Content-Format
 A CoAP option naming the payload's encoding, as a number
 - **Common values**: 0 = text/plain, 50 = application/json, 60 = application/cbor
+
+### Max-Age (CoAP)
+A CoAP option saying how many more seconds a response stays fresh (RFC 7252 §5.10.5); 60 s if absent
+- **Lab 4 focus**: `/env/temp` sends 60 s minus the reading's age, so the promise shrinks as the reading gets older
+
+### 5.03 Service Unavailable
+A CoAP error code: the server is reachable but can't serve the resource right now; its Max-Age says when to retry
+- **Lab 4 focus**: `/env/temp` answers 5.03 when no reading is younger than 60 s; a dead *node* gives no answer at all
 
 ### SED (Sleepy End Device)
 A Thread child that switches its radio off and wakes every *poll period* to ask its parent for queued messages

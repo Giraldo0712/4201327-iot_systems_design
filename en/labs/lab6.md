@@ -29,7 +29,7 @@ In [Lab 5](lab5.md) you made `/env/temp` and `/act/valve` reachable from outside
 
 ## 2. ISO/IEC 30141 placement
 
-**This lens isn't a place on the map.** The **Trustworthiness viewpoint (§6.6)** is **cross-cutting** — it applies across every domain rather than living in one box. You don't "add a Trustworthiness domain"; you audit the system you already built against seven named characteristics.
+**Back to the lens from Lab 4.** The **Trustworthiness viewpoint (§6.6)** isn't a place on the map: it is **cross-cutting** — it applies across every domain rather than living in one box. You don't "add a Trustworthiness domain"; you audit the system you already built against seven named characteristics.
 
 ```mermaid
 graph TD
@@ -66,7 +66,7 @@ This is the artifact you cite in ADR-006 and add to your DDR §4. There is **no 
 
 | | |
 |---|---|
-| **Resources** | `/env/temp` (Lab 3), `/act/valve` (Lab 4) — unchanged URIs & CBOR |
+| **Resources** | `/env/temp` (Labs 3–4), `/act/valve` (Lab 3) — unchanged URIs & CBOR |
 | **Transport** | CoAP / DTLS / UDP / **port 5684** (CoAPS) — plain CoAP on 5683 is *disabled* |
 | **DTLS version** | DTLS 1.2 (mbedTLS in ESP-IDF) |
 | **Cipher suite** | `TLS_PSK_WITH_AES_128_CCM_8` — AEAD, 8-byte tag, the constrained-device default |
@@ -93,7 +93,7 @@ CoAPS  (today):       [UDP][DTLS record: ciphertext + MAC] ← opaque; sniffer s
 
 ## 4. Execution
 
-The firmware is provided in full — [SOP-06 Part A](sops/sop06_security_ota.md#part-a-dtls-implementation-coaps--the-graded-lab). You enable four `sdkconfig` lines, paste the PSK server changes into your **Lab 3 `/env/temp` server (Node A)**, rebuild, and reflash. The Lab 2 mesh, the Lab 4 valve, and (optionally) the Lab 5 OTBR all stay as they were. **You author no C beyond the PSK identity/key defines and one endpoint-init line** the SOP points to exactly. Evaluation is from Node B's CLI, a CoAPS client, and the 802.15.4 sniffer.
+The firmware is provided in full — [SOP-06 Part A](sops/sop06_security_ota.md#part-a-dtls-implementation-coaps--the-graded-lab). You enable four `sdkconfig` lines, paste the PSK server changes into your **Lab 3 `/env/temp` server (Node A)**, rebuild, and reflash. The Lab 2 mesh, the Lab 3 valve, and (optionally) the Lab 5 OTBR all stay as they were. **You author no C beyond the PSK identity/key defines and one endpoint-init line** the SOP points to exactly. Evaluation is from Node B's CLI, a CoAPS client, and the 802.15.4 sniffer.
 
 ### Task A — The threat model (paper, before you touch code)
 
@@ -142,8 +142,8 @@ Update [your DDR](../3_deliverables_template.md):
 - **§5 First Principles, Lab 6.** One sentence each: why DTLS (not TLS) is the right fit for CoAP (UDP, no connection to hold open, handshake tolerant of reordering/loss); why an AEAD cipher gives confidentiality *and* integrity in one tag rather than encrypt-then-MAC by hand; why authentication — not encryption — is what stops the forged valve command (a sniffer reading ciphertext is a privacy loss; an injected command is a *safety* loss).
 - **§6 Performance Baselines.** Fill in the "Lab 6: DTLS handshake time" row from Task C — target < 3 s — and note the per-reading byte overhead of the DTLS record vs plain CoAP.
 - **§7 Ethics & Sustainability.** **Privacy:** which data is personal/operational, now encrypted in transit (GDPR Art. 32). **Safety:** authentication — not encryption — is what stops the attacker drowning the greenhouse (§6.6 *Safety*). **Sustainability:** session reuse is the energy decision; a per-reading handshake would dominate the budget. **Transparency:** the PSK is hardcoded for the lab — say so, and where it lives in production (Secure Element).
-- **§8 Viewpoint Analysis.** Fill the **Trustworthiness** row of the viewpoint table — Labs Addressed = "Lab 6," Key Concerns = end-to-end confidentiality + integrity of the CoAP application traffic via DTLS (cross-cutting per §6.6). This is your second non-Functional viewpoint entry after Lab 5's enterprise patterns.
-- **§9 Trustworthiness Audit (Lab 6+).** First real fill-in: the seven-characteristic table (next section) — Addressed? / How / Gaps per row. **DTLS is one measure, not the whole of trustworthiness** — record the two gaps it leaves open: *firmware integrity over the air* (signed OTA — the [SOP-06 Part B stretch](sops/sop06_security_ota.md#part-b-secure-ota-updates-optional-stretch--not-graded)) and *detection of compromise or node failure* (fleet telemetry — Lab 7).
+- **§8 Viewpoint Analysis.** Extend the **Trustworthiness** row you opened in Lab 4 — Labs Addressed = "Labs 4, 6," add to Key Concerns: end-to-end confidentiality + integrity of the CoAP application traffic via DTLS (cross-cutting per §6.6).
+- **§9 Trustworthiness Audit.** Lab 4 filled availability, integrity against faults, reliability and resilience; now complete all seven rows (next section) — Addressed? / How / Gaps per row, keeping the Lab 4 evidence and adding DTLS. **DTLS is one measure, not the whole of trustworthiness** — record the two gaps it leaves open: *firmware integrity over the air* (signed OTA — the [SOP-06 Part B stretch](sops/sop06_security_ota.md#part-b-secure-ota-updates-optional-stretch--not-graded)) and *detection of compromise or node failure* (fleet telemetry — Lab 7).
 
 ### The §9 Trustworthiness audit (ISO/IEC 30141 §6.6)
 

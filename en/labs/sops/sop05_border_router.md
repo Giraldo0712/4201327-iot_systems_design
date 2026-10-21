@@ -3,7 +3,7 @@
 > **Lab guide:** [Lab 5](../lab5.md) — read it first; the networking-pattern artifact, tasks, and DDR deliverables live there.
 > **This SOP:** RCP flash, OTBR firmware build, commissioning, end-to-end reach test, troubleshooting. Total student-authored C: **zero**. Both firmwares come straight from `$IDF_PATH/examples/openthread/`.
 
-The Thread mesh from [Lab 2](../lab2.md), the `/env/temp` server from [Lab 3](../lab3.md), and the `/act/valve` server from [Lab 4](../lab4.md) are prerequisites. ESP-IDF v5.1+ (we tested on v5.5.3). **Additional hardware required for this lab:**
+The Thread mesh from [Lab 2](../lab2.md), the `/env/temp` and `/act/valve` servers from [Lab 3](../lab3.md) (with the [Lab 4](../lab4.md) sensor) are prerequisites. ESP-IDF v5.1+ (we tested on v5.5.3). **Additional hardware required for this lab:**
 
 - 1× **Border Router host** — a board with Wi-Fi *and no in-mesh role*. Any of:
   - **ESP32-DevKit** (classic, 2.4 GHz Wi-Fi + BT, no 802.15.4) — *recommended for SoilSense*: it's what most groups already own, and it preserves every ESP32-C6 for in-mesh duty.
@@ -191,7 +191,7 @@ Copy this single long hex line. §4 pastes it on each node.
 
 ## 4. Re-commission Node A and Node V onto the OTBR-formed mesh
 
-The Lab 3 and Lab 4 boards are still running their existing CoAP server firmware (`/env/temp` on Node A; `/act/valve` on Node V). You don't reflash them — you only move them to the new network using the dataset hex you copied in §3.4.
+The Lab 3–4 boards are still running their existing CoAP server firmware (`/env/temp` on Node A; `/act/valve` on Node V). You don't reflash them — you only move them to the new network using the dataset hex you copied in §3.4.
 
 On each of Node A and Node V:
 

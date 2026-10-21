@@ -8,7 +8,7 @@
 
 Freeze the system you built in Labs 1–7 into the **Golden Master v1.0**: a release build with no secrets in the repo (Part A), a hardened actuation path — rate limiting and a fail-safe valve (Part B), proven hands-off recovery under the six chaos drills (Part C), and an automated end-to-end test report plus mini pentest (Part D). The optional stretch closes pillar 2: a managed signed OTA over the Lab 7 egress path (Part E).
 
-**No new features.** The starting point is your end-of-Lab-7 system: Node A (the `/env/temp` CoAPS server + OMD telemetry), the Lab 4 SED valve (`/act/valve`), Node B (CLI client), the Lab 5 OTBR, and the Lab 7 bridge + broker + dashboard. Everything below hardens what already runs.
+**No new features.** The starting point is your end-of-Lab-7 system: Node A (the `/env/temp` CoAPS server + OMD telemetry), the Lab 3 SED valve (`/act/valve`), Node B (CLI client), the Lab 5 OTBR, and the Lab 7 bridge + broker + dashboard. Everything below hardens what already runs.
 
 ---
 
@@ -218,7 +218,7 @@ Use the **global (OMR) addresses** from `ipaddr` on each node, not the mesh-loca
 1. **Security posture** — is plaintext :5683 locked out (Lab 6) or deliberately open for the bridge (Lab 7)? Reported either way; your ADRs must match what it finds.
 2. **DTLS** — a CoAPS GET with the Lab 6 PSK succeeds and a wrong key fails the handshake (needs `coap-client` from `libcoap2-bin`; skipped with a note otherwise — override credentials with `--psk-identity` / `--psk-key`).
 3. **Telemetry contract** — the CBOR payload still carries the Lab 7 keys.
-4. **Actuation round-trip** — `/act/valve` PUT 1 → GET → PUT 0 with the exact 4-byte CBOR map (expect SED poll-period latency — that's Lab 4 physics, not a bug).
+4. **Actuation round-trip** — `/act/valve` PUT 1 → GET → PUT 0 with the exact 4-byte CBOR map (expect SED poll-period latency — that's Lab 3 physics, not a bug).
 5. **Invalid inputs** — unknown path → 4.04, malformed valve payload → 4.00.
 6. **Stress** — 20 sequential GETs: success ratio (≥ 80%) + min/avg/max latency.
 7. **Burst** — 12 parallel GETs: at least one 4.29 proves B.1 is live.
@@ -280,4 +280,4 @@ Not on the rubric; if you skip it, write it into DDR §9 as a **documented gap w
 | `FAILSAFE` never fires in drill 3 | Another FTD was still up and the SED reattached — that's the drill passing the *other* way; to force the fail-safe, power off **all** FTDs. Also check the valve was actually open (`g_valve_state == 1`). |
 | Valve e2e test gets 4.00 | The payload must be exactly the 4-byte CBOR map `A1 61 76 0X` (SOP-04 decoder); the suite sends it — your own scripts must too. |
 | Node reboots during the flood | That's the watchdog catching starvation — exactly what drill 4 exists to find. Check the backtrace, the CoAP task stack size (6144 in SOP-04), and anything blocking inside a handler. |
-| Stress success < 80% against the valve | It's a SED — back-to-back CON requests queue at the parent across poll periods and time out (Lab 4 physics). Run stress against Node A; measure the valve with single round-trips. |
+| Stress success < 80% against the valve | It's a SED — back-to-back CON requests queue at the parent across poll periods and time out (Lab 3 physics). Run stress against Node A; measure the valve with single round-trips. |

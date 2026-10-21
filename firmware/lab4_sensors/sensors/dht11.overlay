@@ -1,0 +1,13 @@
+/* DHT11 module (single-wire): VCC/+ → 3V3, GND/- → GND, DATA/out → GPIO19.
+ * The module carries its own pull-up.
+ */
+/ {
+	aliases {
+		temp-sensor = &dht11;
+	};
+
+	dht11: dht11 {
+		compatible = "aosong,dht";
+		dio-gpios = <&gpio0 19 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+	};
+};

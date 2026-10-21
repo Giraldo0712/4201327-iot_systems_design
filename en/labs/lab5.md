@@ -16,7 +16,7 @@
 
 **From:** Daniela (Pilot Customer) via Product Team — *"I can check soil temperature in the field with my laptop, but I'm at the market and the dashboard on my phone is dead. The mesh is an island."*
 
-You shipped efficient uplink in [Lab 3](lab3.md) (`/env/temp`, CoAP/CBOR + Observe) and reliable downlink in [Lab 4](lab4.md) (`/act/valve`, CON + SED). Both contracts live **inside the Thread mesh**. The phone, the cloud, the auditor's laptop — none of them speak 802.15.4. **Mission:** deploy an **OpenThread Border Router (OTBR)** that bridges the proximity network (Thread/6LoWPAN) to the access network (Wi-Fi/Ethernet) and onward to services and user networks. No new resource — same `/env/temp` and `/act/valve`, now reachable from outside.
+You shipped efficient uplink (`/env/temp`, CoAP/CBOR + Observe) and reliable downlink (`/act/valve`, CON + SED) in [Lab 3](lab3.md), and a real sensor with a freshness promise in [Lab 4](lab4.md). Both contracts live **inside the Thread mesh**. The phone, the cloud, the auditor's laptop — none of them speak 802.15.4. **Mission:** deploy an **OpenThread Border Router (OTBR)** that bridges the proximity network (Thread/6LoWPAN) to the access network (Wi-Fi/Ethernet) and onward to services and user networks. No new resource — same `/env/temp` and `/act/valve`, now reachable from outside.
 
 | Stakeholder | Their question | How this lab answers |
 |---|---|---|
@@ -109,7 +109,7 @@ The Border Router is built from **two boards working as one device**: a Wi-Fi-ca
 - Flash the RCP firmware to one ESP32-C6 ([SOP-05 §1](sops/sop05_border_router.md#1-flash-the-radio-co-processor-rcp)).
 - Flash the OTBR firmware to the BR host (ESP32 or S3) with the RCP wired in ([SOP-05 §2](sops/sop05_border_router.md#2-flash-and-launch-the-otbr-host)).
 - From the BR's `ot` CLI in `idf.py monitor`, **connect Wi-Fi** (`ot wifi connect -s … -p …`), then **form** a Thread network (`ot dataset init new`, set a non-default PAN ID and network key, `ot ifconfig up`, `ot thread start`), then **start the BR** (`ot br init 1 1`). Full walkthrough in [SOP-05 §3](sops/sop05_border_router.md#3-bring-up-wi-fi-and-form-the-thread-network--from-the-ot-cli).
-- Re-commission your **Lab 3 Node A** (sensor) and **Lab 4 Node V** (valve) onto this OTBR-formed network by pasting the BR's `ot dataset active -x` hex blob.
+- Re-commission your **Node A** (sensor) and **Node V** (valve) onto this OTBR-formed network by pasting the BR's `ot dataset active -x` hex blob.
 - **Evidence:** BR-side `ot child table` + `ot router table` output showing Node A as a router and Node V as a child; each node's `state` output confirming it joined.
 
 ### Task B — Global prefix and the second address

@@ -1,0 +1,13 @@
+/* Console and shell on the ESP32-C6's native USB-Serial-JTAG port, for boards
+ * without a USB-UART bridge (ESP32-C6 Super Mini) or the DevKitC's "USB" port.
+ */
+&usb_serial {
+	status = "okay";
+};
+
+/ {
+	chosen {
+		zephyr,console = &usb_serial;
+		zephyr,shell-uart = &usb_serial;
+	};
+};
