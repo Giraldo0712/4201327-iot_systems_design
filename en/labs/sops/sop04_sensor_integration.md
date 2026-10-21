@@ -126,5 +126,5 @@ availability?
 | `bmp280@76 was not found at boot` | The BMP280 driver checks for the chip only at startup. Check SDA/SCL/CSB/SDO, then reset S. |
 | Temperature exactly 85.0 °C rejected (DS18B20) | The probe reset (power glitch) and returned its power-on value. Check the 3V3 and GND wires. |
 | Humidity stuck at 95 % (DHT11) or 100 % (DHT22) | Condensation from breath or a damp environment; the element needs minutes to dry. |
-| `ot coap get` returns nothing after Task 4.1 | Expected after 60 s without a reading: S answers 5.03. Read S's log. |
+| `ot coap get` prints `6e6f2066726573682072656164696e67` | That's "no fresh reading" in ASCII: S answered 5.03 because no reading is younger than 60 s. Check the sensor wiring. |
 | C stopped receiving notifications | S ended the observation with a 5.03, or dropped C after a failed CON heartbeat. Run `ot coap observe` again. |

@@ -28,6 +28,7 @@ static int64_t last_notify_ms;
 static uint8_t notify_type = COAP_TYPE_NON_CON;
 static bool fresh, been_fresh;
 static uint32_t n_threshold, n_heartbeat;
+static uint16_t notify_size;
 
 /* Observations being ended with a 5.03, collected while notifying */
 static bool ending;
@@ -191,6 +192,7 @@ static void env_temp_notify(struct coap_resource *res, struct coap_observer *obs
 				  freshness_s(&reading, k_uptime_get()));
 	}
 	if (r == 0) {
+		notify_size = pkt.offset;
 		r = coap_resource_send(res, &pkt, net_sad(&obs->addr),
 				       net_family2size(obs->addr.ss_family), NULL);
 	}
@@ -265,15 +267,17 @@ static void policy(struct k_work *work)
 			} else {
 				n_heartbeat++;
 			}
-			LOG_INF("notify (%s, %s): T=%.2f C, delta=%.2f C, %llds since last, "
-				"reading %llds old [threshold %u, heartbeat %u]",
-				threshold ? "threshold" : "heartbeat", threshold ? "NON" : "CON",
-				(double)reading.t, (double)delta,
-				(now - last_notify_ms) / MSEC_PER_SEC,
-				(now - reading.at_ms) / MSEC_PER_SEC, n_threshold, n_heartbeat);
+			int64_t since_ms = now - last_notify_ms;
+
 			last_notified_c = reading.t;
 			last_notify_ms = now;
 			coap_resource_notify(&env_temp);
+			LOG_INF("notify (%s, %s): T=%.2f C, delta=%.2f C, %llds since last, "
+				"reading %llds old, CoAP %u B [threshold %u, heartbeat %u]",
+				threshold ? "threshold" : "heartbeat", threshold ? "NON" : "CON",
+				(double)reading.t, (double)delta, since_ms / MSEC_PER_SEC,
+				(now - reading.at_ms) / MSEC_PER_SEC, notify_size, n_threshold,
+				n_heartbeat);
 		}
 	}
 

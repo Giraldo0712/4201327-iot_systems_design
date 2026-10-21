@@ -60,7 +60,8 @@ static int decode_command(const struct coap_packet *req, bool *open)
 }
 
 static int reply_state(struct coap_resource *res, const struct coap_packet *req,
-		       struct net_sockaddr *addr, net_socklen_t addr_len, uint8_t code)
+		       struct net_sockaddr *addr, net_socklen_t addr_len, uint8_t code,
+		       uint16_t *size)
 {
 	uint8_t buf[CONFIG_COAP_SERVER_MESSAGE_SIZE];
 	uint8_t cbor[4];
@@ -82,6 +83,7 @@ static int reply_state(struct coap_resource *res, const struct coap_packet *req,
 	if (r < 0) {
 		return r;
 	}
+	*size = rsp.offset;
 
 	return coap_resource_send(res, &rsp, addr, addr_len, NULL);
 }
@@ -92,6 +94,8 @@ static int valve_put(struct coap_resource *res, struct coap_packet *req,
 	char peer[NET_IPV6_ADDR_LEN];
 	bool was_open = valve_open;
 	bool open;
+	uint16_t size = 0;
+	int r;
 
 	peer_str(addr, peer, sizeof(peer));
 
@@ -104,22 +108,27 @@ static int valve_put(struct coap_resource *res, struct coap_packet *req,
 
 	valve_open = open;
 	led_show_valve(open);
-	LOG_INF("PUT /act/valve from %s (%s): %s%s -> 2.04", peer,
+	r = reply_state(res, req, addr, addr_len, COAP_RESPONSE_CODE_CHANGED, &size);
+	LOG_INF("PUT /act/valve from %s (%s): %s%s -> 2.04, CoAP %u B, request %u B", peer,
 		coap_header_get_type(req) == COAP_TYPE_CON ? "CON" : "NON",
-		open ? "OPEN" : "CLOSED", open == was_open ? ", no change" : "");
+		open ? "OPEN" : "CLOSED", open == was_open ? ", no change" : "", size,
+		req->max_len);
 
-	return reply_state(res, req, addr, addr_len, COAP_RESPONSE_CODE_CHANGED);
+	return r;
 }
 
 static int valve_get(struct coap_resource *res, struct coap_packet *req,
 		     struct net_sockaddr *addr, net_socklen_t addr_len)
 {
 	char peer[NET_IPV6_ADDR_LEN];
+	uint16_t size = 0;
+	int r = reply_state(res, req, addr, addr_len, COAP_RESPONSE_CODE_CONTENT, &size);
 
-	LOG_INF("GET /act/valve from %s: %s -> 2.05", peer_str(addr, peer, sizeof(peer)),
-		valve_open ? "OPEN" : "CLOSED");
+	LOG_INF("GET /act/valve from %s: %s -> 2.05, CoAP %u B, request %u B",
+		peer_str(addr, peer, sizeof(peer)), valve_open ? "OPEN" : "CLOSED", size,
+		req->max_len);
 
-	return reply_state(res, req, addr, addr_len, COAP_RESPONSE_CODE_CONTENT);
+	return r;
 }
 
 static const char *const valve_path[] = { "act", "valve", NULL };

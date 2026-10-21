@@ -1,0 +1,33 @@
+# Course config for the course kit (../course-kit/STANDARD.md).
+# Check: python3 ../course-kit/tools/coursekit.py lint
+
+[course]
+code = "4201327"
+name = "IoT Systems Design"
+language = "en"
+accent = "#1d4ed8"
+
+[types]
+lab = ["en/labs/lab[0-9].md"]
+talk = ["en/presentations/*.md"]
+script = ["en/labs/lectures/lab[0-9]_lecture.md"]
+sop = ["en/labs/sops/sop[0-9][0-9]_*.md"]
+
+[talk]
+minutes = 40
+
+# One color per recurring entity, for every figure and slide (theme/course.css: c1..c8).
+# Mermaid: fill with the tint, stroke with the color.
+[palette]
+UD = "c1"
+PED = "c2"
+ASD = "c3"
+OMD = "c6"
+SCD = "c7"
+RAID = "c8"
+Trustworthiness = "c5"
+
+# Session number = "date · toolchain · hardware" of the last full run.
+[validated]
+3 = "2026-10-16 · Zephyr main v4.4.0-13939 · 2× ESP32-C6 (4 MB)"
+4 = "2026-10-16 · Zephyr main v4.4.0-13939 · 2× ESP32-C6 (4 MB), DHT22"

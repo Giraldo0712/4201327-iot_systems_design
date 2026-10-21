@@ -1,95 +1,21 @@
 ---
 marp: true
----
-
-<!--
+theme: course
 paginate: true
 title: Bluetooth Classic
 style: |
-  section {
-    font-family: 'Inter', 'Segoe UI', 'DejaVu Sans', Arial, sans-serif;
-    font-size: 26px;
-    padding: 50px 64px;
-    background: linear-gradient(180deg, #ffffff 0%, #ffffff 82%, #eff6ff 100%);
-    color: #0f172a;
-  }
-  h1 { color: #1d4ed8; }
-  h2 {
-    color: var(--accent, #1d4ed8);
-    border-bottom: 6px solid var(--accent, #1d4ed8);
-    padding-bottom: 6px;
-    margin-bottom: 18px;
-  }
-  header {
-    background: var(--accent, #1d4ed8);
-    color: #fff;
-    font-weight: 700;
-    font-size: 18px;
-    padding: 4px 14px;
-    border-radius: 0 0 10px 10px;
-    left: 64px;
-    top: 0;
-  }
-  section::after { color: var(--accent, #1d4ed8); font-weight: 700; }
-  img { display: block; margin: 0 auto; }
-  strong { color: var(--accent, #1d4ed8); }
-  table { font-size: 22px; margin: 0 auto; }
-  th { background: var(--accent, #1d4ed8); color: #fff; }
-  blockquote {
-    border-left: 10px solid var(--accent, #1d4ed8);
-    background: #f8fafc;
-    padding: 14px 22px;
-    border-radius: 0 12px 12px 0;
-    color: #0f172a;
-  }
-  code { background: #f1f5f9; }
-  section.lead {
-    background: linear-gradient(135deg, #1d4ed8 0%, #7c3aed 55%, #db2777 100%);
-    color: #fff;
-    justify-content: center;
-  }
-  section.lead h1 { color: #fff; font-size: 64px; }
-  section.lead strong { color: #fde68a; }
-  section.lead::after { color: #fff; }
-  section.why      { --accent: #ea580c; }
-  section.phy      { --accent: #2563eb; }
-  section.topo     { --accent: #16a34a; }
-  section.ip       { --accent: #0d9488; }
-  section.sec      { --accent: #e11d48; }
-  section.power    { --accent: #d97706; }
-  section.cost     { --accent: #7c3aed; }
-  section.verdict  {
-    --accent: #db2777;
-    background: linear-gradient(135deg, #fdf2f8 0%, #ede9fe 100%);
-  }
-  section.verdict blockquote { font-size: 30px; background: #fff; }
-  section.template ol li { margin: 8px 0; padding-left: 6px; }
-  section.template ol li:nth-child(1)::marker { color: #ea580c; }
-  section.template ol li:nth-child(2)::marker { color: #2563eb; }
-  section.template ol li:nth-child(3)::marker { color: #16a34a; }
-  section.template ol li:nth-child(4)::marker { color: #0d9488; }
-  section.template ol li:nth-child(5)::marker { color: #d97706; }
-  section.template ol li:nth-child(6)::marker { color: #7c3aed; }
-  section.template ol li:nth-child(7)::marker { color: #db2777; }
-  section.template ol li::marker { font-weight: 800; }
-  section.template ol li:nth-child(1) strong { color: #ea580c; }
-  section.template ol li:nth-child(2) strong { color: #2563eb; }
-  section.template ol li:nth-child(3) strong { color: #16a34a; }
-  section.template ol li:nth-child(4) strong { color: #0d9488; }
-  section.template ol li:nth-child(5) strong { color: #d97706; }
-  section.template ol li:nth-child(6) strong { color: #7c3aed; }
-  section.template ol li:nth-child(7) strong { color: #db2777; }
-  section.turn { --accent: #7c3aed; }
+  section { --course: #1d4ed8; }
+  section.turn { --accent: var(--c6); }
   section.turn table { font-size: 15px; }
   section.turn th, section.turn td { padding: 3px 10px; }
-  section.turn tbody tr:nth-child(-n+3) td:nth-child(4) { background: #dcfce7; }
-  section.turn tbody tr:nth-child(4) td:nth-child(4) { background: #fef3c7; }
-  section.turn tbody tr:nth-child(n+5):nth-child(-n+7) td:nth-child(4) { background: #ffedd5; }
-  section.turn tbody tr:nth-child(n+8):nth-child(-n+9) td:nth-child(4) { background: #dbeafe; }
-  section.turn tbody tr:nth-child(10) td:nth-child(4) { background: #ffe4e6; }
-  section.turn tbody tr:nth-child(11) td:nth-child(4) { background: #ede9fe; }
-  section.turn tbody tr:nth-child(12) td:nth-child(4) { background: #ccfbf1; }
--->
+  section.turn tbody tr:nth-child(-n+3) td:nth-child(4) { background: var(--t3); }
+  section.turn tbody tr:nth-child(4) td:nth-child(4) { background: var(--t7); }
+  section.turn tbody tr:nth-child(n+5):nth-child(-n+7) td:nth-child(4) { background: var(--t1); }
+  section.turn tbody tr:nth-child(n+8):nth-child(-n+9) td:nth-child(4) { background: var(--t2); }
+  section.turn tbody tr:nth-child(10) td:nth-child(4) { background: var(--t5); }
+  section.turn tbody tr:nth-child(11) td:nth-child(4) { background: var(--t6); }
+  section.turn tbody tr:nth-child(12) td:nth-child(4) { background: var(--t4); }
+---
 
 <!-- _class: lead -->
 <!-- _paginate: false -->
@@ -108,7 +34,7 @@ Today: why.
 
 ---
 
-<!-- _class: template -->
+<!-- _class: agenda -->
 
 ## The template: what every group presents
 
@@ -129,7 +55,7 @@ questions. Grading follows the headings.
 
 ---
 
-<!-- _class: why -->
+<!-- _class: s1 -->
 <!-- _header: 1 · Why it exists -->
 
 ## Replace the cable
@@ -146,7 +72,7 @@ two devices. Everything else follows from that.
 
 ---
 
-<!-- _class: why -->
+<!-- _class: s1 -->
 <!-- _header: 1 · Why it exists -->
 
 ## Where it sits: Classic next to Thread
@@ -163,7 +89,7 @@ network layer, so a device talks only to devices it is linked to.
 
 ---
 
-<!-- _class: phy -->
+<!-- _class: s2 -->
 <!-- _header: 2 · PHY/MAC -->
 
 ## PHY: pick one channel, or hop across all of them
@@ -178,7 +104,7 @@ times per second in a pseudo-random order both ends compute; adaptive frequency 
 
 ---
 
-<!-- _class: phy -->
+<!-- _class: s2 -->
 <!-- _header: 2 · PHY/MAC -->
 
 ## PHY: rates and range
@@ -203,7 +129,7 @@ comes on the power slide.
 
 ---
 
-<!-- _class: phy -->
+<!-- _class: s2 -->
 <!-- _header: 2 · PHY/MAC -->
 
 ## MAC: the central polls, nobody contends
@@ -220,7 +146,7 @@ has to stay up for that to work.
 
 ---
 
-<!-- _class: phy -->
+<!-- _class: s2 -->
 <!-- _header: 2 · PHY/MAC -->
 
 ## Getting connected is slow
@@ -236,7 +162,7 @@ in a few milliseconds.
 
 ---
 
-<!-- _class: sec -->
+<!-- _class: s2 -->
 <!-- _header: 2 · PHY/MAC: security -->
 
 ## Security: from PIN codes to Secure Connections
@@ -258,7 +184,7 @@ old modes stay in the spec so old devices keep working.
 
 ---
 
-<!-- _class: topo -->
+<!-- _class: s3 -->
 <!-- _header: 3 · Topology and range -->
 
 ## Topology: small stars, no routing
@@ -275,7 +201,7 @@ tractor email: a star loses everything behind a dead hub.
 
 ---
 
-<!-- _class: ip -->
+<!-- _class: s4 -->
 <!-- _header: 4 · IP-native or not -->
 
 ## Where the protocol ends
@@ -293,7 +219,7 @@ Domain at the same time.
 
 ---
 
-<!-- _class: power -->
+<!-- _class: s5 -->
 <!-- _header: 5 · Power -->
 
 ## A soil sensor every 15 minutes
@@ -310,7 +236,7 @@ of every sensor, at most 7 per central.
 
 ---
 
-<!-- _class: cost -->
+<!-- _class: s6 -->
 <!-- _header: 6 · Cost and ecosystem -->
 
 ## Everywhere, and frozen
@@ -326,7 +252,7 @@ of every sensor, at most 7 per central.
 
 ---
 
-<!-- _class: verdict -->
+<!-- _class: s7 takeaway -->
 <!-- _header: 7 · Verdict -->
 
 ## Verdict for GreenField

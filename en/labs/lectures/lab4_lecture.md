@@ -160,7 +160,7 @@ t ≈ 6 s  "Sensor lost" (3 failed reads)               (nothing is sent)
          GETs still get the last value,               GET con: C retransmits…
          Max-Age shrinking (54, 39, 24…)              Observe: silence
 t ≈ 60 s 5.03 to every observer,             t ≈ 45 s a heartbeat is overdue
-         observations end;                   t ≈ 93 s GET: ResponseTimeout
+         observations end;                   t = 62–93 s GET: ResponseTimeout
          GET → 5.03 "no fresh reading"
 ```
 
@@ -200,7 +200,11 @@ fails. Locking interrupts for the whole read fixes the sensor and starves the ra
 22 ms: the trade-off students measure in SOP-04 Experiment B.
 
 The lab measures the failure rate with the radio quiet, then with C pinging S ten times
-a second. Ask students to predict which sensors suffer before they measure.
+a second. Ask students to predict which sensors suffer before they measure. On the course
+bench a DHT22 failed 0 of 60 reads quiet and 11 of 63 (17.5 %) under the pings, while C's
+pings lost 1 of 1200: the radio won, the sensor lost. That misses the DDR's < 5 % target,
+which is the finding: a reliability gap with a named cause and three remedies (retry,
+lock interrupts, a sensor with bus hardware).
 
 ### What heals by itself, and what doesn't
 
