@@ -74,6 +74,7 @@ section.lead {
 }
 section.lead h1 { color: #fff; font-size: 64px; }
 section.lead strong { color: #fde68a; }
+section.lead code { background: rgba(255, 255, 255, 0.2); color: #fff; }
 section.lead::after { color: #fff; }
 
 section.agenda ol li { margin: 8px 0; padding-left: 6px; }

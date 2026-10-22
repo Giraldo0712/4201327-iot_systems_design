@@ -1,5 +1,8 @@
 ---
 marp: true
+---
+
+<!--
 theme: course
 paginate: true
 title: Bluetooth Classic
@@ -15,7 +18,7 @@ style: |
   section.turn tbody tr:nth-child(10) td:nth-child(4) { background: var(--t5); }
   section.turn tbody tr:nth-child(11) td:nth-child(4) { background: var(--t6); }
   section.turn tbody tr:nth-child(12) td:nth-child(4) { background: var(--t4); }
----
+-->
 
 <!-- _class: lead -->
 <!-- _paginate: false -->
