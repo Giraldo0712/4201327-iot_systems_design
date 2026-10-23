@@ -39,6 +39,9 @@ build firmware/lab5_rcp $C6
 build firmware/lab6_secure $C6
 build firmware/lab6_secure $C6 -DEXTRA_DTC_OVERLAY_FILE=sensors/dht22.overlay
 build firmware/lab6_secure $C6 "${USB[@]}"
+build firmware/lab7_telemetry $C6
+build firmware/lab7_telemetry $C6 -DEXTRA_DTC_OVERLAY_FILE=sensors/dht22.overlay
+build firmware/lab7_telemetry $C6 "${USB[@]}"
 build firmware/lab5_border_router $S3
 
 exit $fail

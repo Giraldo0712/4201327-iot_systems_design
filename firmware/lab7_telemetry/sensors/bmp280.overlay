@@ -1,0 +1,17 @@
+/* BMP280 module (I2C): VCC → 3V3, GND → GND, SDA → GPIO6, SCL → GPIO7,
+ * CSB → 3V3 (selects I2C), SDO → GND (address 0x76).
+ */
+/ {
+	aliases {
+		temp-sensor = &bmp280;
+	};
+};
+
+&i2c0 {
+	clock-frequency = <I2C_BITRATE_STANDARD>;
+
+	bmp280: bmp280@76 {
+		compatible = "bosch,bme280";
+		reg = <0x76>;
+	};
+};

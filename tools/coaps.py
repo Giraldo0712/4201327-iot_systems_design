@@ -267,6 +267,7 @@ class CoapsSession:
         self.dtls = DtlsPskClient(host, identity, psk, port, timeout, verbose)
         self.mid = random.randrange(0x10000)
         self.handshake_ms = None
+        self.observing = {}  # token -> path, for every Observe registration
 
     def __enter__(self):
         self.handshake_ms = self.dtls.handshake()
@@ -303,22 +304,28 @@ class CoapsSession:
                 if tok == token:
                     if mtype == CON:
                         self.dtls.send(coap_encode(ACK, 0, mid, b"", []))
-                    self.token = token
+                    if observe == 0 and OPT_OBSERVE in opts:
+                        self.observing[token] = path
                     return code, body, opts
+                if tok in self.observing and mtype == CON:
+                    self.dtls.send(coap_encode(ACK, 0, mid, b"", []))
             wait *= 2
         raise TimeoutError("no CoAP response")
 
     def notifications(self, timeout=None):
-        """Yield (code, payload, observe) for each notification on the last Observe
-        registration, ACKing CON ones; stops after `timeout` s of silence."""
-        while True:
+        """Yield (path, code, payload) for each notification on this session's Observe
+        registrations, ACKing CON ones; stops after `timeout` s of silence. An error
+        notification ends its observation (RFC 7641 §4.2)."""
+        while self.observing:
             data = self.dtls.recv(timeout if timeout is not None else 3600)
             if data is None:
                 return
             mtype, code, mid, tok, opts, body = coap_decode(data)
-            if tok != getattr(self, "token", None):
-                continue
             if mtype == CON:
                 self.dtls.send(coap_encode(ACK, 0, mid, b"", []))
-            obs = opts.get(OPT_OBSERVE, [b""])[0]
-            yield code, body, int.from_bytes(obs, "big") if obs else None
+            if tok not in self.observing:
+                continue
+            path = self.observing[tok]
+            if OPT_OBSERVE not in opts:
+                del self.observing[tok]
+            yield path, code, body

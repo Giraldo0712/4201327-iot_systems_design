@@ -253,10 +253,8 @@ class DtlsSource:
                     handle_payload(body, code_str(code))
                     code, body, _ = s.request("GET", COAP_RESOURCE.lstrip("/"), observe=0)
                     handle_payload(body, code_str(code))
-                    for code, body, _ in s.notifications(timeout=OBSERVE_RENEW_S):
+                    for _, code, body in s.notifications(timeout=OBSERVE_RENEW_S):
                         handle_payload(body, code_str(code))
-                        if code >> 5 != 2:
-                            break
             except Exception as e:
                 with state_lock:
                     latest_sensor_data.clear()
