@@ -216,6 +216,23 @@ A technique routers use to share one public IP among many private devices
 - **Problem it creates**: Devices behind NAT can't be reached from the internet
 - **IPv6 eliminates**: No NAT needed with enough addresses
 
+### OMR prefix (Off-Mesh Routable)
+The IPv6 prefix a Border Router publishes in the Thread network data so nodes can be reached from outside the mesh
+- **Global or ULA**: global when the upstream network delegates a prefix; otherwise the Border Router's own `fd…/64`
+- **In this course**: S's address in this prefix is the one your laptop and phone use (Lab 5)
+
+### SLAAC (Stateless Address Autoconfiguration)
+A node builds its own address from an advertised prefix plus an interface ID it picks (RFC 4862)
+- **In Thread**: the prefix comes from the network data with the `a` flag (`paros`)
+
+### Route Information Option (RIO)
+A field in a Router Advertisement saying "this prefix is reachable through me" (RFC 4191)
+- **In this course**: how your laptop learns the route to the OMR prefix through the Border Router
+
+### NAT64
+Translation between IPv6 and IPv4 so an IPv6-only node can reach IPv4 hosts (RFC 6146)
+- **How**: the IPv4 address rides in the last 32 bits of a /96 prefix (RFC 6052), e.g. `…:808:808` for 8.8.8.8
+
 ### Link Budget
 Calculation to determine if a wireless signal is strong enough to reach its destination
 - **Factors**: Transmit power, antenna gain, distance, obstacles, receiver sensitivity
@@ -224,6 +241,11 @@ Calculation to determine if a wireless signal is strong enough to reach its dest
 ---
 
 ## Hardware & Radio
+
+### RCP (Radio Co-Processor) and Spinel
+A chip that runs only the 802.15.4 radio and MAC, driven by a host that runs the rest of OpenThread
+- **Spinel**: the serial protocol between host and RCP
+- **In this course**: the ESP32-C6 wired to the ESP32-S3 Border Router (Lab 5)
 
 ### ESP32-C6
 The microcontroller you'll use in this course

@@ -91,9 +91,10 @@ We assess architectural understanding, not just whether the code compiles.
 ## Stack
 
 ESP32-C6 DevKitC · Zephyr · OpenThread (Thread mesh) · CoAP · CBOR · DTLS with
-AES-128-CCM.
+AES-128-CCM. Lab 5 adds an ESP32-S3 with PSRAM (N8R8 or N16R8) as the Border Router
+host, plus a third ESP32-C6 per pair as its radio.
 
-> **Migration in progress.** Setup, the Lab 0 builds and Labs 1–4 are Zephyr. Labs 5–8
+> **Migration in progress.** Setup, the Lab 0 builds and Labs 1–5 are Zephyr. Labs 6–8
 > still document ESP-IDF v5.1+ while they're being ported — follow the setup guide, and
 > each lab will say which framework it expects.
 

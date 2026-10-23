@@ -92,6 +92,8 @@
 | Lab 3: Poll Latency (5 s period) | < 5s | ___ s | [ ] Pass |
 | Lab 4: Time to see a lost sensor | ≤ 60s | ___ s | [ ] Pass |
 | Lab 4: Read failures, radio busy | < 5% | ___ % | [ ] Pass |
+| Lab 5: OTBR added latency | < 100ms | ___ ms | [ ] Pass |
+| Lab 5: NAT64 RTT | < 200ms | ___ ms | [ ] Pass |
 | Lab 6: DTLS Time | < 3s | ___ s | [ ] Pass |
 
 ---
