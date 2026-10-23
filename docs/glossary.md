@@ -1,0 +1,419 @@
+# IoT Systems Design - Glossary
+
+**Purpose**: Quick reference for terminology used throughout the course. Bookmark this page!
+
+**How to use**: When you see an unfamiliar term in labs or readings, search this page (Ctrl+F / Cmd+F).
+
+---
+
+## Table of Contents
+- [Core IoT Concepts](#core-iot-concepts)
+- [Architecture & Documentation](#architecture--documentation)
+- [Networking & Protocols](#networking--protocols)
+- [Hardware & Radio](#hardware--radio)
+- [Security](#security)
+- [Course-Specific Terms](#course-specific-terms)
+
+---
+
+## Core IoT Concepts
+
+### IoT (Internet of Things)
+Devices with sensors or actuators that connect to the internet to collect or act on data.
+- **Example**: A soil moisture sensor that sends data to your phone
+
+### Sensor
+A device that measures something in the physical world (temperature, moisture, light, etc.)
+- **Example**: The DHT22 sensor in your lab kit measures temperature and humidity
+
+### Actuator
+A device that performs an action in the physical world (motor, valve, LED, etc.)
+- **Example**: A valve that opens to water plants when soil is dry
+
+### Constrained Device
+An IoT device with limited resources: battery power, memory (RAM), processing speed, or network bandwidth
+- **Why it matters**: You can't run the same software on a sensor node that you'd run on a laptop
+
+### Edge Device / Node
+A device at the "edge" of the network (where sensors/actuators interact with the physical world)
+- **In this course**: Your ESP32-C6 boards are edge devices
+
+### Gateway / Border Router
+A device that connects your IoT network to the Internet
+- **Analogy**: Like a translator between two groups speaking different languages
+
+---
+
+## Architecture & Documentation
+
+### ISO/IEC 30141:2024
+An international standard that defines how to organize and describe IoT systems
+- **Why we use it**: Provides a common language for engineers worldwide
+- **Think of it as**: A blueprint language for IoT systems
+
+### Functional Domains (ISO 30141)
+Six main areas of responsibility in an IoT system:
+1. **PED** (Physical Entity Domain) - The real-world things being sensed/controlled
+2. **SCD** (Sensing & Controlling Domain) - Sensors, actuators, and gateways
+3. **ASD** (Application & Service Domain) - Software that processes data
+4. **OMD** (Operation & Management Domain) - Monitoring and maintaining the system
+5. **UD** (User Domain) - Interfaces for end users
+6. **RAID** (Resource Access & Interchange Domain) - Security, APIs, data exchange
+
+### Viewpoints (ISO 30141)
+Six different perspectives for analyzing an IoT system:
+- **Foundational**: What is this system?
+- **Business**: Why are we building it?
+- **Usage**: Who uses it and how?
+- **Functional**: What does it do?
+- **Trustworthiness**: How is it secure and reliable?
+- **Construction**: How do we build it?
+
+### Trustworthiness characteristics (ISO 30141 §6.6)
+Seven properties the Trustworthiness viewpoint audits across every domain: availability, confidentiality, integrity, reliability, resilience, safety, compliance
+- **Lab 4**: availability, integrity (faulty devices, environment), reliability, resilience
+- **Lab 6**: confidentiality and integrity against attackers
+
+### Resolution, accuracy, noise, response time
+Four different things a sensor's numbers can tell you
+- **Resolution**: the smallest step it reports · **Accuracy**: how far from the truth it may be · **Noise**: how much it wanders when nothing changes · **Response time**: how fast it follows a real change
+- **Example**: a DHT11 has 1 °C resolution and ±2 °C accuracy; a steel DS18B20 probe is accurate (±0.5 °C) but slow
+
+### Plausibility check
+A test that rejects a reading that can't be real: outside the sensor's range, or a jump faster than the physical quantity can change
+- **Limit**: it catches faults, not values that are wrong but believable
+
+### DDR (Design Decision Record)
+A living document that tracks your architectural decisions throughout the course
+- **Format**: One DDR per team, updated each lab
+- **Contains**: Design decisions, performance measurements, ISO domain mappings
+
+### ADR (Architecture Decision Record)
+A standalone document explaining a major technical decision
+- **Format**: One ADR per significant decision
+- **Contains**: Problem, alternatives considered, decision made, consequences
+- **Example**: "ADR-001: Why we chose CoAP instead of MQTT"
+
+### First Principles
+Understanding the fundamental "why" behind a technology, not just the "how"
+- **Example**: Understanding *why* IPv6 is needed (address exhaustion) vs just knowing *how* to configure it
+
+---
+
+## Networking & Protocols
+
+### IPv6 (Internet Protocol version 6)
+The addressing system that gives every device on the internet a unique address
+- **Address length**: 128 bits (vs IPv4's 32 bits)
+- **Example**: `2001:db8::1`
+- **Why IoT needs it**: Billions of IoT devices need unique addresses
+
+### IPv4 (Internet Protocol version 4)
+The older addressing system (still widely used)
+- **Address length**: 32 bits
+- **Example**: `192.168.1.1`
+- **Problem**: Only ~4 billion addresses (not enough for IoT)
+
+### 6LoWPAN (IPv6 over Low-Power Wireless Personal Area Networks)
+A way to run IPv6 on constrained wireless networks
+- **What it does**: Compresses IPv6 headers to fit in small radio packets
+- **Why we need it**: Regular IPv6 packets are too large for low-power radios
+
+### Mesh Network
+A network where devices relay messages for each other (no central hub required)
+- **Benefit**: More reliable—if one path fails, messages find another route
+- **In this course**: Thread creates a mesh network
+
+### Thread
+A low-power wireless networking protocol designed for IoT
+- **Based on**: IPv6, IEEE 802.15.4 radio
+- **Key feature**: Self-forming mesh network
+- **Used in**: Smart homes (Google Nest, Apple HomeKit)
+
+### Thread Roles (Leader, Router, REED, End Device, SED)
+What a Thread device does in the mesh
+- **Leader**: a router that also hands out router IDs and holds network data; one per partition
+- **Router**: forwards packets for others; receiver always on; up to 32 per network
+- **REED** (Router-Eligible End Device): attached as a child, becomes a router when the mesh needs one
+- **End Device / SED**: talks only to its parent; a Sleepy End Device turns its radio off between polls
+- **Lab 2 focus**: watching B and C go from child to router
+
+### MLE (Mesh Link Establishment)
+Thread's signalling protocol between neighbours
+- **What it does**: discovers neighbours, rates each link, assigns router IDs, spreads route costs
+- **Runs on**: UDP over link-local IPv6
+
+### Link Margin / Link Quality (LQ)
+How far a received signal sits above the noise floor, in dB, and Thread's 0–3 rating of it
+- **Thresholds**: > 20 dB → LQ 3 (cost 1), > 10 dB → LQ 2 (cost 2), > 2 dB → LQ 1 (cost 4)
+- **Where you see it**: `LQ In` / `LQ Out` in `ot neighbor table` and `ot router table`
+
+### RLOC, ALOC and ML-EID
+The mesh-wide IPv6 addresses of a Thread node (all share the mesh-local prefix `fdxx::/64`)
+- **RLOC** (Routing Locator) `…:0:ff:fe00:<RLOC16>`: says where the node is attached; changes if it re-attaches
+- **ALOC** (Anycast Locator) `…:0:ff:fe00:fcXX`: a role, e.g. `fc00` = the current leader
+- **ML-EID** (Mesh-Local Endpoint Identifier): random and stable; the address applications should use
+
+### CoAP (Constrained Application Protocol)
+A lightweight protocol for sending/receiving data on constrained devices
+- **Think of it as**: HTTP's smaller cousin for IoT
+- **Runs on**: UDP (not TCP)
+- **Why not HTTP**: HTTP is too heavy for battery-powered sensors
+
+### CBOR (Concise Binary Object Representation)
+A compact way to encode data for transmission
+- **Think of it as**: JSON's more efficient cousin
+- **Why not JSON**: JSON wastes bandwidth with text encoding
+
+### CON / NON (CoAP message types)
+Whether a CoAP message must be acknowledged
+- **CON** (Confirmable): the receiver sends an ACK; the sender retransmits with doubling waits and gives up after ~1.5 min
+- **NON** (Non-confirmable): no ACK, no retransmission; a loss is invisible to the sender
+- **Lab 3 focus**: NON for readings, CON for valve commands
+
+### Observe (CoAP)
+Register once and let the server push new values (RFC 7641)
+- **How**: a GET with the Observe option; the server answers every change with the same token and a rising sequence number
+- **Why**: the server knows when the value changed; a polling client doesn't
+
+### Content-Format
+A CoAP option naming the payload's encoding, as a number
+- **Common values**: 0 = text/plain, 50 = application/json, 60 = application/cbor
+
+### Max-Age (CoAP)
+A CoAP option saying how many more seconds a response stays fresh (RFC 7252 §5.10.5); 60 s if absent
+- **Lab 4 focus**: `/env/temp` sends 60 s minus the reading's age, so the promise shrinks as the reading gets older
+
+### 5.03 Service Unavailable
+A CoAP error code: the server is reachable but can't serve the resource right now; its Max-Age says when to retry
+- **Lab 4 focus**: `/env/temp` answers 5.03 when no reading is younger than 60 s; a dead *node* gives no answer at all
+
+### SED (Sleepy End Device)
+A Thread child that switches its radio off and wakes every *poll period* to ask its parent for queued messages
+- **Trade-off**: longer poll period = longer battery life and longer downlink latency
+
+### MQTT (Message Queuing Telemetry Transport)
+Another IoT protocol (alternative to CoAP)
+- **Architecture**: Publish/subscribe with a central broker
+- **When to use**: Cloud-connected devices with reliable power
+- **Why we use CoAP instead**: No central broker needed, works better for mesh networks
+
+### UDP (User Datagram Protocol)
+A simple transport protocol that sends data without guarantees
+- **Characteristics**: Fast, fire-and-forget, no connection setup
+- **Used by**: CoAP, DNS
+- **Contrast with TCP**: TCP guarantees delivery but adds overhead
+
+### TCP (Transmission Control Protocol)
+A transport protocol that guarantees reliable delivery
+- **Characteristics**: Slower, maintains connection state
+- **Used by**: HTTP, MQTT
+- **Not ideal for**: Battery-powered IoT devices
+
+### NAT (Network Address Translation)
+A technique routers use to share one public IP among many private devices
+- **Problem it solves**: IPv4 address shortage
+- **Problem it creates**: Devices behind NAT can't be reached from the internet
+- **IPv6 eliminates**: No NAT needed with enough addresses
+
+### OMR prefix (Off-Mesh Routable)
+The IPv6 prefix a Border Router publishes in the Thread network data so nodes can be reached from outside the mesh
+- **Global or ULA**: global when the upstream network delegates a prefix; otherwise the Border Router's own `fd…/64`
+- **In this course**: S's address in this prefix is the one your laptop and phone use (Lab 5)
+
+### SLAAC (Stateless Address Autoconfiguration)
+A node builds its own address from an advertised prefix plus an interface ID it picks (RFC 4862)
+- **In Thread**: the prefix comes from the network data with the `a` flag (`paros`)
+
+### Route Information Option (RIO)
+A field in a Router Advertisement saying "this prefix is reachable through me" (RFC 4191)
+- **In this course**: how your laptop learns the route to the OMR prefix through the Border Router
+
+### NAT64
+Translation between IPv6 and IPv4 so an IPv6-only node can reach IPv4 hosts (RFC 6146)
+- **How**: the IPv4 address rides in the last 32 bits of a /96 prefix (RFC 6052), e.g. `…:808:808` for 8.8.8.8
+
+### Link Budget
+Calculation to determine if a wireless signal is strong enough to reach its destination
+- **Factors**: Transmit power, antenna gain, distance, obstacles, receiver sensitivity
+- **Lab 1 focus**: Measuring real-world link budgets
+
+---
+
+## Hardware & Radio
+
+### RCP (Radio Co-Processor) and Spinel
+A chip that runs only the 802.15.4 radio and MAC, driven by a host that runs the rest of OpenThread
+- **Spinel**: the serial protocol between host and RCP
+- **In this course**: the ESP32-C6 wired to the ESP32-S3 Border Router (Lab 5)
+
+### ESP32-C6
+The microcontroller you'll use in this course
+- **Features**: RISC-V processor, WiFi, Bluetooth, IEEE 802.15.4 radio
+- **RAM**: 512 KB (tiny compared to your laptop's gigabytes!)
+- **Why this chip**: Supports Thread networking
+
+### IEEE 802.15.4
+The radio standard used by Thread, Zigbee, and other low-power networks
+- **Frequency**: 2.4 GHz (same as WiFi, but different protocol)
+- **Range**: ~10-100m depending on obstacles
+- **Data rate**: 250 kbps (slow compared to WiFi)
+
+### RF (Radio Frequency)
+Electromagnetic waves used for wireless communication
+- **In this course**: 2.4 GHz (IEEE 802.15.4)
+
+### RSSI (Received Signal Strength Indicator)
+A measurement of how strong a wireless signal is at the receiver
+- **Units**: dBm (decibel-milliwatts)
+- **Example**: -30 dBm is strong, -90 dBm is weak
+- **Lab 1**: You'll measure RSSI to understand radio performance
+
+### Transmit Power
+How much power a radio uses to send signals
+- **Units**: dBm
+- **Tradeoff**: Higher power = longer range but shorter battery life
+
+### Antenna Gain
+How well an antenna focuses radio energy in a particular direction
+- **Units**: dBi (decibels relative to isotropic)
+- **Higher gain**: More directional, longer range
+
+### Path Loss
+How much signal strength is lost as radio waves travel through space
+- **Factors**: Distance, obstacles (walls, trees), frequency
+- **Formula**: Free-space path loss ∝ distance²
+
+---
+
+## Security
+
+### Encryption
+Scrambling data so only authorized parties can read it
+- **In this course**: AES-128-CCM for Thread network traffic
+
+### DTLS (Datagram Transport Layer Security)
+Encryption protocol for UDP-based communication
+- **Used by**: CoAP
+- **Like**: TLS (used by HTTPS) but for UDP instead of TCP
+
+### AES-128-CCM
+Encryption algorithm used by Thread
+- **128**: Key length in bits
+- **CCM**: Combines encryption with authentication (ensures data isn't tampered)
+
+### PSK (Pre-Shared Key)
+A password that both devices know in advance
+- **Used for**: Setting up encrypted connections
+- **Challenge**: How do you securely give devices the PSK?
+
+### Provisioning
+The process of giving a device its initial configuration (WiFi password, encryption keys, etc.)
+- **Challenge in IoT**: Doing this securely and simply (farmers shouldn't need to type 32-character passwords)
+
+### OTA (Over-The-Air) Update
+Updating device firmware wirelessly (without physically connecting to it)
+- **Why critical**: You can't visit every sensor in a farm to update software
+
+### STRIDE Threat Model
+A framework for identifying security threats:
+- **S**poofing, **T**ampering, **R**epudiation, **I**nformation disclosure, **D**enial of service, **E**levation of privilege
+
+---
+
+## Course-Specific Terms
+
+### GreenField Technologies
+The fictional company you work for in this course
+- **Product**: SoilSense Network (soil monitoring for small farms)
+- **Your role**: Junior IoT Systems Engineer
+
+### Stakeholders (GreenField)
+The people who care about different aspects of your design:
+- **Samuel** (Senior Architect) - Technical correctness, ISO alignment
+- **Gustavo** (Product Owner) - Cost, customer value
+- **Edwin** (Field Operations) - Deployment, reliability
+- **Edward** (Security Lead) - Data protection, compliance
+- **Daniela** (Pilot Customer) - Ease of use, actionable insights
+
+### Performance Baselines
+Specific measurable targets your system must meet
+- **Example**: "Mesh network must heal within 60 seconds of node failure"
+- **Found in**: [references.md](references.md)
+
+### SOPs (Standard Operating Procedures)
+Step-by-step implementation guides for each lab
+- **Location**: [labs/sops/](../labs/sops/)
+- **When to use**: When you need detailed technical instructions
+
+---
+
+## Common Abbreviations
+
+| Abbreviation | Full Term | Meaning |
+|--------------|-----------|---------|
+| **IoT** | Internet of Things | Connected devices with sensors/actuators |
+| **RF** | Radio Frequency | Wireless communication signals |
+| **RSSI** | Received Signal Strength Indicator | Measure of signal strength |
+| **dBm** | Decibel-milliwatts | Unit for radio power |
+| **UDP** | User Datagram Protocol | Fast, connectionless transport |
+| **TCP** | Transmission Control Protocol | Reliable, connection-based transport |
+| **CoAP** | Constrained Application Protocol | Lightweight HTTP for IoT |
+| **CBOR** | Concise Binary Object Representation | Compact data format |
+| **MQTT** | Message Queuing Telemetry Transport | Publish/subscribe IoT protocol |
+| **PSK** | Pre-Shared Key | Password known by both devices |
+| **OTA** | Over-The-Air | Wireless firmware updates |
+| **DTLS** | Datagram TLS | Encryption for UDP |
+| **ADR** | Architecture Decision Record | Document explaining a design decision |
+| **DDR** | Design Decision Record | Living document of all decisions |
+
+---
+
+## Quick Comparisons
+
+### CoAP vs HTTP
+| Feature | CoAP | HTTP |
+|---------|------|------|
+| Transport | UDP | TCP |
+| Overhead | Low | High |
+| Use case | Battery devices | Web servers |
+
+### Thread vs WiFi
+| Feature | Thread | WiFi |
+|---------|--------|------|
+| Power | Very low | High |
+| Range | 10-100m | 50-150m |
+| Data rate | 250 kbps | 1+ Gbps |
+| Topology | Mesh | Star (router-centric) |
+| Best for | Sensors | Phones, laptops |
+
+### IPv4 vs IPv6
+| Feature | IPv4 | IPv6 |
+|---------|------|------|
+| Address length | 32 bits | 128 bits |
+| Total addresses | ~4 billion | ~340 undecillion |
+| NAT required | Yes | No |
+| Auto-config | DHCP | SLAAC (built-in) |
+
+---
+
+## When to Look Things Up
+
+- **Week 0**: Start with "Core IoT Concepts" and "Networking & Protocols"
+- **Lab 1**: Focus on "Hardware & Radio" terms (RF, RSSI, link budget)
+- **Lab 2**: Review "Networking & Protocols" (IPv6, 6LoWPAN)
+- **Lab 3+**: Add "Architecture & Documentation" (ISO domains, ADRs)
+- **Lab 6**: Study "Security" section
+
+---
+
+## Still Confused?
+
+1. **Check**: [theory_foundations.md](theory_foundations.md) for detailed explanations
+2. **Ask**: Your instructor during lab sessions
+3. **Search**: The [references.md](references.md) quick reference guide
+4. **Discuss**: With your lab partner or classmates
+
+---
+
+**Remember**: You don't need to memorize all these terms upfront. Use this glossary as a reference when you encounter unfamiliar words in the labs. By Week 8, these will feel natural!

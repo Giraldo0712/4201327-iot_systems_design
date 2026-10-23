@@ -8,10 +8,10 @@ language = "en"
 accent = "#1d4ed8"
 
 [types]
-lab = ["en/labs/lab[0-9].md"]
-talk = ["en/presentations/*.md"]
-script = ["en/labs/lectures/lab[0-9]_lecture.md"]
-sop = ["en/labs/sops/sop[0-9][0-9]_*.md"]
+lab = ["labs/lab[0-9].md", "labs/lab0_*.md"]
+talk = ["presentations/*.md"]
+script = ["lectures/lab[0-9]_lecture.md"]
+sop = ["labs/sops/sop[0-9][0-9]_*.md"]
 
 [talk]
 minutes = 40
@@ -29,6 +29,7 @@ Trustworthiness = "c5"
 
 # Session number = "date · toolchain · hardware" of the last full run.
 [validated]
+0 = "2026-10-23 · Zephyr main v4.4.0-13939 · ESP32-C6 Super Mini, HTTP and MQTT on Wi-Fi"
 1 = "2026-10-23 · Zephyr main v4.4.0-13939 · ESP32-C6 DevKitM-1 + Super Mini, desk only (no range walk)"
 2 = "2026-10-23 · Zephyr main v4.4.0-13939 · ESP32-C6 DevKitC + DevKitM-1 + Super Mini"
 3 = "2026-10-23 · Zephyr main v4.4.0-13939 · ESP32-C6 DevKitC + DevKitM-1 (Parts 3-5)"
