@@ -42,6 +42,9 @@ build firmware/lab6_secure $C6 "${USB[@]}"
 build firmware/lab7_telemetry $C6
 build firmware/lab7_telemetry $C6 -DEXTRA_DTC_OVERLAY_FILE=sensors/dht22.overlay
 build firmware/lab7_telemetry $C6 "${USB[@]}"
+build firmware/lab8_golden $C6 "-DCONFIG_LAB_PSK=\"ci-key\""
+build firmware/lab8_golden $C6 "${USB[@]}" "-DCONFIG_LAB_PSK=\"ci-key\""
 build firmware/lab5_border_router $S3
+build firmware/lab5_border_router $S3 -DEXTRA_CONF_FILE=autostart.conf
 
 exit $fail

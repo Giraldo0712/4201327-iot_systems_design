@@ -405,7 +405,7 @@
             "type": "influxdb",
             "uid": "soilsense-influx"
           },
-          "query": "health = from(bucket: \"soilsense\")\n  |> range(start: -24h)\n  |> filter(fn: (r) => r._measurement == \"health\")\n  |> group(columns: [\"node\", \"_field\"])\n  |> last()\n  |> keep(columns: [\"node\", \"_field\", \"_value\"])\nage = from(bucket: \"soilsense\")\n  |> range(start: -24h)\n  |> filter(fn: (r) => r._measurement == \"env\" or r._measurement == \"health\")\n  |> group(columns: [\"node\"])\n  |> sort(columns: [\"_time\"])\n  |> last()\n  |> map(fn: (r) => ({node: r.node, _field: \"age\",\n                      _value: float(v: int(v: now()) - int(v: r._time)) / 1000000000.0}))\nunion(tables: [health, age])\n  |> group()\n  |> pivot(rowKey: [\"node\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> keep(columns: [\"node\", \"age\", \"batt\", \"rssi\", \"up\", \"hsfail\"])"
+          "query": "health = from(bucket: \"soilsense\")\n  |> range(start: -24h)\n  |> filter(fn: (r) => r._measurement == \"health\")\n  |> group(columns: [\"node\", \"_field\"])\n  |> last()\n  |> keep(columns: [\"node\", \"_field\", \"_value\"])\nage = from(bucket: \"soilsense\")\n  |> range(start: -24h)\n  |> filter(fn: (r) => r._measurement == \"env\" or r._measurement == \"health\")\n  |> group(columns: [\"node\"])\n  |> sort(columns: [\"_time\"])\n  |> last()\n  |> map(fn: (r) => ({node: r.node, _field: \"age\",\n                      _value: float(v: int(v: now()) - int(v: r._time)) / 1000000000.0}))\nunion(tables: [health, age])\n  |> group()\n  |> pivot(rowKey: [\"node\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> keep(columns: [\"node\", \"age\", \"batt\", \"rssi\", \"up\", \"hsfail\", \"ver\"])"
         }
       ],
       "transformations": [
@@ -418,14 +418,16 @@
               "batt": 2,
               "rssi": 3,
               "hsfail": 4,
-              "up": 5
+              "up": 5,
+              "ver": 6
             },
             "renameByName": {
               "age": "last report",
               "batt": "battery",
               "rssi": "link RSSI",
               "hsfail": "failed handshakes",
-              "up": "uptime"
+              "up": "uptime",
+              "ver": "firmware"
             }
           }
         }

@@ -1,0 +1,37 @@
+# BMP280: measure on request and sleep in between, instead of sampling
+# continuously. Declared before Kconfig.zephyr so this default comes first.
+choice BME280_MODE
+	default BME280_MODE_FORCED
+endchoice
+
+config LAB_PSK
+	string "DTLS pre-shared key"
+	help
+	  The key every client must hold. Set it in secrets.conf, which git
+	  ignores, and build with -DEXTRA_CONF_FILE=secrets.conf.
+
+config LAB_PSK_ID
+	string "DTLS PSK identity"
+	default "soilsense-pilot"
+
+config LAB_HEALTH_PERIOD_S
+	int "Seconds between /sys/health notifications"
+	default 60
+
+config LAB_RATE_LIMIT_MAX
+	int "Requests a client may send per window before 4.29"
+	default 8
+
+config LAB_RATE_LIMIT_WINDOW_S
+	int "Rate-limit window, in seconds"
+	default 10
+
+config LAB_FAILSAFE_S
+	int "Seconds without any neighbour before an open valve closes itself"
+	default 30
+
+config LAB_WATCHDOG_S
+	int "Seconds a monitored loop may stall before the watchdog resets the node"
+	default 10
+
+source "Kconfig.zephyr"

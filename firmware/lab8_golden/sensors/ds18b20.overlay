@@ -1,0 +1,19 @@
+/* DS18B20 waterproof probe (1-Wire): red → 3V3, black → GND, yellow → GPIO18.
+ * The internal pull-up is enough for one probe on a short cable; add 4.7 kΩ
+ * from GPIO18 to 3V3 for longer cables or several probes.
+ */
+/ {
+	aliases {
+		temp-sensor = &ds18b20;
+	};
+
+	w1: w1 {
+		compatible = "zephyr,w1-gpio";
+		gpios = <&gpio0 18 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN | GPIO_PULL_UP)>;
+
+		ds18b20: ds18b20 {
+			compatible = "maxim,ds18b20";
+			resolution = <12>;
+		};
+	};
+};

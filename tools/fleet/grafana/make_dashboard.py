@@ -59,7 +59,7 @@ age = ''' + AGE.replace("_time: r._time, ", "") + '''
 union(tables: [health, age])
   |> group()
   |> pivot(rowKey: ["node"], columnKey: ["_field"], valueColumn: "_value")
-  |> keep(columns: ["node", "age", "batt", "rssi", "up", "hsfail"])'''
+  |> keep(columns: ["node", "age", "batt", "rssi", "up", "hsfail", "ver"])'''
 
 NODE_NAME = {"displayName": "${__field.labels.node}"}
 MV = "suffix: mV"
@@ -113,9 +113,9 @@ panels = [
      "description": "One row per node: its latest health report, and how long ago anything arrived from it.",
      "gridPos": {"x": 0, "y": 21, "w": 24, "h": 7}, "targets": q(TABLE),
      "transformations": [{"id": "organize", "options": {
-         "indexByName": {"node": 0, "age": 1, "batt": 2, "rssi": 3, "hsfail": 4, "up": 5},
+         "indexByName": {"node": 0, "age": 1, "batt": 2, "rssi": 3, "hsfail": 4, "up": 5, "ver": 6},
          "renameByName": {"age": "last report", "batt": "battery", "rssi": "link RSSI",
-                          "hsfail": "failed handshakes", "up": "uptime"}}}],
+                          "hsfail": "failed handshakes", "up": "uptime", "ver": "firmware"}}}],
      "options": {"showHeader": True},
      "fieldConfig": {"defaults": {"decimals": 0, "custom": {"align": "center"}},
                      "overrides": [column("last report", thresholds(("green", None), ("red", SILENT_S)), "s"),
