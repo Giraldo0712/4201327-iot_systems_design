@@ -1,0 +1,29 @@
+/* Spinel link to the ESP32-S3 host, crossed: C6 GPIO5 (TX) -> S3 GPIO4 (RX),
+ * C6 GPIO4 (RX) <- S3 GPIO5 (TX), plus GND.
+ */
+/ {
+	chosen {
+		zephyr,ot-uart = &uart1;
+	};
+};
+
+&pinctrl {
+	uart1_rcp: uart1_rcp {
+		group1 {
+			pinmux = <UART1_TX_GPIO5>;
+			output-high;
+		};
+
+		group2 {
+			pinmux = <UART1_RX_GPIO4>;
+			bias-pull-up;
+		};
+	};
+};
+
+&uart1 {
+	status = "okay";
+	current-speed = <460800>;
+	pinctrl-0 = <&uart1_rcp>;
+	pinctrl-names = "default";
+};
