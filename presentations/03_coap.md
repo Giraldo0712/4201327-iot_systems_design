@@ -39,8 +39,7 @@ when to talk, and what "delivered" means.
 4. **A valve that sleeps**: the parent's mailbox
 5. **Lab**: what you'll measure
 
-By the end you can size a message, pick CON or NON, and predict a sleeping valve's
-latency.
+By the end you can size a message, pick CON or NON, and predict a sleeping valve's latency.
 
 <!--
 1:30–2:30. Lab 3 is the first lab that lives mostly in the Application & Service
@@ -210,8 +209,7 @@ server can reach.
 | JSON `{"t": 24.5}` | `7B 22 74 22 3A 20 32 34 2E 35 7D` | 11 B |
 | CBOR | `A1` map · `61 74` "t" · `F9 4E 20` float16 | 6 B |
 
-Self-describing like JSON. **CDDL** (RFC 8610) writes the contract:
-`env-reading = { t: float16 }`
+Self-describing like JSON. **CDDL** (RFC 8610) writes the contract: `env-reading = { t: float16 }`
 
 <!--
 24:00–27:00. Decode 4E 20 on the board: sign 0, exponent 10011 = 19 − 15 = 4,

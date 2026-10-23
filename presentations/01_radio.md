@@ -38,8 +38,7 @@ answer it.
 4. **Thread and ISO/IEC 30141**: roles, and where the device ends
 5. **Lab**: what you'll measure
 
-By the end you can compare radios, predict a frame's airtime, and pick a channel
-away from Wi-Fi.
+By the end you can compare radios, predict a frame's airtime, and pick a channel away from Wi-Fi.
 
 <!--
 1:30–2:30. The colored tag on each slide says which segment we are in. Reading:

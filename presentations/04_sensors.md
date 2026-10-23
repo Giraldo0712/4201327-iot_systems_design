@@ -39,8 +39,7 @@ the map?" to "can we trust what it tells us?"
 4. **Reliability and resilience**: busy radios, what heals
 5. **Lab**: what you'll measure
 
-By the end you can tell accuracy from resolution, state a freshness promise, and
-predict what a client sees when a sensor or a node fails.
+By the end you can tell accuracy from resolution, state a freshness promise, and predict what a client sees when a sensor or a node fails.
 
 <!--
 2:00–3:00. Reading: ISO/IEC 30141:2024 §6.6, and the datasheet of your sensor.

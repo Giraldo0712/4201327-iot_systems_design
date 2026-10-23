@@ -38,8 +38,7 @@ heals.
 4. **Roles and other meshes**: who stays awake; BLE Mesh, Zigbee
 5. **Lab**: what you'll measure
 
-By the end you can classify a node's addresses, compute a route's cost, and predict
-how a mesh notices a dead router.
+By the end you can classify a node's addresses, compute a route's cost, and predict how a mesh notices a dead router.
 
 <!--
 1:30–2:30. Reading: theory_foundations.md §2–§3. RFC 6282 is the one RFC worth
