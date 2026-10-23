@@ -29,5 +29,8 @@ Trustworthiness = "c5"
 
 # Session number = "date · toolchain · hardware" of the last full run.
 [validated]
-3 = "2026-10-16 · Zephyr main v4.4.0-13939 · 2× ESP32-C6 (4 MB)"
+1 = "2026-10-23 · Zephyr main v4.4.0-13939 · ESP32-C6 DevKitM-1 + Super Mini, desk only (no range walk)"
+2 = "2026-10-23 · Zephyr main v4.4.0-13939 · ESP32-C6 DevKitC + DevKitM-1 + Super Mini"
+3 = "2026-10-23 · Zephyr main v4.4.0-13939 · ESP32-C6 DevKitC + DevKitM-1 (Parts 3-5)"
 4 = "2026-10-16 · Zephyr main v4.4.0-13939 · 2× ESP32-C6 (4 MB), DHT22"
+5 = "2026-10-23 · Zephyr main v4.4.0-13939 · ESP32-S3 N16R8 + ESP32-C6 RCP, ESP32-C6 DevKitC + Super Mini + DevKitM"
