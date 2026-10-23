@@ -1,55 +1,40 @@
-# SOP-03: CoAP Firmware Tour and Experiments
+# SOP-03: CoAP Client, Server and Dashboard
 
-> **Main Lab Guide:** [Lab 3: CoAP](../lab3.md) — the contracts, tasks and deliverables
-> live there.
-> **ISO Domains:** ASD (Application & Service), SCD (Sensing & Controlling)
-> **Firmware:** [`firmware/lab3_coap`](../../firmware/lab3_coap), the same image on
-> every board.
+- **Serves:** [Lab 3](../lab3.md)
+- **Hardware:** 2 ESP32-C6 boards, **S** (server) and **C** (client), and their USB-C cables
+- **Firmware:** [`firmware/lab3_coap`](../../firmware/lab3_coap), the same image on both;
+  Zephyr as pinned in [setup](../../docs/setup.md)
+- **Contracts:** [SoilSense API](../../docs/api.md)
 
-## 1. What's in the firmware
+Steps, checks and fixes only; the questions are in the lab. Ports, the Super Mini's USB
+console and `ot ping` are in [SOP-01](sop01_radio.md).
 
-| File | What it does |
-|---|---|
-| `src/main.c` | Defines the CoAP service `soilsense` on UDP 5683, drives the role LED (white while the valve is open), and holds two helpers: `response_init()` and `peer_str()`. |
-| `src/env_temp.c` | `/env/temp`: the simulated sensor (sampled every second), the CBOR encoder, GET, and the Observe policy (threshold → NON, heartbeat → CON). |
-| `src/valve.c` | `/act/valve`: PUT and GET, the CBOR/text decoder, and the valve state. |
-| `prj.conf` | OpenThread shell with its CoAP client (`OPENTHREAD_COAP`, `OPENTHREAD_COAP_OBSERVE`), the Zephyr CoAP server (`COAP_SERVER`), zcbor (`ZCBOR_CANONICAL`), the LED. |
-| `sections-ram.ld` + `CMakeLists.txt` | Collect every `COAP_RESOURCE_DEFINE(..., soilsense, ...)` into one list the server walks. |
+## 1. Build, flash and form the network
 
-A resource is a path, a handler per method, and optionally a notify callback for
-observers. Compare it with Lab 0's `HTTP_RESOURCE_DEFINE`:
+1. Both boards:
 
-```c
-static const char *const env_temp_path[] = { "env", "temp", NULL };
-COAP_RESOURCE_DEFINE(env_temp, soilsense, {
-	.get = env_temp_get,
-	.path = env_temp_path,
-	.notify = env_temp_notify,
-});
-```
+   ```bash
+   source ~/zephyrproject/env.sh
+   cd firmware/lab3_coap
+   west build -p always -b esp32c6_devkitc/esp32c6/hpcore .
+   west flash
+   west espressif monitor -p /dev/ttyUSB0
+   ```
 
-The CBOR encoder is four zcbor calls; `ZCBOR_CANONICAL` makes the map definite-length
-(`A1`) instead of `BF … FF`:
+2. Both: `ot factoryreset`. Then form the network on **C** and join S with C's dataset, as
+   in steps 2–3 of [SOP-02 §2](sop02_mesh.md#2-form-the-mesh). Leave the TX power alone:
+   this firmware starts at +20 dBm.
+3. On **C only**, start the CoAP client. On S, note its address:
 
-```c
-zcbor_map_start_encode(zs, 1) && zcbor_tstr_put_lit(zs, "t") &&
-zcbor_float16_put(zs, t) && zcbor_map_end_encode(zs, 1)
-```
+   ```
+   C: uart:~$ ot coap start
+   S: uart:~$ ot ipaddr mleid
+   fdd7:c9f8:19bb:c91:e661:999e:4a97:3a16
+   ```
 
-## 2. Two CoAP stacks, one port
+**Verify:** `ot state` prints `leader` on C and `router` (or `child`) on S.
 
-Every board runs the Zephyr CoAP server on port 5683 from boot. The shell's `ot coap`
-client lives inside OpenThread, which also wants port 5683. They don't clash because of
-how Zephyr hands packets between them: once `ot coap start` binds 5683 inside
-OpenThread, OpenThread keeps every packet for that port and stops passing it up to
-Zephyr's IP stack. So:
-
-- the board where you ran `ot coap start` is a **client**, and its own server is deaf;
-- every other board is a **server**.
-
-`ot coap stop` hands the port back.
-
-## 3. Command reference
+## 2. Command reference
 
 | Command | Does |
 |---|---|
@@ -57,67 +42,146 @@ Zephyr's IP stack. So:
 | `ot coap get <addr> <path> [con]` | GET; NON unless you add `con` |
 | `ot coap put <addr> <path> [con\|non-con] [text]` | PUT with a text payload (no Content-Format) |
 | `ot coap observe <addr> <path>` | GET with Observe: 0; notifications print as they arrive |
-| `ot coap cancel` | deregister the current observation (GET with Observe: 1) |
-| `ot coap parameters request [default \| <ack_timeout_ms> <num> <den> <max_retransmit>]` | show or set CON timers for requests |
+| `ot coap cancel` | deregister the current observation |
+| `ot coap parameters request [default \| <ack_timeout_ms> <num> <den> <max_retransmit>]` | show or set the CON timers for requests |
 
-Output: `coap response from <addr> [OBS=<n>] with payload: <hex>`. The shell doesn't
-print the response code; S's log does. A request that runs out of retries ends with
-`coap receive response error 28: ResponseTimeout`.
+The shell prints only the payload, as hex, never the response code: S's log has the code.
+Paths have no leading `/`.
 
-## 4. Experiments
+## 3. GET and time it
 
-### A. Resource discovery
-
-CoAP servers list their resources at `/.well-known/core` (RFC 6690, "link format"):
-
-```bash
-uart:~$ ot coap get <S-mleid> .well-known/core
-coap response from ... with payload: 3c2f656e762f74656d703e2c3c2f6163742f76616c76653e
+```
+uart:~$ ot coap get <S-mleid> env/temp
+Done
+coap response from fdd7:c9f8:19bb:c91:e661:999e:4a97:3a16 with payload: a16174f94df7
 ```
 
-Decode the hex as ASCII. This is how a gateway or dashboard finds out what a node offers
-without reading its firmware.
+**Verify:** S logs the other side, with the sizes:
 
-### B. Tune CON for a sleeping valve
+```
+<inf> env_temp: GET /env/temp from <C>: 2.05, <t> C, CoAP <n> B (CBOR <hex>), request <n> B
+```
 
-Lab 3 Task 5.3 showed the PUT arriving twice when the poll period (5 s) is longer than
-CoAP's first ACK wait (2–3 s). Fix it on the client:
+Ten GETs, timed. Close the monitor on C's port first: the script drives C's shell over
+the same serial port.
 
 ```bash
-uart:~$ ot coap parameters request 8000 3 2 4
+pip install pyserial cbor2                  # once, with env.sh sourced
+python tools/coap_client.py --serial /dev/ttyUSB0 --host <S-mleid> --count 10 get /env/temp
+```
+
+**Verify:** `Payload (CBOR): {'t': ...}` and `10/10 responses, median RTT ... ms`. The RTT
+includes C's serial line; the ping comparison in the lab uses `ot ping <S-mleid> 16 10`.
+
+## 4. Observe
+
+```
+uart:~$ ot coap observe <S-mleid> env/temp
+coap response from fdd7:... OBS=3 with payload: a16174f94e43
+...
+uart:~$ ot coap cancel
+```
+
+**Verify:** S logs every notification with its reason and running counters:
+
+```
+<inf> env_temp: notify (threshold, NON): T=24.56 C, delta=0.53 C, 6s since last, CoAP 19 B [threshold 7, heartbeat 1]
+```
+
+## 5. Command the valve
+
+```
 uart:~$ ot coap put <S-mleid> act/valve con 1
+coap response from fdd7:... with payload: a1617601
+uart:~$ ot coap get <S-mleid> act/valve
+coap response from fdd7:... with payload: a1617601
+uart:~$ ot coap put <S-mleid> act/valve con 0
+coap response from fdd7:... with payload: a1617600
+```
+
+**Verify:** S's LED is white while the valve is open. A bad payload (`con 7`) gets no
+valve change; S's log shows the code.
+
+Make S unreachable, then try:
+
+```
+S: uart:~$ ot thread stop
+C: uart:~$ ot coap put <S-mleid> act/valve con 1        # start the stopwatch
+C: uart:~$ ot coap put <S-mleid> act/valve non-con 1
+S: uart:~$ ot thread start                               # wait for it to rejoin
+```
+
+**Verify:** the CON PUT ends in `coap receive response error 28: ResponseTimeout`.
+
+## 6. Make S sleep
+
+```
+S: uart:~$ ot mode -                    # rx-off-when-idle, minimal device
+S: uart:~$ ot pollperiod 1000           # milliseconds
+S: uart:~$ ot state
+child
+```
+
+Ping the sleeping S. The last argument is the timeout in seconds and must exceed the poll
+period:
+
+```
+C: uart:~$ ot ping <S-mleid> 16 10 1.3 64 40
+```
+
+Change the poll period with `ot pollperiod 5000`, then `15000`. **Verify:** S's LED is
+yellow and the ping summary prints.
+
+Restore S when you are done: `ot mode rdn`, then `ot pollperiod 0`.
+
+## 7. Run the dashboard
+
+Close the monitor on C's port; the dashboard owns it while it runs.
+
+```bash
+pip install flask pyserial                  # once, with env.sh sourced
+python tools/dashboard_coap.py --serial /dev/ttyUSB0 --node <S-mleid>
+```
+
+**Verify:** `http://localhost:5000` draws the temperature as notifications arrive, and
+*Open* turns S's LED white. Stop it with Ctrl-C, then reopen the monitor.
+
+## 8. Extensions
+
+| File in `firmware/lab3_coap` | What it does |
+|---|---|
+| `src/main.c` | the CoAP service `soilsense` on UDP 5683; the role LED (white while the valve is open) |
+| `src/env_temp.c` | `/env/temp`: the simulated sensor, the CBOR encoder, GET and the Observe policy |
+| `src/valve.c` | `/act/valve`: PUT and GET, the CBOR and text decoder, the valve state |
+| `sections-ram.ld`, `CMakeLists.txt` | collect every `COAP_RESOURCE_DEFINE(..., soilsense, ...)` into the list the server walks |
+
+Resource discovery:
+
+```
+uart:~$ ot coap get <S-mleid> .well-known/core
+```
+
+Slower CON timers on the client, for a sleepy valve, and back:
+
+```
+uart:~$ ot coap parameters request 8000 3 2 4
 uart:~$ ot coap parameters request default
 ```
 
-**DDR question:** what's the new worst-case time before `ResponseTimeout`? What's the
-cost of a longer `ACK_TIMEOUT` when the valve really is gone?
-
-### C. Two observers (third board)
-
-Flash a third board, join it to the mesh, `ot coap start` on it, and observe `/env/temp`
-from both clients. S sends each notification once per observer. Then unplug one client
-without cancelling and watch S's log over the next heartbeats: the CON notification to
-the missing client is retried and fails, and S stops sending to it.
-
-### D. Add a resource
-
-Add `/env/hum` (relative humidity, simulated, CBOR `{"h": uint}` in %) next to
-`/env/temp`:
-
-1. Copy the `COAP_RESOURCE_DEFINE` block and a GET handler from `env_temp.c` into a new
-   `src/env_hum.c`; add the file to `CMakeLists.txt`.
-2. Encode with `zcbor_uint32_put()` instead of `zcbor_float16_put()`.
-3. Write the contract (table + CDDL) before the code, and check it with
-   `ot coap get <S-mleid> env/hum` and `.well-known/core`.
+A new resource `/env/hum`: copy the `COAP_RESOURCE_DEFINE` block and the GET handler from
+`env_temp.c` into `src/env_hum.c`, add the file to `CMakeLists.txt`, and encode with
+`zcbor_uint32_put()` instead of `zcbor_float16_put()`. The encoder needs
+`ZCBOR_CANONICAL` (already set) for a definite-length map (`A1`).
 
 ## Troubleshooting
 
-| Symptom | Cause and fix |
-|---|---|
-| `ot coap get` prints nothing, S logs nothing | `ot coap start` was run on S too, so S's server is deaf. `ot coap stop` on S. |
-| `coap receive response error 28: ResponseTimeout` on a GET | Wrong address, or S is not attached. Check `ot state` on S and use its `ot ipaddr mleid`. |
-| A GET or PUT gets no reply but S is attached | Path typo or a leading `/`: S answers `4.04 Not Found`, but only to a `con` request; a NON request with an error gets no reply at all. Use `env/temp`. |
-| Observe stops after a while | S dropped you after a failed CON heartbeat (C was busy or out of range). Run `ot coap observe` again. |
-| PUT logs `4.00` on S | The payload wasn't `0` or `1`. |
-| `ot mode -` and S never becomes `child` | C is not a router or leader, or S was the leader. Form the network on C (Lab 3 Task 1.2). |
-| Pings to the sleepy S time out | The ping timeout (last argument) must exceed the poll period. |
+| Symptom | Cause | Fix |
+|---|---|---|
+| `ot coap get` prints nothing and S logs nothing | `ot coap start` ran on S too: OpenThread then keeps port 5683 and S's server never sees a request | `ot coap stop` on S |
+| `coap receive response error 28: ResponseTimeout` on a GET | Wrong address, or S isn't attached | `ot state` on S; use its `ot ipaddr mleid` |
+| No reply although S is attached | A path typo or a leading `/`: S answers 4.04 to a `con` request only | `env/temp`, not `/env/temp` |
+| Observe stops after a while | S dropped C after a failed CON heartbeat | `ot coap observe` again |
+| `ot mode -` and S never becomes `child` | S was the leader, or C isn't a router | Form the network on C (§1) |
+| Pings to the sleeping S time out | The ping timeout is shorter than the poll period | Raise the last `ot ping` argument |
+| `coap_client.py` or the dashboard: `could not open port` | A monitor still holds C's port | Close the monitor |
+| `coap_client.py --serial`: `no response within 10 s` on every request | S unreachable, or a wrong `--host` | Check with `ot coap get` from the monitor first |

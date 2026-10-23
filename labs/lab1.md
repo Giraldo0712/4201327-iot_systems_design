@@ -1,342 +1,174 @@
-# Lab 1: Testing Your Wireless Radio
+# Lab 1: The Radio — Channel, Range and Packet Loss
+> - **Talk:** [01_radio.md](../presentations/01_radio.md) · **SOP:** [SOP-01: Radio bring-up and link measurements](sops/sop01_radio.md)
+> - **Reading:** [theory_foundations.md](../docs/theory_foundations.md) §1 (O-QPSK, link budget, CSMA-CA)
 
-**GreenField Technologies — SoilSense Project** · Phase: Feasibility Study · 2–3 hours
+**GreenField Technologies — SoilSense Project** · Phase: Feasibility · 2–3 hours
 
-**From:** Eng. Samuel Cifuentes (Senior Architect)
-**Subject:** ESP32-C6 Radio Validation
+**From:** Samuel (Senior Architect) — *"Hardware picked the ESP32-C6 for its cost and its
+Thread support. Before we commit, I want field data, not vendor specs: how far apart two
+nodes can sit and still deliver 99 % of their packets, which channel is cleanest here, and
+which RSSI tells us a link is safe. Put it in the DDR, with PED and SCD mapped."*
 
-> Team — the hardware group selected the ESP32-C6 for our sensor nodes based on cost
-> and Thread support. Before we commit to production, I need **empirical validation**
-> of the 802.15.4 radio in field conditions — data, not vendor specs:
->
-> 1. What is the maximum reliable range between sensor nodes?
-> 2. Which channel gives us the cleanest 2.4 GHz spectrum?
-> 3. What RSSI threshold predicts 99% packet delivery?
->
-> Document your findings in a DDR with ISO/IEC 30141 domain mapping (PED + SCD).
+Today two boards go on the air for the first time. You pick the channel with the least
+interference, then walk the boards apart and measure how signal strength and packet loss
+change with distance. Everything the mesh does from Lab 2 on stands on these numbers.
 
-Unfamiliar terms (RSSI, PER, link budget, dBm…) are in the [glossary](../docs/glossary.md).
-Done early? [SOP-01: MAC Layer Experiments](sops/sop01_radio.md) uses the same
-firmware to watch retransmissions and channel contention happen.
+| Stakeholder | Their question | How this lab answers |
+|---|---|---|
+| **Samuel (architect)** | Which RSSI predicts 99 % delivery, and at what range? | Task D: RSSI and packet loss against distance. |
+| **Gustavo (product)** | How many nodes does a 10-hectare field need? | Your reliable range sets the spacing; the spacing sets the cost. |
+| **Edwin (Ops)** | Which channel, and what do I check when packets go missing? | Task B: the energy scan behind ADR-001. |
+| **ISO 30141 auditor** | Where does the device end and the physical world begin? | The PED/SCD map and the capabilities table. |
 
----
+Unfamiliar terms (RSSI, PER, dBm, link budget) are in the [glossary](../docs/glossary.md).
 
-## Background: why 802.15.4 and not WiFi?
+## What you'll measure
 
-GreenField's sensors must run 3 months on 2× AA batteries. That constraint picks the radio:
+Hand in the prediction column before the lab. Every board in the room uses the TX power
+your instructor announces, so tables can be compared.
 
-| Technology | TX current | Range | Battery life* | Verdict |
-|----------|----------|----------|-------|----------|
-| WiFi | ~200 mA | 100 m | ~1 week | ❌ kills batteries |
-| Bluetooth | ~50 mA | 10 m | ~1 month | ❌ too short range |
-| **802.15.4** | ~20 mA | 100 m+ | **3+ months** | ✅ |
+| Quantity | Prediction | Your value | Target |
+|---|---|---|---|
+| Noise floor, quietest channel | ____ | ____ dBm | — |
+| Noise floor, loudest channel | ____ | ____ dBm | — |
+| RSSI at 1 m | ____ | ____ dBm | — |
+| RSSI drop per doubling of distance | ____ | ____ dB | free space: 6 dB |
+| RSSI below which PER exceeds 1 % | ____ | ____ dBm | — |
+| Maximum reliable range (PER < 1 %) | ____ | ____ m | > 20 m |
 
-*periodic readings, not continuous TX.
+## Tasks
 
-> **In other stacks:** for 10 km pastures we'd test LoRa (sub-GHz) instead. The
-> methodology (RSSI, PER, link budget) is identical — only frequencies change.
+**Per pair:** 2 ESP32-C6 boards (DevKitC-1, DevKitM-1 or Super Mini), 2 USB-C cables,
+a 50 m measuring tape. One partner owns **A**, the other **B**; each laptop runs its own
+monitor.
 
-<details>
-<summary><b>🔬 Advanced (optional): energy budget math & O-QPSK modulation</b></summary>
+### Task A — Bring up both boards
+- Flash [`firmware/lab1_radio`](../firmware/lab1_radio) to both boards and open the shell
+  ([SOP-01 §1](sops/sop01_radio.md#1-build-and-flash)). It is Zephyr's OpenThread
+  shell with auto-start off: the radio stays silent until you start it.
+- **Evidence:** `ot extaddr` of each board: these are your board IDs for every table
+  in the DDR.
 
-- Energy budget: 3000 mAh × 3 V = 32,400 J over 3 months (7.78×10⁶ s) → **4.2 mW average**.
-  WiFi at 1% duty cycle already blows this budget.
-- 802.15.4 uses **O-QPSK**: constant-envelope modulation → non-linear amplifier
-  (70–80 % efficient vs 30–40 % for linear) → ~2× battery life.
-- **DSSS** maps every 4-bit symbol to a 32-chip sequence (8 chips per bit, 2 Mchip/s for
-  250 kbps), giving ~9 dB processing gain against interference.
+### Task B — Find the quietest channel
+- Energy-scan all 16 channels ([SOP-01 §2](sops/sop01_radio.md#2-scan-the-channels)).
+  Lower (more negative) means quieter.
+- Mark on your scan which 802.15.4 channels sit under Wi-Fi channels 1, 6 and 11, and
+  which fall in the gaps between them. Does your loudest channel line up with a Wi-Fi
+  network you can see from your phone?
+- **Evidence:** the scan, annotated with the Wi-Fi overlap, and the channel you choose.
 
-</details>
+### Task C — Form a two-board link
+- Set the announced TX power on both boards, form a network on your channel with A as
+  the leader, and join B with A's dataset
+  ([SOP-01 §3](sops/sop01_radio.md#3-form-a-two-board-network)). Wait until B is a
+  `router`: the neighbor table you read in Task D lists routers on both sides.
+- Ping in both directions at close range.
+- **Evidence:** `ot state` on both boards and A's `ot neighbor table`.
 
-## Part 1 — Setup
+### Task D — RSSI and packet loss against distance
+- At 1, 5, 10, 20, 30 m and beyond: A sends 100 pings of 64 bytes to B, **then** B to A,
+  never both at once; then both read `ot neighbor table`
+  ([SOP-01 §4](sops/sop01_radio.md#4-measure-rssi-and-packet-loss)). RSSI is measured by
+  the receiver, so A's table shows the B→A signal.
+- Keep the payload size and the TX power fixed, and stop once PER passes 10 %.
 
-**Per team:** 2× ESP32-C6 boards (DevKitC-1, DevKitM-1 or Super Mini), 2× USB-C cables,
-50 m measuring tape. Zephyr (from Week 0).
+  | Distance (m) | RSSI A→B (dBm) | RSSI B→A (dBm) | PER A→B | PER B→A |
+  |---|---|---|---|---|
+  | 1 | ____ | ____ | ____ | ____ |
+  | 5 | ____ | ____ | ____ | ____ |
+  | 10 | ____ | ____ | ____ | ____ |
+  | … | ____ | ____ | ____ | ____ |
 
-**Task 1.1** — flash [`firmware/lab1_radio`](../firmware/lab1_radio) to both boards. It
-is Zephyr's OpenThread shell with ping enabled and auto-start disabled, so your board stays
-off the air until you start it:
+- Find the RSSI at which PER first exceeds 1 %, and the distance where you crossed it:
+  that is your maximum reliable range. If A→B and B→A differ by more than 10 dB, look
+  for a hand or a laptop over one antenna before you trust the row.
+- **Evidence:** the table, with the ping summary line for each row, and a plot of RSSI
+  against log₁₀(distance).
 
-```bash
-source ~/zephyrproject/env.sh
-cd firmware/lab1_radio
-
-west build -p always -b esp32c6_devkitc/esp32c6/hpcore .
-west flash
-west espressif monitor -p /dev/ttyUSB0
-```
-
-Press Enter to get the `uart:~$` prompt. Every OpenThread command is `ot <command>`;
-`ot help` lists them.
-
-> **Port gotcha:** on a DevKitC-1 or DevKitM-1, plug into the port labelled **UART**
-> (`/dev/ttyUSB0`). The **USB** port flashes fine but shows no console with this board
-> config. Exit the monitor with `Ctrl-]`.
->
-> **ESP32-C6 Super Mini?** It has only the chip's native USB port (`/dev/ttyACM0`), so
-> move the console there when you build:
->
-> ```bash
-> west build -p always -b esp32c6_devkitc/esp32c6/hpcore . -- \
->     -DEXTRA_CONF_FILE=usb_console.conf -DEXTRA_DTC_OVERLAY_FILE=usb_console.overlay
-> west flash
-> west espressif monitor -p /dev/ttyACM0
-> ```
->
-> **4 MB boards** (DevKitM-1, Super Mini) print `Detected size(4096k) smaller than the size
-> in the binary image header(8192k)` at boot: the build targets the DevKitC's 8 MB flash.
-> Everything the labs use fits in 4 MB, so ignore it.
->
-> **Borrowed board?** The Thread dataset survives reflashing. Run `ot factoryreset` once
-> to drop the previous team's network.
-
-**Task 1.2** — record the hardware in your DDR (Section 4, Architectural Mapping):
-
-| Component | ISO Domain | Justification |
-|-----------|------------|---------------|
-| ESP32-C6 SoC | SCD | Sensing/controlling device (§6.4–6.5) |
-| 802.15.4 radio + antenna | SCD | Communication subsystem |
-| Air (RF medium) | PED | Physical entity — EM propagation |
-
-## Part 2 — Find the quietest channel
-
-WiFi routers, microwaves and Bluetooth share the 2.4 GHz band; you want the channel
-they pollute least.
-
-**Task 2.1** — bring the radio up (receive only, nothing is transmitted yet) and
-energy-scan all 16 channels (11–26), 500 ms each:
-
-```bash
-uart:~$ ot ifconfig up
-uart:~$ ot scan energy 500
-```
-
-```
-| Ch | RSSI |
-+----+------+
-| 11 | -78  |  ← WiFi interference
-| 15 | -89  |  ← quietest ✅
-...
-```
-
-Lower (more negative) RSSI = quieter. Real idle noise floors run −90 to −100 dBm;
-higher readings mean a nearby transmitter.
-
-**Task 2.2** — know your neighbors. 802.15.4 channel *k* is centred at
-2405 + 5·(*k* − 11) MHz and is 2 MHz wide; a WiFi channel is ~20 MHz wide. Overlap:
-WiFi 1 → ch. 11–14 · WiFi 6 → ch. 16–19 · WiFi 11 → ch. 21–24. Channels 15, 20, 25
-and 26 fall in the gaps.
-
-**DDR (ADR-001, Channel Selection):** which channel, its noise floor, and the PED-domain
-reasoning. Include a one-liner for Edwin (field tech), e.g.:
-
-> "Channel 15: lowest noise floor (−89 dBm), in the gap between WiFi 1 and 6 used by
-> farmhouse routers. If packet loss appears in the field, first check for a new WiFi
-> network on channel 1 or 6."
-
-## Part 3 — Range testing
-
-**Link budget in one line:** `RSSI = TX power + antenna gains − path loss`. Signal
-weakens with distance; at some range too many packets are lost. You'll find that range.
-
-<details>
-<summary><b>📐 Advanced (optional): Friis equation</b></summary>
-
-`RSSI = Ptx + Gtx + Grx − PL`, with Ptx = your `ot txpower` setting (the C6 goes up to
-+20 dBm), antenna gains ≈ 2 dBi.
-Free-space path loss `PL = 20·log₁₀(d) + 20·log₁₀(f) + 32.45` ≈ 60 dB at 10 m / 2.45 GHz.
-Doubling the distance costs 6 dB.
-
-</details>
-
-### Task 3.1 — form a two-device network
-
-One partner owns **Device A** (leader), the other **Device B** (child); each laptop runs
-its own monitor.
-
-**TX power is part of the experiment.** Set it on both boards before starting, and use the
-value your instructor gives (0 dBm keeps a classroom range test inside the building):
-
-```bash
-uart:~$ ot txpower 0
-```
-
-Device A:
-
-```bash
-uart:~$ ot dataset init new
-uart:~$ ot dataset channel 15            # your channel from Part 2
-uart:~$ ot dataset commit active
-uart:~$ ot ifconfig up
-uart:~$ ot thread start
-uart:~$ ot state                         # wait for: leader
-```
-
-Copy A's **entire dataset** to B as a hex blob (channel, PAN ID **and network key** must
-match — the key is random, so setting channel/PAN ID by hand fails authentication):
-
-```bash
-# On A:
-uart:~$ ot dataset active -x
-0e08000000000001...0300000f              # paste this string to your partner
-
-# On B:
-uart:~$ ot dataset set active 0e08000000000001...0300000f
-uart:~$ ot ifconfig up
-uart:~$ ot thread start
-uart:~$ ot state                         # child, then router within ~2 min
-```
-
-B joins as a `child` and promotes itself to `router` after a random delay of up to two
-minutes. Wait for `router` before measuring — Task 3.3 reads RSSI from the neighbor
-table, which lists routers on both sides.
-
-### Task 3.2 — verify with ping
-
-Each partner runs `ot ipaddr` and shares the **RLOC address** (the one containing
-`:0:ff:fe00:`; easy to spot and routable). Ping in both directions; expect 0 % loss at close range:
-
-```bash
-uart:~$ ot ping <partner-RLOC>
-16 bytes from fd43:...: icmp_seq=1 hlim=64 time=19ms
-```
-
-### Task 3.3 — measure RSSI and PER vs distance
-
-Full syntax: `ot ping <address> [size] [count] [interval]`. Use 100 pings × 64 bytes:
-
-```bash
-uart:~$ ot ping <partner-RLOC> 64 100 0.2
-...
-100 packets transmitted, 98 packets received. Packet loss = 2.0%.   ← your PER
-```
-
-Then read the signal your board received from the partner:
-
-```bash
-uart:~$ ot neighbor table
-| Role | RLOC16 | Age | Avg RSSI | Last RSSI | LQ In |R|D|N| Extended MAC     | Version |
-+------+--------+-----+----------+-----------+-------+-+-+-+------------------+---------+
-|   R  | 0x2800 |   3 |      -66 |       -67 |     3 |1|1|1| 2a4f9c1d0e7b6a58 |       2 |
-```
-
-Procedure at each distance — **1, 5, 10, 20, 30 m…**:
-
-1. A pings B, records packet loss; **then** B pings A (never simultaneously — concurrent
-   pings on one channel collide and inflate PER).
-2. Both run `ot neighbor table` and note **Avg RSSI**. RSSI is measured by the
-   *receiver*, so A's table shows the B→A signal and vice versa.
-3. Keep payload size and TX power fixed so PER values are comparable.
-
-| Distance (m) | RSSI A→B | RSSI B→A | PER A→B | PER B→A |
-|---|---|---|---|---|
-| 1 | −45 | −47 | 0 % | 0 % |
-| 10 | −65 | −67 | 1 % | 1 % |
-| 30 | −78 | −82 | 10 % | 12 % |
-
-Small A/B asymmetry is normal; >10 dB suggests a blocked antenna or one-sided interference.
-
-**You're looking for:** the RSSI threshold where PER stays < 1 %, and the distance where
-you cross it — that's your **maximum reliable range**. Summarize for both stakeholders:
-
-> **Samuel:** "Reliability threshold −70 dBm (1 % PER); with 10 dB vegetation margin,
-> recommend 15 m max spacing."
-> **Gustavo:** "10-hectare field → ~49 nodes (7×7 grid at 15 m). At $40/node: $1,960."
-
-## Part 4 — The "why" questions (DDR Section 5)
-
-Answer in your own words — Samuel grades reasoning, not data collection:
-
-1. **Why does RSSI drop with distance?** (Think: how a light bulb dims as you walk away.
-   Key terms: power density, inverse square law, path loss.)
-2. **The receiver detects signals down to −100 dBm — why did you need > −70 dBm for
-   < 1 % loss?** Where do those ~30 dB go? (Key terms: fading, noise floor, fade margin, SNR.)
-3. *(Optional)* **How does the radio survive WiFi interference on the same band?**
-   (Key terms: DSSS spread spectrum, processing gain.)
+### Task E (optional) — The losses you never see
+- Every unicast frame asks for an ACK and is retransmitted until one arrives. Unplug B,
+  send A one ping, and count the retransmissions in A's MAC counters; repeat with the
+  802.15.4 default of 3 retries ([SOP-01 §5](sops/sop01_radio.md#5-mac-counters-and-retries)).
+  Your Task D PER was measured with 15 retries: what was the real frame loss at your
+  edge distance?
+- At 1 m, ping in both directions at once on purpose, and compare RTT, `TxRetry`,
+  `TxErrCca` and PER with the sequential run. CCA found the channel clear, yet frames
+  collided: how?
+- With a third board in promiscuous mode, decode one frame's header
+  ([SOP-01 §6](sops/sop01_radio.md#6-sniff-the-channel)).
+- **Evidence:** the counter readings for each run, and one decoded frame.
 
 ## ISO/IEC 30141 mapping
 
-You tested the **PED** (radio waves, interference) through the **SCD** (radio, antenna, MCU):
+You tested the **PED** (radio waves, interference) through the **SCD** (radio, antenna,
+MCU). The antenna is the boundary: it turns SCD bits into PED waves and back. The standard
+calls this link **proximity networking**; all six domains are in
+[iso_architecture.md](../docs/iso_architecture.md).
 
 ```mermaid
-graph TD
+graph LR
     subgraph PED [Physical Entity Domain]
-        Air[RF Medium / Air]
-        Interference[WiFi Interference]
+        Air[RF medium]
+        WiFi[Wi-Fi interference]
     end
     subgraph SCD [Sensing & Controlling Domain]
-        Antenna[Antenna]
-        Radio[802.15.4 Radio]
-        MCU[ESP32-C6]
+        Antenna[Antenna] <--> Radio[802.15.4 radio] <--> MCU[ESP32-C6]
     end
-    Air <-->|Propagation| Antenna
-    Interference -->|Noise| Antenna
-    Antenna <--> Radio
-    Radio <--> MCU
-    style PED fill:#e1f5ff
-    style SCD fill:#fff4e1
+    Air <-->|propagation| Antenna
+    WiFi -->|noise| Antenna
+    style PED fill:#dbeafe,stroke:#2563eb
+    style SCD fill:#fef3c7,stroke:#d97706
 ```
 
-The standard calls this link **Proximity Networking** — the foundational data path inside
-the SCD. Details on all six domains: [iso_architecture.md](../docs/iso_architecture.md).
+ISO/IEC 30141 §9 (Tables 9–10) classifies what a component *can* do. Decompose your
+board; for each row, say whether the capability is active or latent today, and why:
 
-**Component capabilities (DDR Section 4):** ISO/IEC 30141 §9 (Tables 9–10) classifies what
-a component *can* do — *transducer, data, interface, supporting, latent*. Decompose your
-devkit; for each row, one sentence on why it's **active** or **latent** today:
+| Category | Capability on your board | Active / latent? |
+|---|---|---|
+| Transducer | on-board LED (actuating) | ____ |
+| Data | 802.15.4 TX/RX · NVS storage | ____ |
+| Interface | 802.15.4 network · OpenThread shell | ____ |
+| Supporting | time sync · hardware crypto | ____ |
+| Other radios | BLE · Wi-Fi · USB | ____ |
 
-| Category | Capability on your board | Active / Latent? |
-|----------|--------------------------|-------------------|
-| Transducer | On-board LED (actuating) | Active |
-| Data | RSSI filtering / NVS storage / 802.15.4 TX-RX | Active |
-| Interface | 802.15.4 network · OpenThread CLI · serial monitor | Active |
-| Supporting | Time sync · HW crypto accelerator | Latent |
-| Latent | BLE radio · WiFi radio · USB (debug only) | Latent |
-
-This table grows as later labs enable more features.
+This table grows as later labs switch capabilities on.
 
 ## Deliverables
 
-1. **DDR update** ([template](../docs/ddr_template.md)) — Section 1: device
-   description; Section 2: stakeholder summaries; Section 3: ADR-001 channel selection;
-   Section 4: domain mapping + capabilities table; Section 5: the three "why" answers;
-   Section 10: your distance/RSSI/PER table. The DDR is iterative — get something down,
-   improve it weekly. If you did SOP-01, add an "Advanced Experiments" section.
+Update [your DDR](../docs/ddr_template.md):
 
-2. **One-page performance summary** for Gustavo (numbers and a recommendation, no prose):
-
-   > - Max reliable range: ___ m (PER < 1 % when RSSI > ___ dBm)
-   > - Recommended spacing: ___ m (with vegetation/obstacle margin)
-   > - Best channel: ___ (noise floor ___ dBm); avoid channels ___ (WiFi)
-   > - 10-hectare field: ~___ nodes × $40 = $___
-   > - Verdict: ✅ proceed / ⚠️ more testing / ❌ switch platforms — and why
-
-3. **Field checklist for Edwin** — a short troubleshooting card: *won't join* (channel
-   mismatch, antenna, metal obstructions) · *intermittent loss* (RSSI < −70 dBm, WiFi
-   scan, dense vegetation) · your measured range guidelines (line-of-sight / light /
-   dense vegetation).
+- **§1 System overview:** the two boards and their IDs.
+- **§2 Lab log:** *To Samuel*: reliability threshold and recommended spacing, with a
+  margin for vegetation. *To Gustavo*: nodes for a 10-hectare field at that spacing, at
+  $40 a node, and a verdict (proceed, test more, or switch). *To Edwin*: a field card for
+  "won't join" and "intermittent loss".
+- **§3 ADR-001, channel selection:** the channel, its noise floor, and the Wi-Fi
+  networks it avoids.
+- **§4 ISO mapping:** the PED/SCD table and the capabilities table.
+- **§5 First principles:**
+  1. Why does RSSI drop with distance, and by how much per doubling?
+  2. The receiver decodes signals near −100 dBm. Why did you need a much stronger
+     signal for PER < 1 %? Where do the missing decibels go?
+  3. *(Optional)* How does an 802.15.4 link survive Wi-Fi on the same band?
+- **§6 Performance:** the row "Lab 1: Max Range" (> 20 m), with the distance table.
+- **§7 Ethics:** passive scanning only, and radios off when not testing.
 
 ## Grading (100 pts)
 
 | | pts |
 |---|---|
-| **Technical execution** — channel scan (10) · range data with RSSI+PER (15) · link budget (10) · baseline table (5) | 40 |
-| **ISO/IEC 30141** — domain mapping (10) · foundational viewpoint (10) · capabilities table (5) · ADR-001 format (5) | 30 |
-| **First principles** — Q1 path loss (7) · Q2 SNR/fading (7) · Q3 DSSS (6) | 20 |
-| **Communication** — Samuel + Edwin summaries (5) · Gustavo report (3) · field checklist (2) | 10 |
+| **Technical execution** — channel scan with Wi-Fi overlap (10) · RSSI and PER table (15) · threshold and range from the data (10) · predictions handed in (5) | 40 |
+| **ISO/IEC 30141** — PED/SCD mapping (10) · capabilities table with reasons (10) · ADR-001 format (10) | 30 |
+| **First principles** — Q1 (10) · Q2 (10) | 20 |
+| **Communication** — Samuel, Gustavo and Edwin entries (10) | 10 |
 | **Ethics (pass/fail)** — passive scanning only (no jamming); radios off when not testing | ✓ |
-
-## Extensions (optional)
-
-- **Outdoor range test** — compare measured path loss to the Friis prediction.
-- **Interference** — create WiFi interference deliberately, measure PER impact, test channel hopping.
-- **Power vs range** — `ot txpower` at +20 / +8 / 0 dBm; measure range + current; write an ADR for TX power.
 
 ## Resources & next week
 
 [Zephyr OpenThread shell sample](https://docs.zephyrproject.org/latest/samples/net/openthread/shell/README.html) ·
 [OpenThread CLI reference](https://openthread.io/reference/cli/commands) ·
-[references.md](../docs/references.md) (CLI cheat sheet, target metrics) ·
-[project scenario](../docs/scenario.md) (stakeholders)
+IEEE 802.15.4-2020, Clauses 6 (MAC) and 8 (PHY) ·
+[references.md](../docs/references.md)
 
-**Lab 2:** 6LoWPAN and IPv6 addressing. Samuel's next question: *"How do we fit IPv6
-into 127-byte 802.15.4 frames?"* Prep: skim RFC 6282.
+**Lab 2:** Edwin's tractor flattens a node. Can the others route around it? Samuel's
+question for the talk: *"How do we fit IPv6 into a 127-byte frame?"* Skim RFC 6282.

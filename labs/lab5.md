@@ -87,7 +87,7 @@ Radio Co-Processor). Pull the course repository first: Lab 4's firmware gained S
 - **Evidence:** the ping output and the NAT64 route line from the network data.
 
 ### Task F — Kill the Border Router
-- Unplug the S3. From C, `PUT /act/valve` to S's mesh-local address (Lab 3 Task 4.1),
+- Unplug the S3. From C, `PUT /act/valve` to S's mesh-local address (Lab 3 Task D),
   and retry the laptop's GET. What still works, and what fails, how quickly?
 - Plug the S3 back in and restore it (SOP-05 §5). Does it rejoin as leader?
 - **Evidence:** C's response to the PUT with the OTBR off, the laptop's error, and S's

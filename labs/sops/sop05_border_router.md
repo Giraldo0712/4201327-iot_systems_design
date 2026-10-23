@@ -126,7 +126,7 @@ boards work; boards without PSRAM (N4, N8) can't hold OpenThread and Wi-Fi toget
 ## 3. Move S and C onto the OTBR's network
 
 1. Rebuild S (with its sensor overlay) and C from `firmware/lab4_sensors`, exactly as in
-   [Lab 4 Task 1.2](../lab4.md#part-1--setup). The current firmware adds SLAAC and
+   [SOP-04 §2](sop04_sensors.md#2-build-s-and-c). The current firmware adds SLAAC and
    transmits at +20 dBm.
 
 2. On each, forget Lab 4's network and take the OTBR's:
@@ -184,7 +184,7 @@ boards work; boards without PSRAM (N4, N8) can't hold OpenThread and Wi-Fi toget
    python tools/coap_client.py --host <S-omr> --count 10 get /env/temp
    ```
 
-   **Verify:** `10/10 respuestas, RTT mediano ... ms` and `Payload (CBOR): {'t': ...}`.
+   **Verify:** `10/10 responses, median RTT ... ms` and `Payload (CBOR): {'t': ...}`.
 
 3. The dashboard, for your phone:
 
