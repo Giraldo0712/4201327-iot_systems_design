@@ -39,18 +39,31 @@ source ~/zephyrproject/.venv/bin/activate
 pip install --upgrade pip west
 ```
 
-> **Every session starts with that `source` line.** Nearly every "west: command not
-> found" is a forgotten venv.
-
 ## 3. Workspace
+
+The course is validated on one Zephyr revision, pinned in [west.yml](../west.yml); the
+`checkout` line puts your workspace on it.
 
 ```bash
 west init ~/zephyrproject   # 10+ min, and prints nothing while it clones
 cd ~/zephyrproject
+git -C zephyr checkout 2f0bc11264a8e72e214f3db0a3fa221eb022453a
 west update                 # slower still: clones the HALs
 west packages pip --install
 west zephyr-export
 ```
+
+Then write the two lines every new terminal needs into one file:
+
+```bash
+cat > ~/zephyrproject/env.sh <<'END'
+source ~/zephyrproject/.venv/bin/activate
+source ~/zephyrproject/zephyr/zephyr-env.sh
+END
+```
+
+> **Every terminal starts with `source ~/zephyrproject/env.sh`.** Nearly every
+> "west: command not found" is a forgotten `source`.
 
 > `west init` looks frozen for ten minutes or more. Let it finish — a Ctrl-C
 > here leaves a broken `.west/` that you have to `rmdir` before retrying.
@@ -84,8 +97,8 @@ console there.
 
 Your deliverables live in your own fork.
 
-1. Fork [4201327-IoT_Systems_Design_Labs](https://github.com/saacifuentesmu/4201327-IoT_Systems_Design_Labs).
-2. Clone it: `git clone https://github.com/<YOUR_USERNAME>/4201327-IoT_Systems_Design_Labs.git`
+1. Fork [4201327-iot_systems_design](https://github.com/saacifuentesmu/4201327-iot_systems_design).
+2. Clone it: `git clone https://github.com/<YOUR_USERNAME>/4201327-iot_systems_design.git`
 
 ---
 
@@ -93,7 +106,7 @@ Your deliverables live in your own fork.
 
 | Symptom | Fix |
 |---|---|
-| `west: command not found` | `source ~/zephyrproject/.venv/bin/activate` |
+| `west: command not found` | `source ~/zephyrproject/env.sh` |
 | `Unable to find a valid toolchain` | Step 4. Check names with `west sdk list` |
 | `No module named 'jsonschema'` + a long traceback | `west packages pip --install`, then re-run `west zephyr-export` |
 | Build complains about espressif blobs | `west blobs fetch hal_espressif` |

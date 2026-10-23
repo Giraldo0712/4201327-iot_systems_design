@@ -1,0 +1,38 @@
+# Every push: the documents against the course standard, and every firmware on
+# every board (the same list as scripts/build_all.sh), on the pinned Zephyr.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  docs:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: course
+      - uses: actions/checkout@v4
+        with:
+          repository: saacifuentesmu/course-kit
+          path: course-kit
+      - run: python3 course-kit/tools/coursekit.py lint course
+
+  firmware:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: 4201327-iot_systems_design
+      - uses: zephyrproject-rtos/action-zephyr-setup@v1
+        with:
+          app-path: 4201327-iot_systems_design
+          toolchains: riscv64-zephyr-elf:xtensa-espressif_esp32s3_zephyr-elf
+      - run: west blobs fetch hal_espressif
+      - run: 4201327-iot_systems_design/scripts/build_all.sh
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: 4201327-iot_systems_design/build/ci/*.log

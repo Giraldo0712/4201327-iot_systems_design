@@ -1,0 +1,24 @@
+# The course's Zephyr revision, pinned for the semester (setup: docs/setup.md).
+# CI builds against it; bump `revision` between semesters, after the firmware builds
+# and the labs run on the new one.
+manifest:
+  self:
+    path: 4201327-iot_systems_design
+
+  remotes:
+    - name: zephyrproject-rtos
+      url-base: https://github.com/zephyrproject-rtos
+
+  projects:
+    - name: zephyr
+      remote: zephyrproject-rtos
+      revision: 2f0bc11264a8e72e214f3db0a3fa221eb022453a  # main, 2026-09-01 (SDK 1.0.1)
+      import:
+        name-allowlist:
+          - hal_espressif
+          - mbedtls
+          - mldsa-native
+          - openthread
+          - picolibc
+          - tf-psa-crypto
+          - zcbor
