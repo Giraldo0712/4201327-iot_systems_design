@@ -450,10 +450,14 @@ Open the console **on the UART port** (`/dev/ttyUSB0`) and reset the board:
 west espressif monitor -p /dev/ttyUSB0
 ```
 
+> **ESP32-C6 Super Mini?** It has only the native USB port: add
+> `-DEXTRA_CONF_FILE=usb_console.conf -DEXTRA_DTC_OVERLAY_FILE=usb_console.overlay` to
+> the `west build` line, and open the monitor on `/dev/ttyACM0` instead.
+
 ```
 [00:00:03.412] <inf> lab0_http: Connecting to "YourNetwork"...
-[00:00:05.220] <inf> lab0_http: Associated with "YourNetwork"
 [00:00:06.918] <inf> lab0_http: IPv4 address: 192.168.1.100
+[00:00:06.918] <inf> lab0_http: Associated with "YourNetwork"
 [00:00:06.925] <inf> lab0_http: HTTP server listening on port 80
 ```
 
@@ -499,7 +503,8 @@ Open `http://localhost:5000`.
 |---|---|
 | `Wi-Fi association failed` | Wrong PSK, or a 5 GHz-only SSID — the C6 is 2.4 GHz only |
 | Boots, no `IPv4 address` line | Associated but no DHCP lease; check the AP's DHCP pool |
-| Console silent, board flashes fine | You are on `/dev/ttyACM0`; the console is on the UART port |
+| Console silent, board flashes fine | You are on `/dev/ttyACM0`; the console is on the UART port (Super Mini: build with the USB console options) |
+| `Wi-Fi association failed (4)` on a Super Mini right next to the AP | Weak Wi-Fi on that board: our Super Minis heard the AP about 20 dB weaker than a DevKitC, and one heard nothing at all. Move it closer to the AP or swap the board |
 | `curl` times out | Node and workstation are on different subnets, or AP client isolation is on |
 | LED never lights | Overlay missing from the build — confirm `boards/` sits next to `CMakeLists.txt` |
 | `undefined reference to _http_resource_desc_*` | Linker section name does not match the service name |

@@ -582,12 +582,17 @@ west flash
 west espressif monitor -p /dev/ttyUSB0
 ```
 
+> **ESP32-C6 Super Mini?** It has only the native USB port: add
+> `-DEXTRA_CONF_FILE=usb_console.conf -DEXTRA_DTC_OVERLAY_FILE=usb_console.overlay` to
+> the `west build` line, and open the monitor on `/dev/ttyACM0` instead.
+
 ```
 [00:00:03.412] <inf> lab0_mqtt: Connecting to "YourNetwork"...
-[00:00:05.220] <inf> lab0_mqtt: Associated with "YourNetwork"
 [00:00:06.918] <inf> lab0_mqtt: IPv4 address: 192.168.1.100
-[00:00:06.930] <inf> lab0_mqtt: Connecting to broker 192.168.1.50:1883
+[00:00:06.918] <inf> lab0_mqtt: Associated with "YourNetwork"
+[00:00:06.919] <inf> lab0_mqtt: Connecting to broker 192.168.1.50:1883
 [00:00:07.104] <inf> lab0_mqtt: Connected to broker
+[00:00:07.105] <inf> lab0_mqtt: Subscribing to iot/control
 [00:00:07.210] <inf> lab0_mqtt: Subscribed to iot/control
 [00:00:09.212] <inf> lab0_mqtt: Publishing to iot/sensor: {"temperature": 24.7}
 ```
@@ -631,7 +636,8 @@ Open `http://localhost:5000`.
 | Connects, then drops every ~60 s | `mqtt_live()` not being called often enough in the loop |
 | Same command delivered repeatedly | Missing QoS 1 PUBACK |
 | Publishes fine, dashboard shows nothing | Topic mismatch — the dashboard subscribes to `iot/sensor` exactly |
-| Console silent, board flashes fine | You are on `/dev/ttyACM0`; the console is on the UART port |
+| Console silent, board flashes fine | You are on `/dev/ttyACM0`; the console is on the UART port (Super Mini: build with the USB console options) |
+| `Wi-Fi association failed (4)` on a Super Mini right next to the AP | Weak Wi-Fi on that board: our Super Minis heard the AP about 20 dB weaker than a DevKitC, and one heard nothing at all. Move it closer to the AP or swap the board |
 
 ---
 

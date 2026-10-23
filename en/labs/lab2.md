@@ -126,7 +126,7 @@ uart:~$ ot router table
 ```
 
 One row per router, A's own included (Link 0). `Link 1` means a direct radio link; LQ In is
-what A measures, LQ Out what the neighbour reports back. At desk distance every link is LQ 3.
+what A measures, LQ Out what the neighbour reports back. At desk distance links are LQ 3, sometimes 2.
 Next Hop and Path Cost describe the best *relay* towards that router and the cost from the
 relay onward. A forwards through the relay only when that is cheaper than the direct link:
 here direct costs 1 and the relay 1 + 1 = 2, so A talks to B and C directly.
@@ -231,6 +231,11 @@ uart:~$ ot ping <C-mleid> 64 200 1
 After about ten successful replies, **unplug B** and note the time. Replies stop, then
 resume through the direct A–C link. Each missing reply is about one second of outage;
 the summary's loss count gives you the healing time.
+
+> Unplug it for real. `ot thread stop` on B is not the same: B's radio keeps
+> acknowledging the frames A sends it, so A sees no failed transmissions and waits for
+> B's entry to age out instead. On our desk that took 104 s, against 9 s with B's radio
+> off.
 
 **Task 4.2** — post-mortem on A: in `ot router table`, C's row shows Next Hop 63, so A now
 sends to C directly over the LQ 1 link. B's row lingers with LQ Out 0 and disappears after
