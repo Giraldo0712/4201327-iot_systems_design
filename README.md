@@ -64,14 +64,14 @@ One session per lab: a talk, then the lab (2–3 h). Per-lab readings are in
 | 4 | [deck](presentations/04_sensors.md) | [Real sensors: can you trust the reading?](labs/lab4.md) | [SOP-04](labs/sops/sop04_sensors.md) | Trustworthiness audit, first pass |
 | 5 | [deck](presentations/05_border_router.md) | [Border Router: the mesh meets the Internet](labs/lab5.md) | [SOP-05](labs/sops/sop05_border_router.md) | ADR-005; the four-network walk |
 | 6 | [deck](presentations/06_security.md) | [A lock on the bytes: DTLS](labs/lab6.md) | [SOP-06](labs/sops/sop06_security.md) | ADR-006; STRIDE; trustworthiness audit, second pass |
-| 7 | [script](lectures/lab7_lecture.md) | [Dashboard and telemetry](labs/lab7.md) | [SOP-07](labs/sops/sop07_telemetry.md) | The User domain |
+| 7 | [deck](presentations/07_fleet.md) | [The fleet on one screen: telemetry, bridge, dashboard](labs/lab7.md) | [SOP-07](labs/sops/sop07_fleet.md) | ADR-007; OMD, RAID interchange; the Usage row |
 | 8 | [script](lectures/lab8_lecture.md) | [Integration](labs/lab8.md) | [SOP-08](labs/sops/sop08_consolidation.md) | All six domains; the IoT system pattern |
 | — | — | [Final project: the pitch](docs/final_project.md) | — | The Business viewpoint |
 
 Pairs for Labs 1–6; two pairs merge into teams of four for Labs 7–8.
 
-> **Migration in progress.** Setup, Lab 0 and Labs 1–6 run on Zephyr. Labs 7–8 still
-> document ESP-IDF v5.1+ while they are ported; each says which framework it expects.
+> **Migration in progress.** Setup, Lab 0 and Labs 1–7 run on Zephyr. Lab 8 still
+> documents ESP-IDF v5.1+ while it is ported.
 
 ## Assessment
 

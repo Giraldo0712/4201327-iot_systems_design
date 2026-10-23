@@ -6,7 +6,7 @@
 
 **Pairs with**: [lab8.md](../labs/lab8.md)
 
-**Follows**: [Lab 7 Lecture](lab7_lecture.md) — students can watch the fleet (telemetry, dashboard, CoAP→MQTT bridge) and were promised that in Lab 8 "watching becomes acting": the chaos script, and a signed OTA pushed back down the egress path.
+**Follows**: [the session-7 deck](../presentations/07_fleet.md) — students can watch the fleet (telemetry, dashboard, CoAP→MQTT bridge) and were promised that in Lab 8 "watching becomes acting": the chaos script, and a signed OTA pushed back down the egress path.
 
 ---
 

@@ -100,6 +100,24 @@ Your deliverables live in your own fork.
 1. Fork [4201327-iot_systems_design](https://github.com/saacifuentesmu/4201327-iot_systems_design).
 2. Clone it: `git clone https://github.com/<YOUR_USERNAME>/4201327-iot_systems_design.git`
 
+## 7. Docker, for Labs 7 and 8
+
+The fleet dashboard runs as four containers. Install Docker Engine with the Compose
+plugin ([docs.docker.com/engine/install](https://docs.docker.com/engine/install/); on
+Windows, Docker Desktop with the WSL2 backend), then let your user run it:
+
+```bash
+sudo usermod -aG docker $USER      # open a new terminal afterwards
+docker run --rm hello-world
+```
+
+You are done when `hello-world` prints its greeting. Pull the images at home, they are
+about 1 GB:
+
+```bash
+cd tools/fleet && docker compose pull
+```
+
 ---
 
 ## When something breaks
