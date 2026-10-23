@@ -14,6 +14,9 @@ Labs 0 and 0.5. Three ways to reach the mesh:
     pip install aiocoap
     python tools/dashboard_coap.py --host <S-omr-address>
 
+    # Labs 6-8: the same over DTLS with the node's pre-shared key (tools/coaps.py)
+    python tools/dashboard_coap.py --host <S-omr-address> --psk soilsense-lab-6
+
     # Read-only: follow a saved copy of C's console where `ot coap observe` runs
     python tools/dashboard_coap.py --log /tmp/nodeC.log
 
@@ -47,7 +50,7 @@ valve_state = {"v": None, "note": "unknown"}
 notify_count = 0
 start_time = time.time()
 recent_payloads = deque(maxlen=20)  # last 20 raw CBOR hex strings, for evidence
-source = None  # the active SerialSource / HostSource / LogSource
+source = None  # the active SerialSource / HostSource / DtlsSource / LogSource
 
 
 # --- CBOR decoding for the two contracts of Lab 3 ---
@@ -227,6 +230,49 @@ class HostSource:
 
     def set_valve(self, value: int):
         asyncio.run_coroutine_threadsafe(self.put_valve(value), self.loop)
+
+
+# --- Source 2b: CoAP over DTLS with a pre-shared key (Labs 6-8) ---
+
+class DtlsSource:
+    def __init__(self, host: str, identity: str, psk: str):
+        self.host, self.identity, self.psk = host, identity, psk
+        self.describe = f"CoAP over DTLS (PSK identity {identity}) to [{host}]:5684"
+
+    def session(self):
+        from coaps import CoapsSession
+        return CoapsSession(self.host, self.identity, self.psk)
+
+    def run(self):
+        from coaps import code_str
+        while True:
+            try:
+                with self.session() as s:
+                    print(f"[CoAPS] Session up, handshake {s.handshake_ms:.0f} ms")
+                    code, body, _ = s.request("GET", VALVE_RESOURCE.lstrip("/"))
+                    handle_payload(body, code_str(code))
+                    code, body, _ = s.request("GET", COAP_RESOURCE.lstrip("/"), observe=0)
+                    handle_payload(body, code_str(code))
+                    for code, body, _ in s.notifications(timeout=OBSERVE_RENEW_S):
+                        handle_payload(body, code_str(code))
+                        if code >> 5 != 2:
+                            break
+            except Exception as e:
+                with state_lock:
+                    latest_sensor_data.clear()
+                    latest_sensor_data["error"] = f"no session ({e})"
+                print(f"[CoAPS] {e!r}")
+            time.sleep(10)
+
+    def set_valve(self, value: int):
+        def put():
+            from coaps import code_str
+            with self.session() as s:
+                code, body, _ = s.request("PUT", VALVE_RESOURCE.lstrip("/"),
+                                          bytes([0xA1, 0x61, 0x76, value]), cbor=True)
+                print(f"[CoAPS] PUT {VALVE_RESOURCE} {value}: {code_str(code)}")
+                handle_payload(body, code_str(code))
+        threading.Thread(target=put, daemon=True).start()
 
 
 # --- Source 3: a saved console log (read-only) ---
@@ -436,6 +482,8 @@ def main():
     mode.add_argument("--host", metavar="ADDR", help="S's off-mesh routable address (Lab 5)")
     mode.add_argument("--log", type=Path, help="file holding a copy of C's console (read-only)")
     parser.add_argument("--node", metavar="ADDR", help="S's mesh-local EID, for --serial")
+    parser.add_argument("--psk", help="with --host: the node's pre-shared key, for CoAP over DTLS (Labs 6-8)")
+    parser.add_argument("--identity", default="soilsense-pilot", help="PSK identity, with --psk")
     parser.add_argument("--port", type=int, default=5000, help="dashboard HTTP port")
     args = parser.parse_args()
 
@@ -443,6 +491,8 @@ def main():
         if not args.node:
             parser.error("--serial needs --node <S-mleid>")
         source = SerialSource(args.serial, args.node)
+    elif args.host and args.psk:
+        source = DtlsSource(args.host, args.identity, args.psk)
     elif args.host:
         source = HostSource(args.host)
     else:

@@ -36,6 +36,9 @@ done
 build firmware/lab4_sensors $C6 -DEXTRA_CONF_FILE=usb_console.conf \
 	"-DEXTRA_DTC_OVERLAY_FILE=usb_console.overlay;sensors/dht22.overlay"
 build firmware/lab5_rcp $C6
+build firmware/lab6_secure $C6
+build firmware/lab6_secure $C6 -DEXTRA_DTC_OVERLAY_FILE=sensors/dht22.overlay
+build firmware/lab6_secure $C6 "${USB[@]}"
 build firmware/lab5_border_router $S3
 
 exit $fail
