@@ -26,6 +26,8 @@ OMD = "c6"
 SCD = "c7"
 RAID = "c8"
 Trustworthiness = "c5"
+# 802.15.4, Thread and the mesh; other radios and protocols are drawn in gray.
+Thread = "c4"
 
 # Session number = "date · toolchain · hardware" of the last full run.
 [validated]

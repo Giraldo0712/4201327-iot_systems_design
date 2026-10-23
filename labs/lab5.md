@@ -1,5 +1,5 @@
 # Lab 5: Border Router — Bridging the Mesh to the Internet
-> - **Talk:** [lab5_lecture.md](../lectures/lab5_lecture.md) · **SOP:** [SOP-05: Border Router](sops/sop05_border_router.md)
+> - **Talk:** [05_border_router.md](../presentations/05_border_router.md) · **SOP:** [SOP-05: Border Router](sops/sop05_border_router.md)
 > - **Reading:** [theory_foundations.md](../docs/theory_foundations.md) §5 (Border Router, NAT64)
 
 **GreenField Technologies — SoilSense Project** · Phase: Integration · 3 hours

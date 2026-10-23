@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 390" font-family="Inter, 'Segoe UI', 'DejaVu Sans', Arial, sans-serif">
+<defs><marker id="ar-ink" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0f172a"/></marker><marker id="ar-gray" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#475569"/></marker><marker id="ar-c1" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#ea580c"/></marker><marker id="ar-c2" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#2563eb"/></marker><marker id="ar-c3" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#16a34a"/></marker><marker id="ar-c4" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0d9488"/></marker><marker id="ar-c5" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#e11d48"/></marker><marker id="ar-c6" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#7c3aed"/></marker><marker id="ar-c7" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#d97706"/></marker><marker id="ar-c8" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#db2777"/></marker></defs>
+<text x="40.0" y="30.0" text-anchor="start" font-size="22" font-weight="700" fill="#16a34a">4-byte fixed header</text>
+<rect x="40.0" y="44.0" width="62.5" height="56.0" rx="4" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+<text x="71.2" y="72.0" text-anchor="middle" font-size="20" font-weight="700" fill="#16a34a">Ver</text>
+<text x="71.2" y="93.0" text-anchor="middle" font-size="15" font-weight="400" fill="#475569">2 bits</text>
+<rect x="102.5" y="44.0" width="62.5" height="56.0" rx="4" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+<text x="133.8" y="72.0" text-anchor="middle" font-size="20" font-weight="700" fill="#16a34a">T</text>
+<text x="133.8" y="93.0" text-anchor="middle" font-size="15" font-weight="400" fill="#475569">2 bits</text>
+<rect x="165.0" y="44.0" width="125.0" height="56.0" rx="4" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+<text x="227.5" y="72.0" text-anchor="middle" font-size="20" font-weight="700" fill="#16a34a">TKL</text>
+<text x="227.5" y="93.0" text-anchor="middle" font-size="15" font-weight="400" fill="#475569">4 bits</text>
+<rect x="290.0" y="44.0" width="250.0" height="56.0" rx="4" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+<text x="415.0" y="72.0" text-anchor="middle" font-size="20" font-weight="700" fill="#16a34a">Code</text>
+<text x="415.0" y="93.0" text-anchor="middle" font-size="15" font-weight="400" fill="#475569">8 bits</text>
+<rect x="540.0" y="44.0" width="500.0" height="56.0" rx="4" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+<text x="790.0" y="72.0" text-anchor="middle" font-size="20" font-weight="700" fill="#16a34a">Message ID</text>
+<text x="790.0" y="93.0" text-anchor="middle" font-size="15" font-weight="400" fill="#475569">16 bits</text>
+<rect x="40.0" y="118.0" width="1000.0" height="50.0" rx="4" fill="#ffffff" stroke="#475569" stroke-width="2"/>
+<text x="56.0" y="151.0" text-anchor="start" font-size="20" font-weight="700" fill="#0f172a">Token</text>
+<text x="210.0" y="151.0" text-anchor="start" font-size="19" font-weight="400" fill="#475569">0–8 B</text>
+<text x="400.0" y="151.0" text-anchor="start" font-size="19" font-weight="400" fill="#0f172a">matches a response to its request</text>
+<rect x="40.0" y="176.0" width="1000.0" height="50.0" rx="4" fill="#ffffff" stroke="#475569" stroke-width="2"/>
+<text x="56.0" y="209.0" text-anchor="start" font-size="20" font-weight="700" fill="#0f172a">Options</text>
+<text x="210.0" y="209.0" text-anchor="start" font-size="19" font-weight="400" fill="#475569">delta-encoded</text>
+<text x="400.0" y="209.0" text-anchor="start" font-size="19" font-weight="400" fill="#0f172a">Uri-Path, Content-Format, Observe, Max-Age…</text>
+<rect x="40.0" y="234.0" width="1000.0" height="50.0" rx="4" fill="#ffffff" stroke="#475569" stroke-width="2"/>
+<text x="56.0" y="267.0" text-anchor="start" font-size="20" font-weight="700" fill="#0f172a">FF</text>
+<text x="210.0" y="267.0" text-anchor="start" font-size="19" font-weight="400" fill="#475569">1 B</text>
+<text x="400.0" y="267.0" text-anchor="start" font-size="19" font-weight="400" fill="#0f172a">end of options</text>
+<rect x="40.0" y="292.0" width="1000.0" height="50.0" rx="4" fill="#ffffff" stroke="#475569" stroke-width="2"/>
+<text x="56.0" y="325.0" text-anchor="start" font-size="20" font-weight="700" fill="#0f172a">Payload</text>
+<text x="210.0" y="325.0" text-anchor="start" font-size="19" font-weight="400" fill="#475569"></text>
+<text x="400.0" y="325.0" text-anchor="start" font-size="19" font-weight="400" fill="#0f172a">CBOR in this course</text>
+<text x="40.0" y="376.0" text-anchor="start" font-size="18" font-weight="400" fill="#475569">T: CON, NON, ACK or RST · Code c.dd: 0.01 GET, 0.03 PUT, 2.04 Changed, 2.05 Content, 4.04 Not Found</text>
+</svg>

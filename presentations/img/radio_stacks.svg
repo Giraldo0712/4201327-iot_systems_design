@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 468" font-family="Inter, 'Segoe UI', 'DejaVu Sans', Arial, sans-serif">
+<defs><marker id="ar-ink" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0f172a"/></marker><marker id="ar-gray" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#475569"/></marker><marker id="ar-c1" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#ea580c"/></marker><marker id="ar-c2" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#2563eb"/></marker><marker id="ar-c3" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#16a34a"/></marker><marker id="ar-c4" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0d9488"/></marker><marker id="ar-c5" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#e11d48"/></marker><marker id="ar-c6" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#7c3aed"/></marker><marker id="ar-c7" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#d97706"/></marker><marker id="ar-c8" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#db2777"/></marker></defs>
+<text x="400.0" y="34.0" text-anchor="middle" font-size="24" font-weight="700" fill="#475569">Lab 0 (built)</text>
+<text x="760.0" y="34.0" text-anchor="middle" font-size="24" font-weight="700" fill="#0d9488">Labs 1–8 (Thread)</text>
+<text x="220.0" y="89.0" text-anchor="end" font-size="22" font-weight="700" fill="#0f172a">Application</text>
+<rect x="240.0" y="56.0" width="320.0" height="50.0" rx="8" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="400.0" y="89.0" text-anchor="middle" font-size="21" font-weight="400" fill="#0f172a">HTTP / MQTT</text>
+<rect x="600.0" y="56.0" width="320.0" height="50.0" rx="8" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="760.0" y="89.0" text-anchor="middle" font-size="21" font-weight="400" fill="#0f172a">CoAP</text>
+<text x="940.0" y="89.0" text-anchor="start" font-size="20" font-weight="400" fill="#475569">Lab 3</text>
+<text x="220.0" y="147.0" text-anchor="end" font-size="22" font-weight="700" fill="#0f172a">Transport</text>
+<rect x="240.0" y="114.0" width="320.0" height="50.0" rx="8" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="400.0" y="147.0" text-anchor="middle" font-size="21" font-weight="400" fill="#0f172a">TCP</text>
+<rect x="600.0" y="114.0" width="320.0" height="50.0" rx="8" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="760.0" y="147.0" text-anchor="middle" font-size="21" font-weight="400" fill="#0f172a">UDP</text>
+<text x="940.0" y="147.0" text-anchor="start" font-size="20" font-weight="400" fill="#475569">Lab 3</text>
+<text x="220.0" y="205.0" text-anchor="end" font-size="22" font-weight="700" fill="#0f172a">Network</text>
+<rect x="240.0" y="172.0" width="320.0" height="50.0" rx="8" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="400.0" y="205.0" text-anchor="middle" font-size="21" font-weight="400" fill="#0f172a">IPv4, DHCP from the AP</text>
+<rect x="600.0" y="172.0" width="320.0" height="50.0" rx="8" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="760.0" y="205.0" text-anchor="middle" font-size="21" font-weight="400" fill="#0f172a">IPv6</text>
+<text x="940.0" y="205.0" text-anchor="start" font-size="20" font-weight="400" fill="#475569">Lab 2</text>
+<text x="220.0" y="263.0" text-anchor="end" font-size="22" font-weight="700" fill="#0f172a">Adaptation</text>
+<rect x="240.0" y="230.0" width="320.0" height="50.0" rx="8" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="400.0" y="263.0" text-anchor="middle" font-size="21" font-weight="400" fill="#0f172a">—</text>
+<rect x="600.0" y="230.0" width="320.0" height="50.0" rx="8" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="760.0" y="263.0" text-anchor="middle" font-size="21" font-weight="400" fill="#0f172a">6LoWPAN</text>
+<text x="940.0" y="263.0" text-anchor="start" font-size="20" font-weight="400" fill="#475569">Lab 2</text>
+<text x="220.0" y="321.0" text-anchor="end" font-size="22" font-weight="700" fill="#0f172a">MAC</text>
+<rect x="240.0" y="288.0" width="320.0" height="50.0" rx="8" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="400.0" y="321.0" text-anchor="middle" font-size="21" font-weight="400" fill="#0f172a">802.11</text>
+<rect x="600.0" y="288.0" width="320.0" height="50.0" rx="8" fill="#ccfbf1" stroke="#0d9488" stroke-width="4"/>
+<text x="760.0" y="321.0" text-anchor="middle" font-size="21" font-weight="700" fill="#0d9488">802.15.4</text>
+<text x="940.0" y="321.0" text-anchor="start" font-size="20" font-weight="700" fill="#0d9488">today</text>
+<text x="220.0" y="379.0" text-anchor="end" font-size="22" font-weight="700" fill="#0f172a">PHY</text>
+<rect x="240.0" y="346.0" width="320.0" height="50.0" rx="8" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="400.0" y="379.0" text-anchor="middle" font-size="21" font-weight="400" fill="#0f172a">OFDM, 20 MHz channels</text>
+<rect x="600.0" y="346.0" width="320.0" height="50.0" rx="8" fill="#ccfbf1" stroke="#0d9488" stroke-width="4"/>
+<text x="760.0" y="379.0" text-anchor="middle" font-size="21" font-weight="700" fill="#0d9488">O-QPSK, 2 MHz channels</text>
+<text x="940.0" y="379.0" text-anchor="start" font-size="20" font-weight="700" fill="#0d9488">today</text>
+<text x="220.0" y="437.0" text-anchor="end" font-size="22" font-weight="700" fill="#0f172a">Topology</text>
+<rect x="240.0" y="404.0" width="320.0" height="50.0" rx="8" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="400.0" y="437.0" text-anchor="middle" font-size="21" font-weight="400" fill="#0f172a">star around the AP</text>
+<rect x="600.0" y="404.0" width="320.0" height="50.0" rx="8" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="760.0" y="437.0" text-anchor="middle" font-size="21" font-weight="400" fill="#0f172a">mesh</text>
+<text x="940.0" y="437.0" text-anchor="start" font-size="20" font-weight="400" fill="#475569">Lab 2</text>
+</svg>

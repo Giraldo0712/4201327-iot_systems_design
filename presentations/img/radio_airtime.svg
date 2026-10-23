@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 328" font-family="Inter, 'Segoe UI', 'DejaVu Sans', Arial, sans-serif">
+<defs><marker id="ar-ink" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0f172a"/></marker><marker id="ar-gray" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#475569"/></marker><marker id="ar-c1" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#ea580c"/></marker><marker id="ar-c2" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#2563eb"/></marker><marker id="ar-c3" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#16a34a"/></marker><marker id="ar-c4" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0d9488"/></marker><marker id="ar-c5" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#e11d48"/></marker><marker id="ar-c6" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#7c3aed"/></marker><marker id="ar-c7" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#d97706"/></marker><marker id="ar-c8" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#db2777"/></marker></defs>
+<text x="244.0" y="46.0" text-anchor="end" font-size="22" font-weight="700" fill="#475569">Wi-Fi 4</text>
+<text x="244.0" y="70.0" text-anchor="end" font-size="17" font-weight="400" fill="#475569">1500 B at 72 Mbps</text>
+<rect x="260.0" y="28.0" width="47.0" height="40.0" rx="6" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="319.0" y="56.0" text-anchor="start" font-size="22" font-weight="700" fill="#475569">0.2 ms</text>
+<text x="244.0" y="122.0" text-anchor="end" font-size="22" font-weight="700" fill="#0d9488">802.15.4</text>
+<text x="244.0" y="146.0" text-anchor="end" font-size="17" font-weight="400" fill="#475569">127 B at 250 kbps</text>
+<rect x="260.0" y="104.0" width="254.1" height="40.0" rx="6" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="526.1" y="132.0" text-anchor="start" font-size="22" font-weight="700" fill="#0d9488">4.3 ms</text>
+<text x="244.0" y="198.0" text-anchor="end" font-size="22" font-weight="700" fill="#475569">LoRaWAN SF12</text>
+<text x="244.0" y="222.0" text-anchor="end" font-size="17" font-weight="400" fill="#475569">51 B at ~250 bps</text>
+<rect x="260.0" y="180.0" width="693.5" height="40.0" rx="6" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="965.5" y="208.0" text-anchor="start" font-size="22" font-weight="700" fill="#475569">2.8 s</text>
+<line x1="260.0" y1="252.0" x2="1040.0" y2="252.0" stroke="#0f172a" stroke-width="2"/>
+<line x1="260.0" y1="14.0" x2="260.0" y2="252.0" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4"/>
+<line x1="260.0" y1="252.0" x2="260.0" y2="260.0" stroke="#0f172a" stroke-width="2"/>
+<text x="260.0" y="284.0" text-anchor="middle" font-size="18" font-weight="400" fill="#475569">0.1 ms</text>
+<line x1="416.0" y1="14.0" x2="416.0" y2="252.0" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4"/>
+<line x1="416.0" y1="252.0" x2="416.0" y2="260.0" stroke="#0f172a" stroke-width="2"/>
+<text x="416.0" y="284.0" text-anchor="middle" font-size="18" font-weight="400" fill="#475569">1 ms</text>
+<line x1="572.0" y1="14.0" x2="572.0" y2="252.0" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4"/>
+<line x1="572.0" y1="252.0" x2="572.0" y2="260.0" stroke="#0f172a" stroke-width="2"/>
+<text x="572.0" y="284.0" text-anchor="middle" font-size="18" font-weight="400" fill="#475569">10 ms</text>
+<line x1="728.0" y1="14.0" x2="728.0" y2="252.0" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4"/>
+<line x1="728.0" y1="252.0" x2="728.0" y2="260.0" stroke="#0f172a" stroke-width="2"/>
+<text x="728.0" y="284.0" text-anchor="middle" font-size="18" font-weight="400" fill="#475569">100 ms</text>
+<line x1="884.0" y1="14.0" x2="884.0" y2="252.0" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4"/>
+<line x1="884.0" y1="252.0" x2="884.0" y2="260.0" stroke="#0f172a" stroke-width="2"/>
+<text x="884.0" y="284.0" text-anchor="middle" font-size="18" font-weight="400" fill="#475569">1 s</text>
+<line x1="1040.0" y1="14.0" x2="1040.0" y2="252.0" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4"/>
+<line x1="1040.0" y1="252.0" x2="1040.0" y2="260.0" stroke="#0f172a" stroke-width="2"/>
+<text x="1040.0" y="284.0" text-anchor="middle" font-size="18" font-weight="400" fill="#475569">10 s</text>
+<text x="1040.0" y="314.0" text-anchor="end" font-size="18" font-weight="400" fill="#475569">time the transmitter is on, for one frame (log scale)</text>
+</svg>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 345" font-family="Inter, 'Segoe UI', 'DejaVu Sans', Arial, sans-serif">
+<defs><marker id="ar-ink" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0f172a"/></marker><marker id="ar-gray" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#475569"/></marker><marker id="ar-c1" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#ea580c"/></marker><marker id="ar-c2" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#2563eb"/></marker><marker id="ar-c3" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#16a34a"/></marker><marker id="ar-c4" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0d9488"/></marker><marker id="ar-c5" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#e11d48"/></marker><marker id="ar-c6" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#7c3aed"/></marker><marker id="ar-c7" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#d97706"/></marker><marker id="ar-c8" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#db2777"/></marker></defs>
+<rect x="430.0" y="150.0" width="220.0" height="70.0" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+<text x="540.0" y="193.7" text-anchor="middle" font-size="26" font-weight="700" fill="#d97706">OTBR</text>
+<rect x="20.0" y="40.0" width="380.0" height="290.0" rx="12" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="210.0" y="76.0" text-anchor="middle" font-size="23" font-weight="700" fill="#0d9488">Thread side</text>
+<text x="40.0" y="120.0" text-anchor="start" font-size="19" font-weight="700" fill="#0f172a">Network Data: the OMR prefix,</text>
+<text x="40.0" y="154.0" text-anchor="start" font-size="19" font-weight="400" fill="#0f172a">flags paros (SLAAC on)</text>
+<text x="40.0" y="188.0" text-anchor="start" font-size="19" font-weight="400" fill="#0f172a"></text>
+<text x="40.0" y="222.0" text-anchor="start" font-size="19" font-weight="700" fill="#0f172a">each node builds its own</text>
+<text x="40.0" y="256.0" text-anchor="start" font-size="19" font-weight="400" fill="#0f172a">OMR address from it (SLAAC)</text>
+<rect x="690.0" y="40.0" width="370.0" height="290.0" rx="12" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="875.0" y="76.0" text-anchor="middle" font-size="23" font-weight="700" fill="#475569">Wi-Fi side</text>
+<text x="710.0" y="120.0" text-anchor="start" font-size="19" font-weight="700" fill="#0f172a">Router Advertisement with a</text>
+<text x="710.0" y="154.0" text-anchor="start" font-size="19" font-weight="400" fill="#0f172a">Route Information Option</text>
+<text x="710.0" y="188.0" text-anchor="start" font-size="19" font-weight="400" fill="#0f172a">(RFC 4191)</text>
+<text x="710.0" y="222.0" text-anchor="start" font-size="19" font-weight="400" fill="#0f172a"></text>
+<text x="710.0" y="256.0" text-anchor="start" font-size="19" font-weight="700" fill="#0f172a">laptop: OMR prefix</text>
+<text x="710.0" y="290.0" text-anchor="start" font-size="19" font-weight="400" fill="#0f172a">via the OTBR</text>
+<line x1="425.0" y1="185.0" x2="405.0" y2="185.0" stroke="#0d9488" stroke-width="4" marker-end="url(#ar-c4)"/>
+<line x1="655.0" y1="185.0" x2="685.0" y2="185.0" stroke="#0f172a" stroke-width="4" marker-end="url(#ar-ink)"/>
+<text x="540.0" y="270.0" text-anchor="middle" font-size="20" font-weight="700" fill="#d97706">a router, not a proxy:</text>
+<text x="540.0" y="298.0" text-anchor="middle" font-size="19" font-weight="400" fill="#0f172a">it forwards IPv6 datagrams</text>
+</svg>

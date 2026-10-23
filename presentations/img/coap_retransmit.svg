@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 270" font-family="Inter, 'Segoe UI', 'DejaVu Sans', Arial, sans-serif">
+<defs><marker id="ar-ink" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0f172a"/></marker><marker id="ar-gray" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#475569"/></marker><marker id="ar-c1" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#ea580c"/></marker><marker id="ar-c2" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#2563eb"/></marker><marker id="ar-c3" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#16a34a"/></marker><marker id="ar-c4" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0d9488"/></marker><marker id="ar-c5" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#e11d48"/></marker><marker id="ar-c6" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#7c3aed"/></marker><marker id="ar-c7" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#d97706"/></marker><marker id="ar-c8" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#db2777"/></marker></defs>
+<line x1="60.0" y1="220.0" x2="1040.0" y2="220.0" stroke="#0f172a" stroke-width="2"/>
+<line x1="60.0" y1="220.0" x2="60.0" y2="228.0" stroke="#0f172a" stroke-width="2"/>
+<text x="60.0" y="252.0" text-anchor="middle" font-size="20" font-weight="400" fill="#475569">0 s</text>
+<line x1="158.0" y1="220.0" x2="158.0" y2="228.0" stroke="#0f172a" stroke-width="2"/>
+<text x="158.0" y="252.0" text-anchor="middle" font-size="20" font-weight="400" fill="#475569">10 s</text>
+<line x1="256.0" y1="220.0" x2="256.0" y2="228.0" stroke="#0f172a" stroke-width="2"/>
+<text x="256.0" y="252.0" text-anchor="middle" font-size="20" font-weight="400" fill="#475569">20 s</text>
+<line x1="354.0" y1="220.0" x2="354.0" y2="228.0" stroke="#0f172a" stroke-width="2"/>
+<text x="354.0" y="252.0" text-anchor="middle" font-size="20" font-weight="400" fill="#475569">30 s</text>
+<line x1="452.0" y1="220.0" x2="452.0" y2="228.0" stroke="#0f172a" stroke-width="2"/>
+<text x="452.0" y="252.0" text-anchor="middle" font-size="20" font-weight="400" fill="#475569">40 s</text>
+<line x1="550.0" y1="220.0" x2="550.0" y2="228.0" stroke="#0f172a" stroke-width="2"/>
+<text x="550.0" y="252.0" text-anchor="middle" font-size="20" font-weight="400" fill="#475569">50 s</text>
+<line x1="648.0" y1="220.0" x2="648.0" y2="228.0" stroke="#0f172a" stroke-width="2"/>
+<text x="648.0" y="252.0" text-anchor="middle" font-size="20" font-weight="400" fill="#475569">60 s</text>
+<line x1="746.0" y1="220.0" x2="746.0" y2="228.0" stroke="#0f172a" stroke-width="2"/>
+<text x="746.0" y="252.0" text-anchor="middle" font-size="20" font-weight="400" fill="#475569">70 s</text>
+<line x1="844.0" y1="220.0" x2="844.0" y2="228.0" stroke="#0f172a" stroke-width="2"/>
+<text x="844.0" y="252.0" text-anchor="middle" font-size="20" font-weight="400" fill="#475569">80 s</text>
+<line x1="942.0" y1="220.0" x2="942.0" y2="228.0" stroke="#0f172a" stroke-width="2"/>
+<text x="942.0" y="252.0" text-anchor="middle" font-size="20" font-weight="400" fill="#475569">90 s</text>
+<line x1="1040.0" y1="220.0" x2="1040.0" y2="228.0" stroke="#0f172a" stroke-width="2"/>
+<text x="1040.0" y="252.0" text-anchor="middle" font-size="20" font-weight="400" fill="#475569">100 s</text>
+<rect x="57.0" y="60.0" width="6.0" height="110.0" rx="4" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+<text x="57.0" y="32.0" text-anchor="start" font-size="20" font-weight="700" fill="#16a34a">send</text>
+<rect x="76.6" y="60.0" width="15.8" height="110.0" rx="4" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+<text x="84.5" y="50.0" text-anchor="middle" font-size="20" font-weight="700" fill="#16a34a">#1</text>
+<rect x="115.8" y="60.0" width="35.4" height="110.0" rx="4" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+<text x="133.5" y="50.0" text-anchor="middle" font-size="20" font-weight="700" fill="#16a34a">#2</text>
+<rect x="194.2" y="60.0" width="74.6" height="110.0" rx="4" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+<text x="231.5" y="50.0" text-anchor="middle" font-size="20" font-weight="700" fill="#16a34a">#3</text>
+<rect x="351.0" y="60.0" width="153.0" height="110.0" rx="4" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+<text x="427.5" y="50.0" text-anchor="middle" font-size="20" font-weight="700" fill="#16a34a">#4</text>
+<rect x="667.6" y="60.0" width="303.8" height="110.0" rx="4" fill="#ffe4e6" stroke="#e11d48" stroke-width="2"/>
+<text x="819.5" y="50.0" text-anchor="middle" font-size="20" font-weight="700" fill="#e11d48">give up</text>
+<text x="60.0" y="200.0" text-anchor="start" font-size="20" font-weight="400" fill="#475569">each wait is random in [1, 1.5] × its nominal value, and doubles</text>
+</svg>

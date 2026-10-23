@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 380" font-family="Inter, 'Segoe UI', 'DejaVu Sans', Arial, sans-serif">
+<defs><marker id="ar-ink" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0f172a"/></marker><marker id="ar-gray" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#475569"/></marker><marker id="ar-c1" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#ea580c"/></marker><marker id="ar-c2" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#2563eb"/></marker><marker id="ar-c3" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#16a34a"/></marker><marker id="ar-c4" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0d9488"/></marker><marker id="ar-c5" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#e11d48"/></marker><marker id="ar-c6" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#7c3aed"/></marker><marker id="ar-c7" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#d97706"/></marker><marker id="ar-c8" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#db2777"/></marker></defs>
+<rect x="20.0" y="20.0" width="470.0" height="300.0" rx="14" fill="#dbeafe" stroke="#2563eb" stroke-width="3"/>
+<text x="40.0" y="60.0" text-anchor="start" font-size="21" font-weight="700" fill="#2563eb">PED · Physical Entity Domain</text>
+<rect x="590.0" y="20.0" width="470.0" height="300.0" rx="14" fill="#fef3c7" stroke="#d97706" stroke-width="3"/>
+<text x="610.0" y="60.0" text-anchor="start" font-size="21" font-weight="700" fill="#d97706">SCD · Sensing &amp; Controlling Domain</text>
+<text x="40.0" y="115.0" text-anchor="start" font-size="21" font-weight="400" fill="#0f172a">· radio waves in the air</text>
+<text x="40.0" y="159.0" text-anchor="start" font-size="21" font-weight="400" fill="#0f172a">· Wi-Fi and microwave interference</text>
+<text x="40.0" y="203.0" text-anchor="start" font-size="21" font-weight="400" fill="#0f172a">· distance, walls, vegetation</text>
+<text x="610.0" y="115.0" text-anchor="start" font-size="21" font-weight="400" fill="#0f172a">· 802.15.4 radio</text>
+<text x="610.0" y="159.0" text-anchor="start" font-size="21" font-weight="400" fill="#0f172a">· ESP32-C6: MAC, OpenThread</text>
+<text x="610.0" y="203.0" text-anchor="start" font-size="21" font-weight="400" fill="#0f172a">· flash: the network dataset</text>
+<rect x="498.0" y="110.0" width="84.0" height="120.0" rx="8" fill="#ffffff" stroke="#0f172a" stroke-width="3"/>
+<text x="540.0" y="166.0" text-anchor="middle" font-size="16" font-weight="700" fill="#0f172a">antenna</text>
+<text x="540.0" y="196.0" text-anchor="middle" font-size="30" font-weight="700" fill="#0f172a">⇄</text>
+<text x="540.0" y="360.0" text-anchor="middle" font-size="21" font-weight="700" fill="#0f172a">the boundary: the antenna turns bits into waves and back</text>
+</svg>
