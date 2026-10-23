@@ -6,7 +6,7 @@
 .venv
 
 # build
-*/build*
+*/build*/
 /twister-out*
 
 __pycache__/
@@ -20,3 +20,9 @@ Rolando Herrero - Practical Internet of Things Networking_ Understanding IoT Lay
 
 # clangd / IDE
 .cache/
+
+# instructor keys: expected values and reference answers
+keys/
+
+# DTLS keys (Lab 8): secrets.conf.example is the template
+firmware/*/secrets.conf

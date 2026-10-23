@@ -1,0 +1,51 @@
+# The Lab 7 fleet dashboard: Mosquitto -> Telegraf -> InfluxDB -> Grafana.
+#   docker compose up -d        then open http://localhost:3000
+# The bridge (tools/coap_mqtt_bridge.py) publishes to this broker. If another
+# broker already holds port 1883, stop it or start with MQTT_PORT=1884.
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2.0.20
+    ports:
+      - "${MQTT_PORT:-1883}:1883"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+
+  influxdb:
+    image: influxdb:2.7.11
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: soilsense-admin
+      DOCKER_INFLUXDB_INIT_ORG: greenfield
+      DOCKER_INFLUXDB_INIT_BUCKET: soilsense
+      DOCKER_INFLUXDB_INIT_RETENTION: 30d
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: soilsense-lab-token
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb:/var/lib/influxdb2
+
+  telegraf:
+    image: telegraf:1.33.0
+    depends_on: [mosquitto, influxdb]
+    environment:
+      INFLUX_TOKEN: soilsense-lab-token
+    volumes:
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
+
+  grafana:
+    image: grafana/grafana:11.4.0
+    depends_on: [influxdb]
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: soilsense
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/soilsense-fleet.json
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+
+volumes:
+  influxdb:

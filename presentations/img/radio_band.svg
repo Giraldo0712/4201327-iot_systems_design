@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 330" font-family="Inter, 'Segoe UI', 'DejaVu Sans', Arial, sans-serif">
+<defs><marker id="ar-ink" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0f172a"/></marker><marker id="ar-gray" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#475569"/></marker><marker id="ar-c1" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#ea580c"/></marker><marker id="ar-c2" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#2563eb"/></marker><marker id="ar-c3" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#16a34a"/></marker><marker id="ar-c4" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0d9488"/></marker><marker id="ar-c5" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#e11d48"/></marker><marker id="ar-c6" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#7c3aed"/></marker><marker id="ar-c7" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#d97706"/></marker><marker id="ar-c8" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#db2777"/></marker></defs>
+<rect x="83.1" y="40.0" width="230.6" height="150.0" rx="6" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="198.4" y="70.0" text-anchor="middle" font-size="22" font-weight="700" fill="#475569">Wi-Fi 1</text>
+<text x="198.4" y="96.0" text-anchor="middle" font-size="17" font-weight="400" fill="#475569">20 MHz</text>
+<rect x="371.3" y="40.0" width="230.6" height="150.0" rx="6" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="486.6" y="70.0" text-anchor="middle" font-size="22" font-weight="700" fill="#475569">Wi-Fi 6</text>
+<text x="486.6" y="96.0" text-anchor="middle" font-size="17" font-weight="400" fill="#475569">20 MHz</text>
+<rect x="659.5" y="40.0" width="230.6" height="150.0" rx="6" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="774.8" y="70.0" text-anchor="middle" font-size="22" font-weight="700" fill="#475569">Wi-Fi 11</text>
+<text x="774.8" y="96.0" text-anchor="middle" font-size="17" font-weight="400" fill="#475569">20 MHz</text>
+<rect x="106.1" y="130.0" width="23.1" height="90.0" rx="2" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="117.6" y="248.0" text-anchor="middle" font-size="18" font-weight="700" fill="#0d9488">11</text>
+<rect x="163.8" y="130.0" width="23.1" height="90.0" rx="2" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="175.3" y="248.0" text-anchor="middle" font-size="18" font-weight="700" fill="#0d9488">12</text>
+<rect x="221.4" y="130.0" width="23.1" height="90.0" rx="2" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="232.9" y="248.0" text-anchor="middle" font-size="18" font-weight="700" fill="#0d9488">13</text>
+<rect x="279.1" y="130.0" width="23.1" height="90.0" rx="2" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="290.6" y="248.0" text-anchor="middle" font-size="18" font-weight="700" fill="#0d9488">14</text>
+<rect x="336.7" y="130.0" width="23.1" height="90.0" rx="2" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="348.2" y="248.0" text-anchor="middle" font-size="18" font-weight="700" fill="#0d9488">15</text>
+<rect x="394.4" y="130.0" width="23.1" height="90.0" rx="2" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="405.9" y="248.0" text-anchor="middle" font-size="18" font-weight="700" fill="#0d9488">16</text>
+<rect x="452.0" y="130.0" width="23.1" height="90.0" rx="2" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="463.5" y="248.0" text-anchor="middle" font-size="18" font-weight="700" fill="#0d9488">17</text>
+<rect x="509.6" y="130.0" width="23.1" height="90.0" rx="2" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="521.2" y="248.0" text-anchor="middle" font-size="18" font-weight="700" fill="#0d9488">18</text>
+<rect x="567.3" y="130.0" width="23.1" height="90.0" rx="2" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="578.8" y="248.0" text-anchor="middle" font-size="18" font-weight="700" fill="#0d9488">19</text>
+<rect x="624.9" y="130.0" width="23.1" height="90.0" rx="2" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="636.5" y="248.0" text-anchor="middle" font-size="18" font-weight="700" fill="#0d9488">20</text>
+<rect x="682.6" y="130.0" width="23.1" height="90.0" rx="2" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="694.1" y="248.0" text-anchor="middle" font-size="18" font-weight="700" fill="#0d9488">21</text>
+<rect x="740.2" y="130.0" width="23.1" height="90.0" rx="2" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="751.8" y="248.0" text-anchor="middle" font-size="18" font-weight="700" fill="#0d9488">22</text>
+<rect x="797.9" y="130.0" width="23.1" height="90.0" rx="2" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="809.4" y="248.0" text-anchor="middle" font-size="18" font-weight="700" fill="#0d9488">23</text>
+<rect x="855.5" y="130.0" width="23.1" height="90.0" rx="2" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="867.1" y="248.0" text-anchor="middle" font-size="18" font-weight="700" fill="#0d9488">24</text>
+<rect x="913.2" y="130.0" width="23.1" height="90.0" rx="2" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="924.7" y="248.0" text-anchor="middle" font-size="18" font-weight="700" fill="#0d9488">25</text>
+<rect x="970.8" y="130.0" width="23.1" height="90.0" rx="2" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="982.4" y="248.0" text-anchor="middle" font-size="18" font-weight="700" fill="#0d9488">26</text>
+<line x1="60.0" y1="220.0" x2="1040.0" y2="220.0" stroke="#0f172a" stroke-width="2"/>
+<line x1="60.0" y1="220.0" x2="60.0" y2="228.0" stroke="#0f172a" stroke-width="2"/>
+<text x="60.0" y="290.0" text-anchor="middle" font-size="17" font-weight="400" fill="#475569">2400</text>
+<line x1="290.6" y1="220.0" x2="290.6" y2="228.0" stroke="#0f172a" stroke-width="2"/>
+<text x="290.6" y="290.0" text-anchor="middle" font-size="17" font-weight="400" fill="#475569">2420</text>
+<line x1="521.2" y1="220.0" x2="521.2" y2="228.0" stroke="#0f172a" stroke-width="2"/>
+<text x="521.2" y="290.0" text-anchor="middle" font-size="17" font-weight="400" fill="#475569">2440</text>
+<line x1="751.8" y1="220.0" x2="751.8" y2="228.0" stroke="#0f172a" stroke-width="2"/>
+<text x="751.8" y="290.0" text-anchor="middle" font-size="17" font-weight="400" fill="#475569">2460</text>
+<line x1="982.4" y1="220.0" x2="982.4" y2="228.0" stroke="#0f172a" stroke-width="2"/>
+<text x="982.4" y="290.0" text-anchor="middle" font-size="17" font-weight="400" fill="#475569">2480</text>
+<text x="1040.0" y="316.0" text-anchor="end" font-size="17" font-weight="400" fill="#475569">MHz · 802.15.4 channel k is centred at 2405 + 5·(k − 11) MHz, 2 MHz wide</text>
+</svg>

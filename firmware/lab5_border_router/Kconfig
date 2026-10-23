@@ -1,0 +1,6 @@
+config LAB_AUTOSTART
+	bool "Rejoin the stored Thread network and Wi-Fi at boot (Lab 8)"
+	select WIFI_CREDENTIALS
+
+source "samples/net/common/Kconfig"
+source "Kconfig.zephyr"

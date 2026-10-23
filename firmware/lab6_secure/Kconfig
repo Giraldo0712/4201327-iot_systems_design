@@ -1,0 +1,18 @@
+# BMP280: measure on request and sleep in between, instead of sampling
+# continuously. Declared before Kconfig.zephyr so this default comes first.
+choice BME280_MODE
+	default BME280_MODE_FORCED
+endchoice
+
+config LAB_PSK
+	string "DTLS pre-shared key"
+	default "soilsense-lab-6"
+	help
+	  The key every client must hold. Hardcoded for the lab; Lab 8 moves it
+	  out of the repository.
+
+config LAB_PSK_ID
+	string "DTLS PSK identity"
+	default "soilsense-pilot"
+
+source "Kconfig.zephyr"

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 370" font-family="Inter, 'Segoe UI', 'DejaVu Sans', Arial, sans-serif">
+<defs><marker id="ar-ink" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0f172a"/></marker><marker id="ar-gray" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#475569"/></marker><marker id="ar-c1" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#ea580c"/></marker><marker id="ar-c2" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#2563eb"/></marker><marker id="ar-c3" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#16a34a"/></marker><marker id="ar-c4" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0d9488"/></marker><marker id="ar-c5" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#e11d48"/></marker><marker id="ar-c6" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#7c3aed"/></marker><marker id="ar-c7" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#d97706"/></marker><marker id="ar-c8" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#db2777"/></marker></defs>
+<rect x="260.0" y="40.0" width="380.0" height="280.0" rx="14" fill="#fef3c7" stroke="#d97706" stroke-width="3"/>
+<text x="450.0" y="78.0" text-anchor="middle" font-size="24" font-weight="700" fill="#d97706">ESP32-S3 host</text>
+<text x="290.0" y="120.0" text-anchor="start" font-size="20" font-weight="400" fill="#0f172a">· OpenThread Border Router</text>
+<text x="290.0" y="158.0" text-anchor="start" font-size="20" font-weight="400" fill="#0f172a">· IPv6 routing, NAT64</text>
+<text x="290.0" y="196.0" text-anchor="start" font-size="20" font-weight="400" fill="#0f172a">· Router Advertisements</text>
+<text x="290.0" y="234.0" text-anchor="start" font-size="20" font-weight="400" fill="#0f172a">· Wi-Fi driver</text>
+<text x="290.0" y="272.0" text-anchor="start" font-size="20" font-weight="400" fill="#0f172a">· the ot shell</text>
+<rect x="760.0" y="40.0" width="300.0" height="280.0" rx="14" fill="#ccfbf1" stroke="#0d9488" stroke-width="3"/>
+<text x="910.0" y="78.0" text-anchor="middle" font-size="24" font-weight="700" fill="#0d9488">ESP32-C6 RCP</text>
+<text x="790.0" y="120.0" text-anchor="start" font-size="20" font-weight="400" fill="#0f172a">· 802.15.4 PHY</text>
+<text x="790.0" y="158.0" text-anchor="start" font-size="20" font-weight="400" fill="#0f172a">· 802.15.4 MAC</text>
+<text x="790.0" y="196.0" text-anchor="start" font-size="20" font-weight="400" fill="#0f172a">· no IP stack</text>
+<text x="790.0" y="234.0" text-anchor="start" font-size="20" font-weight="400" fill="#0f172a">· no application</text>
+<line x1="645.0" y1="180.0" x2="755.0" y2="180.0" stroke="#0f172a" stroke-width="3" marker-end="url(#ar-ink)"/>
+<line x1="755.0" y1="200.0" x2="645.0" y2="200.0" stroke="#0f172a" stroke-width="3" marker-end="url(#ar-ink)"/>
+<text x="700.0" y="160.0" text-anchor="middle" font-size="18" font-weight="700" fill="#0f172a">UART</text>
+<text x="700.0" y="230.0" text-anchor="middle" font-size="18" font-weight="700" fill="#0f172a">Spinel</text>
+<text x="700.0" y="254.0" text-anchor="middle" font-size="16" font-weight="400" fill="#475569">460800</text>
+<rect x="20.0" y="150.0" width="160.0" height="60.0" rx="10" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="100.0" y="187.0" text-anchor="middle" font-size="21" font-weight="700" fill="#475569">Wi-Fi AP</text>
+<line x1="185.0" y1="180.0" x2="255.0" y2="180.0" stroke="#0f172a" stroke-width="3" marker-end="url(#ar-ink)"/>
+<text x="910.0" y="352.0" text-anchor="middle" font-size="19" font-weight="400" fill="#475569">to the mesh: 802.15.4 frames</text>
+<text x="100.0" y="240.0" text-anchor="middle" font-size="18" font-weight="400" fill="#475569">IPv6, IPv4</text>
+</svg>

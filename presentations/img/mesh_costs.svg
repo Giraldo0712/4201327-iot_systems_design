@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 370" font-family="Inter, 'Segoe UI', 'DejaVu Sans', Arial, sans-serif">
+<defs><marker id="ar-ink" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0f172a"/></marker><marker id="ar-gray" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#475569"/></marker><marker id="ar-c1" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#ea580c"/></marker><marker id="ar-c2" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#2563eb"/></marker><marker id="ar-c3" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#16a34a"/></marker><marker id="ar-c4" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0d9488"/></marker><marker id="ar-c5" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#e11d48"/></marker><marker id="ar-c6" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#7c3aed"/></marker><marker id="ar-c7" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#d97706"/></marker><marker id="ar-c8" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#db2777"/></marker></defs>
+<line x1="140.0" y1="300.0" x2="420.0" y2="80.0" stroke="#0d9488" stroke-width="6"/>
+<text x="250.0" y="180.0" text-anchor="end" font-size="20" font-weight="700" fill="#0d9488">LQ 3 · cost 1</text>
+<line x1="420.0" y1="80.0" x2="700.0" y2="300.0" stroke="#0d9488" stroke-width="6"/>
+<text x="590.0" y="180.0" text-anchor="start" font-size="20" font-weight="700" fill="#0d9488">LQ 3 · cost 1</text>
+<line x1="140.0" y1="300.0" x2="700.0" y2="300.0" stroke="#475569" stroke-width="3" stroke-dasharray="10 8"/>
+<text x="420.0" y="340.0" text-anchor="middle" font-size="20" font-weight="700" fill="#475569">LQ 1 · cost 4</text>
+<circle cx="140" cy="300" r="42" fill="#ccfbf1" stroke="#0d9488" stroke-width="3"/>
+<text x="140.0" y="310.0" text-anchor="middle" font-size="30" font-weight="700" fill="#0d9488">A</text>
+<circle cx="420" cy="80" r="42" fill="#ccfbf1" stroke="#0d9488" stroke-width="3"/>
+<text x="420.0" y="90.0" text-anchor="middle" font-size="30" font-weight="700" fill="#0d9488">B</text>
+<circle cx="700" cy="300" r="42" fill="#ccfbf1" stroke="#0d9488" stroke-width="3"/>
+<text x="700.0" y="310.0" text-anchor="middle" font-size="30" font-weight="700" fill="#0d9488">C</text>
+<text x="820.0" y="70.0" text-anchor="start" font-size="20" font-weight="700" fill="#0f172a">link margin → LQ → cost</text>
+<text x="820.0" y="110.0" text-anchor="start" font-size="19" font-weight="400" fill="#0f172a">&gt; 20 dB  →  LQ 3  →  1</text>
+<text x="820.0" y="144.0" text-anchor="start" font-size="19" font-weight="400" fill="#0f172a">&gt; 10 dB  →  LQ 2  →  2</text>
+<text x="820.0" y="178.0" text-anchor="start" font-size="19" font-weight="400" fill="#0f172a">&gt; 2 dB  →  LQ 1  →  4</text>
+<text x="820.0" y="212.0" text-anchor="start" font-size="19" font-weight="400" fill="#0f172a">less  →  LQ 0  →  no link</text>
+<text x="820.0" y="270.0" text-anchor="start" font-size="19" font-weight="700" fill="#0f172a">route cost = sum of links</text>
+<text x="820.0" y="300.0" text-anchor="start" font-size="19" font-weight="700" fill="#0d9488">A → B → C: 1 + 1 = 2</text>
+<text x="820.0" y="330.0" text-anchor="start" font-size="19" font-weight="400" fill="#475569">A → C direct: 4</text>
+</svg>

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 370" font-family="Inter, 'Segoe UI', 'DejaVu Sans', Arial, sans-serif">
+<defs><marker id="ar-ink" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0f172a"/></marker><marker id="ar-gray" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#475569"/></marker><marker id="ar-c1" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#ea580c"/></marker><marker id="ar-c2" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#2563eb"/></marker><marker id="ar-c3" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#16a34a"/></marker><marker id="ar-c4" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0d9488"/></marker><marker id="ar-c5" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#e11d48"/></marker><marker id="ar-c6" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#7c3aed"/></marker><marker id="ar-c7" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#d97706"/></marker><marker id="ar-c8" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#db2777"/></marker></defs>
+<text x="250.0" y="30.0" text-anchor="middle" font-size="20" font-weight="700" fill="#475569">64-bit prefix</text>
+<text x="700.0" y="30.0" text-anchor="middle" font-size="20" font-weight="700" fill="#475569">64-bit interface ID (IID)</text>
+<text x="20.0" y="86.0" text-anchor="start" font-size="22" font-weight="700" fill="#475569">link-local</text>
+<rect x="140.0" y="46.0" width="220.0" height="60.0" rx="6" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="250.0" y="84.0" text-anchor="middle" font-size="19" font-weight="400" fill="#0f172a">fe80:0:0:0</text>
+<rect x="370.0" y="46.0" width="660.0" height="60.0" rx="6" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="700.0" y="84.0" text-anchor="middle" font-size="19" font-weight="400" fill="#0f172a">built from the extended MAC address</text>
+<text x="700.0" y="132.0" text-anchor="middle" font-size="18" font-weight="700" fill="#475569">one radio hop</text>
+<text x="20.0" y="194.0" text-anchor="start" font-size="22" font-weight="700" fill="#0d9488">RLOC</text>
+<rect x="140.0" y="154.0" width="220.0" height="60.0" rx="6" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="250.0" y="192.0" text-anchor="middle" font-size="19" font-weight="400" fill="#0f172a">mesh-local prefix</text>
+<rect x="370.0" y="154.0" width="660.0" height="60.0" rx="6" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="700.0" y="192.0" text-anchor="middle" font-size="19" font-weight="400" fill="#0f172a">0:ff:fe00 : router ID (6 bits) + child ID</text>
+<text x="700.0" y="240.0" text-anchor="middle" font-size="18" font-weight="700" fill="#0d9488">where the node is attached</text>
+<text x="20.0" y="302.0" text-anchor="start" font-size="22" font-weight="700" fill="#0d9488">ML-EID</text>
+<rect x="140.0" y="262.0" width="220.0" height="60.0" rx="6" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="250.0" y="300.0" text-anchor="middle" font-size="19" font-weight="400" fill="#0f172a">mesh-local prefix</text>
+<rect x="370.0" y="262.0" width="660.0" height="60.0" rx="6" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="700.0" y="300.0" text-anchor="middle" font-size="19" font-weight="400" fill="#0f172a">random, chosen once</text>
+<text x="700.0" y="348.0" text-anchor="middle" font-size="18" font-weight="700" fill="#0d9488">who the node is</text>
+</svg>

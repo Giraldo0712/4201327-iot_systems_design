@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 216" font-family="Inter, 'Segoe UI', 'DejaVu Sans', Arial, sans-serif">
+<defs><marker id="ar-ink" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0f172a"/></marker><marker id="ar-gray" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#475569"/></marker><marker id="ar-c1" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#ea580c"/></marker><marker id="ar-c2" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#2563eb"/></marker><marker id="ar-c3" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#16a34a"/></marker><marker id="ar-c4" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0d9488"/></marker><marker id="ar-c5" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#e11d48"/></marker><marker id="ar-c6" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#7c3aed"/></marker><marker id="ar-c7" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#d97706"/></marker><marker id="ar-c8" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#db2777"/></marker></defs>
+<rect x="20.0" y="40.0" width="230.0" height="80.0" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+<text x="135.0" y="87.3" text-anchor="middle" font-size="22" font-weight="700" fill="#7c3aed">telemetry</text>
+<text x="135.0" y="152.0" text-anchor="middle" font-size="18" font-weight="400" fill="#0f172a">batt, rssi, up, hsfail</text>
+<line x1="252.0" y1="80.0" x2="288.0" y2="80.0" stroke="#0f172a" stroke-width="3" marker-end="url(#ar-ink)"/>
+<rect x="290.0" y="40.0" width="230.0" height="80.0" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+<text x="405.0" y="87.3" text-anchor="middle" font-size="22" font-weight="700" fill="#7c3aed">baseline</text>
+<text x="405.0" y="152.0" text-anchor="middle" font-size="18" font-weight="400" fill="#0f172a">normal for this node?</text>
+<line x1="522.0" y1="80.0" x2="558.0" y2="80.0" stroke="#0f172a" stroke-width="3" marker-end="url(#ar-ink)"/>
+<rect x="560.0" y="40.0" width="230.0" height="80.0" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+<text x="675.0" y="87.3" text-anchor="middle" font-size="22" font-weight="700" fill="#7c3aed">compare</text>
+<text x="675.0" y="152.0" text-anchor="middle" font-size="18" font-weight="400" fill="#0f172a">outside the band?</text>
+<line x1="792.0" y1="80.0" x2="828.0" y2="80.0" stroke="#0f172a" stroke-width="3" marker-end="url(#ar-ink)"/>
+<rect x="830.0" y="40.0" width="230.0" height="80.0" rx="10" fill="#ffe4e6" stroke="#e11d48" stroke-width="2"/>
+<text x="945.0" y="87.3" text-anchor="middle" font-size="22" font-weight="700" fill="#e11d48">alert</text>
+<text x="945.0" y="152.0" text-anchor="middle" font-size="18" font-weight="400" fill="#0f172a">a red light, a ticket</text>
+<text x="20.0" y="200.0" text-anchor="start" font-size="19" font-weight="400" fill="#475569">the lab's lights are fixed thresholds; a fleet compares each node with its own history</text>
+</svg>

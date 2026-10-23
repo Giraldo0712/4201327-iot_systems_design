@@ -1,0 +1,14 @@
+apiVersion: 1
+datasources:
+  - name: InfluxDB
+    uid: soilsense-influx
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    isDefault: true
+    jsonData:
+      version: Flux
+      organization: greenfield
+      defaultBucket: soilsense
+    secureJsonData:
+      token: soilsense-lab-token

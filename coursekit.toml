@@ -8,10 +8,10 @@ language = "en"
 accent = "#1d4ed8"
 
 [types]
-lab = ["en/labs/lab[0-9].md"]
-talk = ["en/presentations/*.md"]
-script = ["en/labs/lectures/lab[0-9]_lecture.md"]
-sop = ["en/labs/sops/sop[0-9][0-9]_*.md"]
+lab = ["labs/lab[0-9].md", "labs/lab0_*.md"]
+talk = ["presentations/*.md"]
+script = ["lectures/lab[0-9]_lecture.md"]
+sop = ["labs/sops/sop[0-9][0-9]_*.md"]
 
 [talk]
 minutes = 40
@@ -26,8 +26,17 @@ OMD = "c6"
 SCD = "c7"
 RAID = "c8"
 Trustworthiness = "c5"
+# 802.15.4, Thread and the mesh; other radios and protocols are drawn in gray.
+Thread = "c4"
 
 # Session number = "date · toolchain · hardware" of the last full run.
 [validated]
-3 = "2026-10-16 · Zephyr main v4.4.0-13939 · 2× ESP32-C6 (4 MB)"
+0 = "2026-10-23 · Zephyr main v4.4.0-13939 · ESP32-C6 Super Mini, HTTP and MQTT on Wi-Fi"
+1 = "2026-10-23 · Zephyr main v4.4.0-13939 · ESP32-C6 DevKitM-1 + Super Mini, desk only (no range walk)"
+2 = "2026-10-23 · Zephyr main v4.4.0-13939 · ESP32-C6 DevKitC + DevKitM-1 + Super Mini"
+3 = "2026-10-23 · Zephyr main v4.4.0-13939 · ESP32-C6 DevKitC + DevKitM-1 (Parts 3-5)"
 4 = "2026-10-16 · Zephyr main v4.4.0-13939 · 2× ESP32-C6 (4 MB), DHT22"
+5 = "2026-10-23 · Zephyr main v4.4.0-13939 · ESP32-S3 N16R8 + ESP32-C6 RCP, ESP32-C6 DevKitC + Super Mini + DevKitM"
+6 = "2026-10-23 · Zephyr main v4.4.0-13939 · ESP32-C6 DevKitC + DevKitM-1 behind the ESP32-S3 OTBR; DTLS from the shell and the laptop (Wi-Fi capture not run)"
+7 = "2026-10-23 · Zephyr main v4.4.0-13939 · ESP32-C6 DevKitC + DevKitM-1 + Super Mini behind the ESP32-S3 OTBR; Docker stack (Mosquitto 2.0.20, Telegraf 1.33.0, InfluxDB 2.7.11, Grafana 11.4.0); cloud broker not run"
+8 = "2026-10-23 · Zephyr main v4.4.0-13939 · ESP32-C6 DevKitC + DevKitM-1 + Super Mini behind the ESP32-S3 OTBR with autostart; rate limit, fail-safe, watchdog, e2e suite, wrong-key join; cold start, full drills and soak not run"

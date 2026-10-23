@@ -1,0 +1,14 @@
+/* DHT22 / AM2302 module (single-wire): VCC → 3V3, GND → GND, DAT → GPIO19.
+ * The module carries its own pull-up.
+ */
+/ {
+	aliases {
+		temp-sensor = &dht22;
+	};
+
+	dht22: dht22 {
+		compatible = "aosong,dht";
+		dio-gpios = <&gpio0 19 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+		dht22;
+	};
+};

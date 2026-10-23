@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 336" font-family="Inter, 'Segoe UI', 'DejaVu Sans', Arial, sans-serif">
+<defs><marker id="ar-ink" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0f172a"/></marker><marker id="ar-gray" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#475569"/></marker><marker id="ar-c1" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#ea580c"/></marker><marker id="ar-c2" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#2563eb"/></marker><marker id="ar-c3" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#16a34a"/></marker><marker id="ar-c4" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0d9488"/></marker><marker id="ar-c5" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#e11d48"/></marker><marker id="ar-c6" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#7c3aed"/></marker><marker id="ar-c7" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#d97706"/></marker><marker id="ar-c8" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#db2777"/></marker></defs>
+<text x="20.0" y="34.0" text-anchor="start" font-size="21" font-weight="700" fill="#475569">Labs 3–6: one node, one shell, inside the mesh</text>
+<rect x="20.0" y="50.0" width="150.0" height="56.0" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+<text x="95.0" y="84.7" text-anchor="middle" font-size="20" font-weight="700" fill="#d97706">node</text>
+<line x1="170.0" y1="78.0" x2="300.0" y2="78.0" stroke="#475569" stroke-width="3" marker-end="url(#ar-gray)"/>
+<rect x="300.0" y="50.0" width="170.0" height="56.0" rx="10" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="385.0" y="84.7" text-anchor="middle" font-size="20" font-weight="700" fill="#475569">your shell</text>
+<text x="20.0" y="160.0" text-anchor="start" font-size="21" font-weight="700" fill="#0f172a">Lab 7: the whole fleet, out of the mesh</text>
+<rect x="20.0" y="180.0" width="140.0" height="60.0" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+<text x="90.0" y="216.7" text-anchor="middle" font-size="20" font-weight="700" fill="#d97706">nodes</text>
+<line x1="160.0" y1="210.0" x2="195.0" y2="210.0" stroke="#0f172a" stroke-width="3" marker-end="url(#ar-ink)"/>
+<text x="177.0" y="268.0" text-anchor="middle" font-size="16" font-weight="400" fill="#475569">CoAPS · CBOR</text>
+<rect x="195.0" y="180.0" width="140.0" height="60.0" rx="10" fill="#fce7f3" stroke="#db2777" stroke-width="2"/>
+<text x="265.0" y="216.7" text-anchor="middle" font-size="20" font-weight="700" fill="#db2777">bridge</text>
+<line x1="335.0" y1="210.0" x2="370.0" y2="210.0" stroke="#0f172a" stroke-width="3" marker-end="url(#ar-ink)"/>
+<text x="352.0" y="268.0" text-anchor="middle" font-size="16" font-weight="400" fill="#475569">MQTT · JSON</text>
+<rect x="370.0" y="180.0" width="140.0" height="60.0" rx="10" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="440.0" y="216.7" text-anchor="middle" font-size="20" font-weight="700" fill="#475569">broker</text>
+<line x1="510.0" y1="210.0" x2="545.0" y2="210.0" stroke="#0f172a" stroke-width="3" marker-end="url(#ar-ink)"/>
+<text x="527.0" y="268.0" text-anchor="middle" font-size="16" font-weight="400" fill="#475569">subscribe</text>
+<rect x="545.0" y="180.0" width="140.0" height="60.0" rx="10" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="615.0" y="216.7" text-anchor="middle" font-size="20" font-weight="700" fill="#475569">Telegraf</text>
+<line x1="685.0" y1="210.0" x2="720.0" y2="210.0" stroke="#0f172a" stroke-width="3" marker-end="url(#ar-ink)"/>
+<text x="702.0" y="268.0" text-anchor="middle" font-size="16" font-weight="400" fill="#475569">points</text>
+<rect x="720.0" y="180.0" width="140.0" height="60.0" rx="10" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="790.0" y="216.7" text-anchor="middle" font-size="20" font-weight="700" fill="#475569">InfluxDB</text>
+<line x1="860.0" y1="210.0" x2="895.0" y2="210.0" stroke="#0f172a" stroke-width="3" marker-end="url(#ar-ink)"/>
+<text x="877.0" y="268.0" text-anchor="middle" font-size="16" font-weight="400" fill="#475569">Flux queries</text>
+<rect x="895.0" y="180.0" width="140.0" height="60.0" rx="10" fill="#ffedd5" stroke="#ea580c" stroke-width="2"/>
+<text x="965.0" y="216.7" text-anchor="middle" font-size="20" font-weight="700" fill="#ea580c">Grafana</text>
+<text x="20.0" y="320.0" text-anchor="start" font-size="19" font-weight="400" fill="#475569">the mesh speaks CoAP over IPv6; everything right of the bridge is ordinary IT</text>
+</svg>

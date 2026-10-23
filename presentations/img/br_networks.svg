@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 356" font-family="Inter, 'Segoe UI', 'DejaVu Sans', Arial, sans-serif">
+<defs><marker id="ar-ink" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0f172a"/></marker><marker id="ar-gray" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#475569"/></marker><marker id="ar-c1" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#ea580c"/></marker><marker id="ar-c2" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#2563eb"/></marker><marker id="ar-c3" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#16a34a"/></marker><marker id="ar-c4" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0d9488"/></marker><marker id="ar-c5" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#e11d48"/></marker><marker id="ar-c6" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#7c3aed"/></marker><marker id="ar-c7" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#d97706"/></marker><marker id="ar-c8" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#db2777"/></marker></defs>
+<rect x="20.0" y="40.0" width="245.0" height="260.0" rx="12" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="142.5" y="76.0" text-anchor="middle" font-size="24" font-weight="700" fill="#0d9488">Proximity</text>
+<text x="142.5" y="104.0" text-anchor="middle" font-size="19" font-weight="400" fill="#0f172a">Thread mesh</text>
+<rect x="280.0" y="40.0" width="245.0" height="260.0" rx="12" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="402.5" y="76.0" text-anchor="middle" font-size="24" font-weight="700" fill="#475569">Access</text>
+<text x="402.5" y="104.0" text-anchor="middle" font-size="19" font-weight="400" fill="#0f172a">Wi-Fi hotspot</text>
+<rect x="540.0" y="40.0" width="245.0" height="260.0" rx="12" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="662.5" y="76.0" text-anchor="middle" font-size="24" font-weight="700" fill="#475569">Services</text>
+<text x="662.5" y="104.0" text-anchor="middle" font-size="19" font-weight="400" fill="#0f172a">cloud or laptop</text>
+<rect x="800.0" y="40.0" width="245.0" height="260.0" rx="12" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="922.5" y="76.0" text-anchor="middle" font-size="24" font-weight="700" fill="#475569">User</text>
+<text x="922.5" y="104.0" text-anchor="middle" font-size="19" font-weight="400" fill="#0f172a">carrier network</text>
+<circle cx="60" cy="230" r="28" fill="#ffffff" stroke="#0d9488" stroke-width="3"/>
+<text x="60.0" y="238.0" text-anchor="middle" font-size="22" font-weight="700" fill="#0d9488">S</text>
+<circle cx="150" cy="230" r="28" fill="#ffffff" stroke="#0d9488" stroke-width="3"/>
+<text x="150.0" y="238.0" text-anchor="middle" font-size="22" font-weight="700" fill="#0d9488">C</text>
+<rect x="192.0" y="140.0" width="160.0" height="56.0" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+<text x="272.0" y="176.0" text-anchor="middle" font-size="24" font-weight="700" fill="#d97706">OTBR</text>
+<rect x="360.0" y="210.0" width="165.0" height="50.0" rx="10" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="442.5" y="241.3" text-anchor="middle" font-size="19" font-weight="700" fill="#475569">hotspot</text>
+<rect x="580.0" y="210.0" width="165.0" height="50.0" rx="10" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="662.5" y="241.3" text-anchor="middle" font-size="19" font-weight="700" fill="#475569">dashboard</text>
+<rect x="840.0" y="210.0" width="165.0" height="50.0" rx="10" fill="#ffedd5" stroke="#ea580c" stroke-width="2"/>
+<text x="922.5" y="241.3" text-anchor="middle" font-size="19" font-weight="700" fill="#ea580c">phone</text>
+<polyline points="80.0,204.0 200.0,175.0" fill="none" stroke="#0d9488" stroke-width="3" marker-end="url(#ar-c4)"/>
+<polyline points="352.0,168.0 440.0,168.0 440.0,204.0" fill="none" stroke="#0f172a" stroke-width="3" marker-end="url(#ar-ink)"/>
+<line x1="527.0" y1="235.0" x2="575.0" y2="235.0" stroke="#0f172a" stroke-width="3" marker-end="url(#ar-ink)"/>
+<line x1="747.0" y1="235.0" x2="835.0" y2="235.0" stroke="#0f172a" stroke-width="3" marker-end="url(#ar-ink)"/>
+<text x="540.0" y="340.0" text-anchor="middle" font-size="20" font-weight="400" fill="#475569">ISO/IEC 30141 Table A.4: one path from S to Daniela's phone crosses all four</text>
+</svg>

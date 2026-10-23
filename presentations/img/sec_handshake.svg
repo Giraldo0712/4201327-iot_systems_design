@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 612" font-family="Inter, 'Segoe UI', 'DejaVu Sans', Arial, sans-serif">
+<defs><marker id="ar-ink" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0f172a"/></marker><marker id="ar-gray" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#475569"/></marker><marker id="ar-c1" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#ea580c"/></marker><marker id="ar-c2" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#2563eb"/></marker><marker id="ar-c3" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#16a34a"/></marker><marker id="ar-c4" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0d9488"/></marker><marker id="ar-c5" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#e11d48"/></marker><marker id="ar-c6" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#7c3aed"/></marker><marker id="ar-c7" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#d97706"/></marker><marker id="ar-c8" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#db2777"/></marker></defs>
+<text x="200.0" y="34.0" text-anchor="middle" font-size="22" font-weight="700" fill="#0f172a">client</text>
+<text x="880.0" y="34.0" text-anchor="middle" font-size="22" font-weight="700" fill="#0f172a">S, UDP 5684</text>
+<line x1="200.0" y1="48.0" x2="200.0" y2="602.0" stroke="#cbd5e1" stroke-width="3"/>
+<line x1="880.0" y1="48.0" x2="880.0" y2="602.0" stroke="#cbd5e1" stroke-width="3"/>
+<line x1="200.0" y1="80.0" x2="872.0" y2="96.0" stroke="#0f172a" stroke-width="2" marker-end="url(#ar-ink)"/>
+<text x="540.0" y="74.0" text-anchor="middle" font-size="19" font-weight="700" fill="#0f172a">ClientHello</text>
+<line x1="880.0" y1="156.0" x2="208.0" y2="172.0" stroke="#0f172a" stroke-width="2" marker-end="url(#ar-ink)"/>
+<text x="540.0" y="150.0" text-anchor="middle" font-size="19" font-weight="700" fill="#0f172a">HelloVerifyRequest (cookie)</text>
+<text x="540.0" y="192.0" text-anchor="middle" font-size="17" font-weight="400" fill="#475569">the client proves it owns its address</text>
+<line x1="200.0" y1="232.0" x2="872.0" y2="248.0" stroke="#0f172a" stroke-width="2" marker-end="url(#ar-ink)"/>
+<text x="540.0" y="226.0" text-anchor="middle" font-size="19" font-weight="700" fill="#0f172a">ClientHello + cookie</text>
+<line x1="880.0" y1="308.0" x2="208.0" y2="324.0" stroke="#0f172a" stroke-width="2" marker-end="url(#ar-ink)"/>
+<text x="540.0" y="302.0" text-anchor="middle" font-size="19" font-weight="700" fill="#0f172a">ServerHello, ServerHelloDone</text>
+<line x1="200.0" y1="384.0" x2="872.0" y2="400.0" stroke="#e11d48" stroke-width="2" marker-end="url(#ar-c5)"/>
+<text x="540.0" y="378.0" text-anchor="middle" font-size="19" font-weight="700" fill="#e11d48">ClientKeyExchange (PSK identity), ChangeCipherSpec, Finished</text>
+<text x="540.0" y="420.0" text-anchor="middle" font-size="17" font-weight="400" fill="#475569">from here, encrypted</text>
+<line x1="880.0" y1="460.0" x2="208.0" y2="476.0" stroke="#e11d48" stroke-width="2" marker-end="url(#ar-c5)"/>
+<text x="540.0" y="454.0" text-anchor="middle" font-size="19" font-weight="700" fill="#e11d48">ChangeCipherSpec, Finished</text>
+<line x1="200.0" y1="536.0" x2="872.0" y2="552.0" stroke="#16a34a" stroke-width="2" marker-end="url(#ar-c3)"/>
+<text x="540.0" y="530.0" text-anchor="middle" font-size="19" font-weight="700" fill="#16a34a">CoAP GET /env/temp, as application data</text>
+</svg>

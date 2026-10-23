@@ -1,0 +1,38 @@
+/* Spinel link to the ESP32-C6 RCP, crossed: S3 GPIO5 (TX) -> C6 GPIO4 (RX),
+ * S3 GPIO4 (RX) <- C6 GPIO5 (TX), plus GND.
+ */
+/ {
+	chosen {
+		zephyr,hdlc-rcp-if = &hdlc_rcp_if;
+		zephyr,ot-uart = &uart1;
+	};
+
+	hdlc_rcp_if: hdlc_rcp_if {
+		compatible = "uart,hdlc-rcp-if";
+	};
+};
+
+&pinctrl {
+	uart1_rcp: uart1_rcp {
+		group1 {
+			pinmux = <UART1_TX_GPIO5>;
+			output-high;
+		};
+
+		group2 {
+			pinmux = <UART1_RX_GPIO4>;
+			bias-pull-up;
+		};
+	};
+};
+
+&uart1 {
+	status = "okay";
+	current-speed = <460800>;
+	pinctrl-0 = <&uart1_rcp>;
+	pinctrl-names = "default";
+};
+
+&psram0 {
+	size = <DT_SIZE_M(8)>;
+};
