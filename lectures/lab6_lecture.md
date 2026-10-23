@@ -6,9 +6,9 @@
 
 **Pairs with**: [lab6.md](../labs/lab6.md)
 
-**Follows**: [Lab 5 Lecture](lab5_lecture.md) — students have `/env/temp` and `/act/valve` reachable from outside the mesh through the OTBR, and have seen the forward hook: "anyone who knows the global address can read the sensor and command the valve."
+**Follows**: [the session-5 deck](../presentations/05_border_router.md) — students have `/env/temp` and `/act/valve` reachable from outside the mesh through the OTBR, and have seen the forward hook: "anyone who knows the global address can read the sensor and command the valve."
 
-**Builds on**: [Lab 3 Lecture](lab3_lecture.md) — students know the CoAP method semantics (GET/PUT/POST), CON reliability, and that `/act/valve` is the safety-critical resource; [Lab 4 Lecture](lab4_lecture.md) — they have met the Trustworthiness viewpoint and audited availability, integrity against faults, reliability and resilience.
+**Builds on**: [the session-3 deck](../presentations/03_coap.md) — students know the CoAP method semantics (GET/PUT/POST), CON reliability, and that `/act/valve` is the safety-critical resource; [the session-4 deck](../presentations/04_sensors.md) — they have met the Trustworthiness viewpoint and audited availability, integrity against faults, reliability and resilience.
 
 ---
 

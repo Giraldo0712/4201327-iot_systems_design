@@ -198,8 +198,9 @@ Pinging synthesized IPv6 address: fdab:819c:92ef:2:0:0:808:808
 the network offers one. The NAT table maps (IPv6 source, port) to (IPv4 source, port),
 like a home router's NAT plus a protocol conversion. Ask which hop they expect to
 dominate the round trip; Task E measures it. Why NAT64 at all when Thread is IPv6 is
-DDR question 2. Reverse direction, for the curious: an IPv4-only phone can't reach
-an IPv6-only sensor without 464XLAT or a proxy.
+DDR question 2. Reverse direction: an IPv4-only phone can't reach an IPv6-only sensor
+without 464XLAT or a proxy, which is why most IoT clouds put an HTTP or MQTT broker on
+the access side. Lab 7 comes back to it.
 -->
 
 ---

@@ -8,7 +8,7 @@
 
 **Follows**: [Lab 6 Lecture](lab6_lecture.md) — students have DTLS securing the channel, and they were promised that **pillar 3 (fleet anomaly-detection) becomes real in the dashboard labs that follow.** This is that lab.
 
-**Builds on**: [Lab 5 Lecture](lab5_lecture.md) — students have the OTBR bridging the mesh to the internet, proved NAT64 reaches the IPv4 internet, and were told *"most IoT cloud architectures put a real HTTP/MQTT broker on the access side instead of trying to make end-to-end IPv6 work — a topic we'll come back to in Lab 7."* Today we come back to it.
+**Builds on**: [the session-5 deck](../presentations/05_border_router.md) — students have the OTBR bridging the mesh to the internet, proved NAT64 reaches the IPv4 internet, and were told *"most IoT cloud architectures put a real HTTP/MQTT broker on the access side instead of trying to make end-to-end IPv6 work — a topic we'll come back to in Lab 7."* Today we come back to it.
 
 ---
 
@@ -255,7 +255,7 @@ The first is the **local-first vs observability** tension: the *mesh* is still l
 - [lab7.md](../labs/lab7.md) — the hands-on guide for today.
 - [SOP-07: Telemetry, the Dashboard & the CoAP→MQTT Bridge](../labs/sops/sop07_telemetry.md) — the firmware signals (Part A), extending the dashboard (Part B), the bridge + Mosquitto (Part C), AWS IoT Core stretch (Part D).
 - [tools/dashboard_coap.py](../tools/dashboard_coap.py) — the local-CLI dashboard you extend. [tools/dashboard_mqtt.py](../tools/dashboard_mqtt.py) — the MQTT subscriber from Lab 0.5 you reuse.
-- [Lab 5 Lecture](lab5_lecture.md) — the OTBR, NAT64, and the "broker on the access side" forward hook. [Lab 6 Lecture](lab6_lecture.md) — the three pillars and the §9 audit gap this lab closes.
+- [the session-5 deck](../presentations/05_border_router.md) — the OTBR, NAT64, and the "broker on the access side" forward hook. [Lab 6 Lecture](lab6_lecture.md) — the three pillars and the §9 audit gap this lab closes.
 - ISO/IEC 30141:2024 — the **Usage viewpoint** (roles & lifecycle); **Figure A.5** (RAID, the interchange subsystem); **Table A.3** (the IoT-gateway functions, incl. *data processing* and *information fusion*).
 - RFC 7641 — CoAP Observe (the push mechanism the bridge subscribes to).
 - [Eclipse Mosquitto](https://mosquitto.org/) — the local broker. MQTT v5 / paho-mqtt 2.x docs.
