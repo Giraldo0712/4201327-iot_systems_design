@@ -107,7 +107,7 @@ def handle_payload(payload: bytes, code: str = "2.05"):
 
     text = payload.decode("ascii", errors="replace")
     with state_lock:
-        latest_sensor_data = {"error": f"{code} {text}"}
+        latest_sensor_data = {"error": f"{code} {text}".strip()}
     print(f"[CoAP] {code} with payload {payload.hex()} ({text!r})")
 
 
@@ -152,15 +152,16 @@ class SerialSource:
         while True:
             chunk = self.ser.read(512).decode(errors="ignore")
             if chunk:
-                buf += PROMPT_RE.sub("", ANSI_RE.sub("", chunk))
+                # Split before stripping: an escape sequence can straddle two reads.
+                buf += chunk
                 *lines, buf = buf.split("\n")
                 for line in lines:
-                    m = RESPONSE_RE.search(line)
+                    m = RESPONSE_RE.search(PROMPT_RE.sub("", ANSI_RE.sub("", line)))
                     if m:
                         self.last_rx = time.time()
-                        handle_payload(bytes.fromhex(m.group(2)))
+                        handle_payload(bytes.fromhex(m.group(2)), code="")
                     elif "ResponseTimeout" in line:
-                        print(f"[CoAP] {line.strip()}")
+                        print(f"[CoAP] {PROMPT_RE.sub('', ANSI_RE.sub('', line)).strip()}")
             if time.time() - self.last_rx > OBSERVE_RENEW_S:
                 print("[CoAP] No notification for a while: registering again")
                 self.observe()
