@@ -551,11 +551,19 @@ RAID: OAuth login, API for third-party apps (MyFitnessPal, Strava)
 
 **Viewpoint Analysis**:
 
-*Foundational*: "The Fitbit system is a wearable health monitoring platform. Characteristics: (1) Autonomy - automatically detects activities without user input; (2) Shareability - data shared across multiple apps via API; (3) Accuracy - calibrated sensors for reliable health metrics."
+*Foundational*: "The Fitbit system is a wearable health monitoring platform. Characteristics:
+
+1. Autonomy: automatically detects activities without user input.
+2. Shareability: data shared across multiple apps via API.
+3. Accuracy: calibrated sensors for reliable health metrics."
 
 *Functional*: "Data flow: PED (user's heartbeat) → SCD (heart rate sensor) → BLE → Mobile app (ASD local processing) → Cloud (ASD analytics) → UD (app displays heart rate graph). Commands flow reverse: UD (user sets alarm) → Cloud (ASD) → BLE → SCD (device vibrates)."
 
-*Usage*: "Primary user role: Health-conscious individual. Workflow: (1) Morning: User checks sleep score on app (UD query to ASD); (2) During exercise: Device records heart rate (SCD to ASD); (3) Post-workout: User reviews workout summary, shares to social media (UD to RAID to external system)."
+*Usage*: "Primary user role: Health-conscious individual. Workflow:
+
+1. Morning: user checks sleep score on app (UD query to ASD).
+2. During exercise: device records heart rate (SCD to ASD).
+3. Post-workout: user reviews workout summary, shares to social media (UD to RAID to external system)."
 
 **Submission**: 1-2 pages with diagram + three viewpoint analyses (300-400 words total)
 

@@ -8,7 +8,7 @@
 
 ---
 
-## 📌 TL;DR (Quick Summary)
+## At a glance
 
 **Your role**: You're a Junior IoT Systems Engineer at GreenField Technologies (a fictional startup)
 
@@ -140,7 +140,7 @@ As your project progresses, you'll need to consider different perspectives from 
 
 ### Phase 1: Feasibility & Prototyping (Labs 1-2)
 
-**In plain English**: Does the hardware actually work for farms? How far can devices talk to each other?
+**The question**: Does the hardware actually work for farms? How far can devices talk to each other?
 
 **Context**: The hardware team selected ESP32-C6. You need to validate it works in real farm environments.
 
@@ -164,7 +164,7 @@ As your project progresses, you'll need to consider different perspectives from 
 
 ### Phase 2: Network Architecture (Labs 3-4)
 
-**In plain English**: How do devices talk to each other and send data efficiently?
+**The question**: How do devices talk to each other and send data efficiently?
 
 **Context**: Hardware is validated. Now design the mesh network topology and application protocol.
 
@@ -193,7 +193,7 @@ As your project progresses, you'll need to consider different perspectives from 
 
 ### Phase 3: Integration & Security (Labs 5-6)
 
-**In plain English**: Connecting your sensor network to the Internet and making it secure
+**The question**: Connecting your sensor network to the Internet and making it secure
 
 **Context**: Pilot customer identified. Need cloud integration and data protection before field deployment.
 
@@ -223,7 +223,7 @@ As your project progresses, you'll need to consider different perspectives from 
 
 ### Phase 4: Deployment Readiness (Labs 7-8)
 
-**In plain English**: Putting it all together—does the complete system work?
+**The question**: Putting it all together—does the complete system work?
 
 **Context**: Pilot deployment scheduled in 4 weeks. Final integration and validation required.
 
