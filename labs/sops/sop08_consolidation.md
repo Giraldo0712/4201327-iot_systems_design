@@ -249,7 +249,7 @@ Keep the printed report — the success ratio and latency stats are a named deli
 
 Lab 6 left pillar 2 (*signed code*) as a preview; Lab 7 built the egress path and promised "watching becomes acting." Close the loop:
 
-1. Follow [SOP-06 Part B](sop06_security_ota.md#part-b-secure-ota-updates-optional-stretch--not-graded) for MCUboot + `imgtool` signing, bumping `PROJECT_VER` to `1.1.0`.
+1. Follow [SOP-06 Part B](sop06_security.md) for MCUboot + `imgtool` signing, bumping `PROJECT_VER` to `1.1.0`.
 2. Serve the signed image with [`tools/ota_server.py`](../../tools/ota_server.py).
 3. Make it *managed*: publish the announcement on the broker — `mosquitto_pub -t soilsense/fleet/ota -m '{"version":"1.1.0","url":"https://<host>:8070/v1.1.0.bin"}'` — and trigger `perform_ota()` on the node from it (or by hand, documenting where the subscriber would live).
 4. Watch the Lab 7 dashboard report the new version string and an uptime reset — the update went *down* the same path the telemetry comes *up*.

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 360" font-family="Inter, 'Segoe UI', 'DejaVu Sans', Arial, sans-serif">
+<defs><marker id="ar-ink" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0f172a"/></marker><marker id="ar-gray" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#475569"/></marker><marker id="ar-c1" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#ea580c"/></marker><marker id="ar-c2" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#2563eb"/></marker><marker id="ar-c3" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#16a34a"/></marker><marker id="ar-c4" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#0d9488"/></marker><marker id="ar-c5" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#e11d48"/></marker><marker id="ar-c6" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#7c3aed"/></marker><marker id="ar-c7" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#d97706"/></marker><marker id="ar-c8" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#db2777"/></marker></defs>
+<rect x="20.0" y="150.0" width="170.0" height="64.0" rx="10" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="105.0" y="189.3" text-anchor="middle" font-size="22" font-weight="700" fill="#475569">laptop</text>
+<rect x="400.0" y="150.0" width="170.0" height="64.0" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+<text x="485.0" y="189.3" text-anchor="middle" font-size="22" font-weight="700" fill="#d97706">OTBR</text>
+<rect x="790.0" y="150.0" width="120.0" height="64.0" rx="10" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="850.0" y="188.7" text-anchor="middle" font-size="20" font-weight="700" fill="#0d9488">router</text>
+<rect x="950.0" y="150.0" width="110.0" height="64.0" rx="10" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="1005.0" y="190.0" text-anchor="middle" font-size="24" font-weight="700" fill="#0d9488">S</text>
+<line x1="190.0" y1="182.0" x2="400.0" y2="182.0" stroke="#0f172a" stroke-width="3"/>
+<text x="295.0" y="140.0" text-anchor="middle" font-size="20" font-weight="700" fill="#475569">Wi-Fi</text>
+<line x1="570.0" y1="182.0" x2="790.0" y2="182.0" stroke="#0d9488" stroke-width="3"/>
+<line x1="910.0" y1="182.0" x2="950.0" y2="182.0" stroke="#0d9488" stroke-width="3"/>
+<text x="680.0" y="140.0" text-anchor="middle" font-size="20" font-weight="700" fill="#0d9488">Thread mesh</text>
+<rect x="570.0" y="240.0" width="490.0" height="40.0" rx="8" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="815.0" y="267.0" text-anchor="middle" font-size="19" font-weight="700" fill="#0d9488">Thread network key: each mesh hop</text>
+<rect x="20.0" y="300.0" width="1040.0" height="40.0" rx="8" fill="#ffe4e6" stroke="#e11d48" stroke-width="2"/>
+<text x="540.0" y="327.0" text-anchor="middle" font-size="19" font-weight="700" fill="#e11d48">DTLS session: laptop to S, end to end, through the OTBR</text>
+<rect x="20.0" y="60.0" width="380.0" height="40.0" rx="8" fill="#ffffff" stroke="#e11d48" stroke-width="2" stroke-dasharray="8 6"/>
+<text x="210.0" y="87.0" text-anchor="middle" font-size="19" font-weight="700" fill="#e11d48">no Thread key here</text>
+</svg>

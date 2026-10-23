@@ -63,14 +63,14 @@ One session per lab: a talk, then the lab (2–3 h). Per-lab readings are in
 | 3 | [deck](presentations/03_coap.md) | [CoAP: reading sensors, commanding valves](labs/lab3.md) | [SOP-03](labs/sops/sop03_coap.md) | ADR-003/004; the API contracts |
 | 4 | [deck](presentations/04_sensors.md) | [Real sensors: can you trust the reading?](labs/lab4.md) | [SOP-04](labs/sops/sop04_sensors.md) | Trustworthiness audit, first pass |
 | 5 | [deck](presentations/05_border_router.md) | [Border Router: the mesh meets the Internet](labs/lab5.md) | [SOP-05](labs/sops/sop05_border_router.md) | ADR-005; the four-network walk |
-| 6 | [script](lectures/lab6_lecture.md) | [Security and OTA](labs/lab6.md) | [SOP-06](labs/sops/sop06_security_ota.md) | Threat model; trustworthiness audit, second pass |
+| 6 | [deck](presentations/06_security.md) | [A lock on the bytes: DTLS](labs/lab6.md) | [SOP-06](labs/sops/sop06_security.md) | ADR-006; STRIDE; trustworthiness audit, second pass |
 | 7 | [script](lectures/lab7_lecture.md) | [Dashboard and telemetry](labs/lab7.md) | [SOP-07](labs/sops/sop07_telemetry.md) | The User domain |
 | 8 | [script](lectures/lab8_lecture.md) | [Integration](labs/lab8.md) | [SOP-08](labs/sops/sop08_consolidation.md) | All six domains; the IoT system pattern |
 | — | — | [Final project: the pitch](docs/final_project.md) | — | The Business viewpoint |
 
 Pairs for Labs 1–6; two pairs merge into teams of four for Labs 7–8.
 
-> **Migration in progress.** Setup, Lab 0 and Labs 1–5 run on Zephyr. Labs 6–8 still
+> **Migration in progress.** Setup, Lab 0 and Labs 1–6 run on Zephyr. Labs 7–8 still
 > document ESP-IDF v5.1+ while they are ported; each says which framework it expects.
 
 ## Assessment

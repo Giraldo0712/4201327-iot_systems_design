@@ -139,7 +139,7 @@ Fill the measurements table from your own runs:
 
 ### Stretch (extra credit, not required) — Pillar 2: the managed signed OTA
 
-[Lab 6](lab6.md) previewed *signed code* (pillar 2); [Lab 7](lab7.md) built the egress path and promised that "watching becomes acting." Close the loop: sign a v1.1.0 image (MCUboot + `imgtool`, [SOP-06 Part B](sops/sop06_security_ota.md#part-b-secure-ota-updates-optional-stretch--not-graded)), serve it with [`tools/ota_server.py`](../tools/ota_server.py), announce it over the broker, and watch the Lab 7 dashboard report the new version — a *managed* update pushed down the same path the telemetry comes up ([SOP-08 Part E](sops/sop08_consolidation.md#part-e-optional-stretch--pillar-2-the-managed-signed-ota)).
+[Lab 6](lab6.md) previewed *signed code* (pillar 2); [Lab 7](lab7.md) built the egress path and promised that "watching becomes acting." Close the loop: sign a v1.1.0 image (MCUboot + `imgtool`, [SOP-06 Part B](sops/sop06_security.md)), serve it with [`tools/ota_server.py`](../tools/ota_server.py), announce it over the broker, and watch the Lab 7 dashboard report the new version — a *managed* update pushed down the same path the telemetry comes up ([SOP-08 Part E](sops/sop08_consolidation.md#part-e-optional-stretch--pillar-2-the-managed-signed-ota)).
 
 ---
 
